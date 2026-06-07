@@ -390,7 +390,7 @@ function cmds.argslist:closeAnim( secondary )
 end
 -------------
 
-cmds.refresh()
+-- 初始化由 UCLChanged 钩子触发，避免在认证前调用 query 导致错误
 hook.Add( "UCLChanged", "xgui_RefreshPlayerCmds", cmds.refresh )
 hook.Add( "ULibPlayerNameChanged", "xgui_plyUpdateCmds", cmds.playerNameChanged )
 

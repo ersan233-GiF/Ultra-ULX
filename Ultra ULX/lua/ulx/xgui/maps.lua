@@ -156,7 +156,7 @@ function maps.updateButtonStates()
 	end
 end
 
-maps.updateVoteMaps()
+-- 初始化由 votemaps.process 钩子触发，避免在认证前调用 query 导致错误
 
 function maps.ConVarUpdated( sv_cvar, cl_cvar, ply, old_val, new_val )
 	if cl_cvar == "ulx_votemapenabled" then

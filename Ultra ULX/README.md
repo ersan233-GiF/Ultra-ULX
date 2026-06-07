@@ -8,10 +8,13 @@
 
 ## 快速开始
 
-1. 将 `Ultra ULX` 放入 `garrysmod/addons/`
-2. 重启服务器（不能只换图）
-3. 服务端控制台：`ulx adduser <你的SteamID> superadmin`
-4. 游戏中按 `!menu` 打开管理面板
+> ⚠️ **重要**：Ultra ULX 已内置 ULib，**安装前请先删除** `garrysmod/addons/ulx` 和 `garrysmod/addons/ulib`，否则会导致冲突和认证错误！
+
+1. 删除旧的 ULX/ULib 插件（如已安装）
+2. 将 `Ultra ULX` 放入 `garrysmod/addons/`
+3. 重启服务器（不能只换图）
+4. 服务端控制台：`ulx adduser <你的SteamID> superadmin`
+5. 游戏中按 `!menu` 打开管理面板
 
 ---
 

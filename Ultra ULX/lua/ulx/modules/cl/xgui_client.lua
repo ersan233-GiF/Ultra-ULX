@@ -221,6 +221,9 @@ function xgui.checkModuleExists( modulename, moduletable )
 end
 
 function xgui.processModules()
+	-- 等待 UCL 认证数据到达后再处理模块，避免 query() 报错
+	if not game.SinglePlayer() and not ULib.ucl.authed[LocalPlayer():UniqueID()] then return end
+
 	-- Update display names for language changes
 	for _, m in ipairs( xgui.modules.tab ) do
 		m.displayName = ULib.ulx_lang.T( "tab_" .. m.name )
