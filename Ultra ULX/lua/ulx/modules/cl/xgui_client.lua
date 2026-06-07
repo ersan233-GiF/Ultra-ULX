@@ -197,6 +197,11 @@ function xgui.init( ply )
 end
 hook.Add( ULib.HOOK_LOCALPLAYERREADY, "InitXGUI", xgui.init, HOOK_MONITOR_LOW )
 
+-- UCL 认证数据到达后重新处理模块权限
+hook.Add( "UCLChanged", "xgui_processModulesOnAuth", function()
+	if xgui.initialized then xgui.processModules() end
+end )
+
 function xgui.saveClientSettings()
 	if not ULib.fileIsDir( "data/ulx" ) then
 		ULib.fileCreateDir( "data/ulx" )

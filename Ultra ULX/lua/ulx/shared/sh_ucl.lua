@@ -50,7 +50,10 @@ function ucl.query( ply, access, hide )
 		unique_id = "1" -- Fix garry's bug
 	end
 
-	if not ucl.authed[ unique_id ] then return error( "[ULIB] Unauthed player" ) end -- Sanity check
+	if not ucl.authed[ unique_id ] then
+		if CLIENT then return false end -- 客户端尚未收到认证数据，安全拒绝
+		return error( "[ULIB] Unauthed player" )
+	end -- Sanity check
 	local playerInfo = ucl.authed[ unique_id ]
 
 	-- First check the player's info
