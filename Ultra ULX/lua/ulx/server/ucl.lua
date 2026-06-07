@@ -1520,6 +1520,14 @@ local function sendUCLDataToClient( ply )
 end
 hook.Add( ULib.HOOK_LOCALPLAYERREADY, "ULibSendUCLDataToClient", sendUCLDataToClient, HOOK_MONITOR_HIGH )
 
+-- 客户端就绪时通过 ulib_cl_ready 触发 HOOK_LOCALPLAYERREADY
+local function clReady( ply )
+	if ply.ulib_ready then return end
+	ply.ulib_ready = true
+	hook.Call( ULib.HOOK_LOCALPLAYERREADY, _, ply )
+end
+concommand.Add( "ulib_cl_ready", clReady )
+
 local function playerDisconnected( ply )
 	-- We want to perform these actions after everything else has processed through, but we need high priority hook to ensure we don't get sniped.
 	local uid = ply:UniqueID()
