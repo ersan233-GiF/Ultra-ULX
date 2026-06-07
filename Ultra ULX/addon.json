@@ -1,0 +1,15 @@
+{
+	"title"		:	"Ultra ULX",
+	"type"		:	"ServerContent",
+	"tags"		:	[ "fun", "build", "admin" ],
+	"ignore"	:
+	[
+		"addon.txt",
+		".editorconfig",
+		".git*",
+		"ulx.build",
+		"README.md",
+		"CHANGELOG.md",
+		"LICENSE.md"
+	]
+}
