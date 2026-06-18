@@ -102,31 +102,23 @@ end
 groups.lblPlayersIn = xlib.makelabel{ x=5, y=5, label=xgui.T("groups_players_in"), parent=groups.pnlG1 }
 
 local function _createPlayersList()
-	local panel = xlib.makepanel{ x=5, y=20, w=160, h=190, parent=groups.pnlG1 }
-	local scroll = xlib.makescrollpanel{ w=160, h=190, spacing=1, parent=panel }
+	local listview = xlib.makelistview{ x=5, y=20, w=160, h=190, parent=groups.pnlG1 }
+	listview:SetMultiSelect( false )
+	listview:AddColumn( xgui.T("ui_player_name") )
 
-	function panel:getCheckedPlayers()
-		local plys = {}
-		for _, row in ipairs( scroll:GetChildren() ) do
-			local cb = row:GetChildren()[1]
-			if cb and cb.GetChecked and cb:GetChecked() and cb.ply and cb.ply:IsValid() then
-				table.insert( plys, cb.ply )
-			end
-		end
-		return plys
+	function listview:getCheckedPlayers()
+		local sel = self:GetSelected()
+		if #sel > 0 and sel[1].ply and sel[1].ply:IsValid() then return { sel[1].ply } end
+		return {}
 	end
 
-	function panel:_hasAnyChecked()
-		for _, row in ipairs( scroll:GetChildren() ) do
-			local cb = row:GetChildren()[1]
-			if cb and cb.GetChecked and cb:GetChecked() then return true end
-		end
-		return false
+	listview.OnRowSelected = function( self, lineID, line )
+		groups.cplayer:SetDisabled( false )
 	end
 
-	return panel, scroll
+	return listview
 end
-groups.players, groups.playersScroll = _createPlayersList()
+groups.players = _createPlayersList()
 
 groups.aplayer = xlib.makebutton{ x=5, y=210, w=80, label=xgui.T("ui_add") .. "...", parent=groups.pnlG1 }
 groups.aplayer.DoClick = function()
@@ -505,23 +497,17 @@ end
 -- ===== 数据刷新函数 =====
 function groups.refreshPlayers( groupName )
 	if not groupName then return end
-	groups.playersScroll:Clear()
+	groups.players:Clear()
 	for _, ply in ipairs( player.GetAll() ) do
 		if ply:GetUserGroup() == groupName then
-			local row = xlib.makepanel{ dock=TOP, dockmargin={2,0,2,0}, h=18, parent=groups.playersScroll }
-			local cb = xlib.makecheckbox{ x=2, y=1, w=16, h=16, label="", parent=row }
-			cb.ply = ply
-			cb.OnChange = function( self, bVal )
-				groups.cplayer:SetDisabled( not groups.players:_hasAnyChecked() )
-			end
-			local lbl = xlib.makelabel{ x=22, y=0, label=ply:Nick() .. "  |  " .. xgui.translateGroup(ply:GetUserGroup()), parent=row }
+			local line = groups.players:AddLine( ply:Nick() .. "  |  " .. xgui.translateGroup(ply:GetUserGroup()) )
+			line.ply = ply
 		end
 	end
 	for steamID, userData in pairs( xgui.data.users ) do
 		if userData.group == groupName and not groups.isOnline( steamID ) then
-			local row = xlib.makepanel{ dock=TOP, dockmargin={2,0,2,0}, h=18, parent=groups.playersScroll }
-			local cb = xlib.makecheckbox{ x=2, y=1, w=16, h=16, label="", parent=row }
-			local lbl = xlib.makelabel{ x=22, y=0, label=( userData.name or steamID ), parent=row }
+			local line = groups.players:AddLine( userData.name or steamID )
+			line.ply = nil
 		end
 	end
 	groups.cplayer:SetDisabled( true )

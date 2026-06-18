@@ -280,7 +280,36 @@ end
 		Spawns player. Sets health/armor to stored defaults if ULib.getSpawnInfo was used previously. Clears SpawnInfo table afterwards.
 ]]
 function ULib.spawn( player, bool )
+	if not player:IsValid() then return end
+
+	-- 离开观察者状态 (TTT/DarkRP 等模式需要)
+	player:UnSpectate()
+
+	-- 如果在观察者队伍, 尝试切换到游戏队伍
+	local teamId = player:Team()
+	if teamId == TEAM_SPECTATOR or teamId == TEAM_UNASSIGNED then
+		for tid, _ in pairs( team.GetAllTeams() ) do
+			if tid ~= TEAM_SPECTATOR and tid ~= TEAM_UNASSIGNED then
+				player:SetTeam( tid )
+				break
+			end
+		end
+	end
+
+	-- TTT/TTT2: 先生角色再生成 (TTT 可能拒绝无角色玩家生成)
+	if ROLE_INNOCENT and player.SetRole then
+		pcall( player.SetRole, player, ROLE_INNOCENT )
+	end
+	if player.SetSubRole then
+		pcall( player.SetSubRole, player, 1 )  -- TTT2 innocent
+	end
+
 	player:Spawn()
+
+	-- 如果仍失败, 再试一次
+	if not player:Alive() then
+		player:Spawn()
+	end
 
 	if bool and player.ULibSpawnInfo then
 		local t = player.ULibSpawnInfo

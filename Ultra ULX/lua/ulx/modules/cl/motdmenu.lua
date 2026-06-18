@@ -31,7 +31,7 @@ function ulx.showMotdMenu( steamid )
 	html:SetSize( window:GetWide() - 20, window:GetTall() - button:GetTall() - 50 )
 	html:SetPos( 10, 30 )
 	if mode == "1" then -- file
-		html:SetHTML( ULib.fileRead( "data/ulx_motd.txt" ) or "" )
+		html:SetHTML( ULib.fileRead( "data/ultra_ulx/motd.txt" ) or "" )
 	elseif mode == "2" then -- generator
 		html:SetHTML( ulx.generateMotdHTML() or "" )
 	else -- URL
@@ -44,7 +44,7 @@ end
 function ulx.rcvMotd( mode_, data )
 	mode = mode_
 	if mode == "1" then -- file
-		ULib.fileWrite( "data/ulx_motd.txt", data )
+		ULib.fileWrite( "data/ultra_ulx/motd.txt", data )
 	elseif mode == "2" then -- generator
 		ulx.motdSettings = data
 	else -- URL

@@ -1,0 +1,16 @@
+-- HL2 原版武器 (与 sv_items.lua persistent_items 同步)
+ulx.registerItems({
+	{ class = "weapon_fists",      name = "拳头",       type = 1 },
+	{ class = "weapon_bugbait",    name = "虫饵",       type = 1 },
+	{ class = "weapon_frag",       name = "手雷",       type = 2 },
+	{ class = "weapon_slam",       name = "SLAM地雷",   type = 2 },
+	{ class = "weapon_crowbar",    name = "撬棍",       type = 4 },
+	{ class = "weapon_stunstick",  name = "电棍",       type = 4 },
+	{ class = "weapon_shotgun",    name = "霰弹枪",     type = 3 },
+	{ class = "weapon_pistol",     name = "手枪",       type = 3 },
+	{ class = "weapon_357",        name = "左轮",       type = 3 },
+	{ class = "weapon_smg1",       name = "SMG",        type = 3 },
+	{ class = "weapon_ar2",        name = "AR2步枪",    type = 3 },
+	{ class = "weapon_crossbow",   name = "弩",         type = 3 },
+	{ class = "weapon_rpg",        name = "RPG",        type = 3 },
+}, "武器")

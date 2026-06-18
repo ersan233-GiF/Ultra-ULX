@@ -19,6 +19,22 @@ if SERVER then
 		local affected = {}
 		for _, ply in ipairs( target_plys ) do
 			if not ply:Alive() then
+				ply:UnSpectate()
+				local teamId = ply:Team()
+				if teamId == TEAM_SPECTATOR or teamId == TEAM_UNASSIGNED then
+					for tid, _ in pairs( team.GetAllTeams() ) do
+						if tid ~= TEAM_SPECTATOR and tid ~= TEAM_UNASSIGNED then
+							ply:SetTeam( tid )
+							break
+						end
+					end
+				end
+				if ROLE_INNOCENT and ply.SetRole then
+					pcall( ply.SetRole, ply, ROLE_INNOCENT )
+				end
+				if ply.SetSubRole then
+					pcall( ply.SetSubRole, ply, 1 )
+				end
 				ply:Spawn()
 				table.insert( affected, ply )
 			end
@@ -114,7 +130,7 @@ giveweaponCmd:help( "给予目标玩家指定武器。例如: ulx giveweapon ^ c
 ------------------------------ Scale ------------------------------
 if SERVER then
 	util.AddNetworkString( "ulx_scale_sync" )
-	ulx_playerscales = ulx_playerscales or {}
+	ulx_playerscales = ulx_playerscales or {}; hook.Add("PlayerDisconnected", "ULXScaleCleanup", function(p) ulx_playerscales[p:SteamID64()] = nil end)
 
 	local function applyScale( ply, scale_val )
 		scale_val = math.Clamp( scale_val, 0.1, 10 )
@@ -124,14 +140,14 @@ if SERVER then
 		ply:SetViewOffsetDucked( Vector( 0, 0, 28 * scale_val ) )
 		if scale_val > 1 then
 			ply:SetJumpPower( 200 * scale_val )
-			ply:SetGravity( scale_val )
-			ply:SetWalkSpeed( 250 * scale_val )
-			ply:SetRunSpeed( 500 * scale_val )
+			ply:SetGravity( 2.0 - scale_val / 10 )
+			ply:SetWalkSpeed( 200 * scale_val )
+			ply:SetRunSpeed( 400 * scale_val )
 		else
 			ply:SetJumpPower( 200 )
 			ply:SetGravity( 1 )
-			ply:SetWalkSpeed( 250 )
-			ply:SetRunSpeed( 500 )
+			ply:SetWalkSpeed( 200 )
+			ply:SetRunSpeed( 400 )
 		end
 		net.Start( "ulx_scale_sync" )
 		net.WriteFloat( scale_val )
@@ -147,7 +163,7 @@ if SERVER then
 		ulx.fancyLogAdmin( calling_ply, "#A 将 #T 的体型缩放设为 #i", target_plys, scale_val )
 	end
 
-	-- 死亡复活后恢复缩放属性
+	-- 死亡复活后恢复缩放属性 (仅已缩放过)
 	hook.Add( "PlayerSpawn", "ULXScaleRespawn", function( ply )
 		local scale = ulx_playerscales[ ply:SteamID64() ]
 		if scale and scale ~= 1 then
@@ -155,6 +171,7 @@ if SERVER then
 				if ply:IsValid() then applyScale( ply, scale ) end
 			end )
 		end
+		-- 未缩放的玩家不做任何修改, 保持游戏模式原始速度
 	end )
 
 	-- 等比提升摔落伤害生效距离，并消除低于阈值的落地抖动
@@ -196,7 +213,7 @@ gravityCmd:addParam{ type=ULib.cmds.NumArg, min=0, max=6, default=1, hint="重�
 gravityCmd:defaultAccess( ULib.ACCESS_ADMIN )
 gravityCmd:help( "设置目标玩家的重力倍率 (0=无重力, 1=正常, 最大6)。" )
 
-Msg( "[ULX] 扩展命令模块已加载 (cleanup/respawn/setmodel/setteam/giveweapon/scale/gravity)\n" )
+if not UltraULX_SilentReRegister then Msg( "[ULX] 扩展命令模块已加载 (cleanup/respawn/setmodel/setteam/giveweapon/scale/gravity)\n" ) end
 
 -- 客户端：接收体型缩放值
 if CLIENT then

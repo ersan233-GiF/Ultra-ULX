@@ -95,18 +95,18 @@ local function doCfg()
 
 	for filename, handler in pairs( configHandlers ) do
 		-- 全局配置
-		if ULib.fileExists( "data/ulx/" .. filename ) then
-			handler( "data/ulx/" .. filename )
+		if ULib.fileExists( "data/ultra_ulx/" .. filename ) then
+			handler( "data/ultra_ulx/" .. filename )
 		end
 
 		-- 按游戏模式配置
-		if ULib.fileExists( "data/ulx/gamemodes/" .. gamemode_name .. "/" .. filename, true ) then
-			handler( "data/ulx/gamemodes/" .. gamemode_name .. "/" .. filename, true )
+		if ULib.fileExists( "data/ultra_ulx/gamemodes/" .. gamemode_name .. "/" .. filename, true ) then
+			handler( "data/ultra_ulx/gamemodes/" .. gamemode_name .. "/" .. filename, true )
 		end
 
 		-- 按地图配置
-		if ULib.fileExists( "data/ulx/maps/" .. map_name .. "/" .. filename, true ) then
-			handler( "data/ulx/maps/" .. map_name .. "/" .. filename, true )
+		if ULib.fileExists( "data/ultra_ulx/maps/" .. map_name .. "/" .. filename, true ) then
+			handler( "data/ultra_ulx/maps/" .. map_name .. "/" .. filename, true )
 		end
 	end
 

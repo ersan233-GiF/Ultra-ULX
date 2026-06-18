@@ -28,9 +28,13 @@ end
 Msg( "///////////////////////////////\n" )
 Msg( "// ULX GUI -- by Stickly Man //\n" )
 Msg( "///////////////////////////////\n" )
+-- XGUI 框架 (核心界面引擎)
+AddCSLuaFile( "ulx/xgui/framework/init.lua" )
+AddCSLuaFile( "ulx/xgui/framework/layout.lua" )
+Msg( "//  framework/init.lua + layout.lua //\n" )
 Msg( "// Adding Main Modules..     //\n" )
 -- 硬编码 XGUI 文件清单，避免 file.Find 跨 addon 加载原版文件
-local xgui_main = { "ai_bot.lua", "bans.lua", "commands.lua", "groups.lua", "items.lua", "maps.lua", "settings.lua", "xgui_core.lua" }
+local xgui_main = { "bans.lua", "commands.lua", "groups.lua", "items.lua", "maps.lua", "settings.lua", "xgui_core.lua" }
 for _, file in ipairs( xgui_main ) do
 	AddCSLuaFile( "ulx/xgui/" .. file )
 	Msg( "//  " .. file .. string.rep( " ", 25 - file:len() ) .. "//\n" )
@@ -48,7 +52,7 @@ for _, file in ipairs( xgui_gamemodes ) do
 	Msg( "//  " .. file .. string.rep( " ", 25 - file:len() ) .. "//\n" )
 end
 Msg( "// Loading Server Modules..  //\n" )
-local xgui_server = { "sv_ai_bot.lua", "sv_bans.lua", "sv_groups.lua", "sv_items.lua", "sv_maps.lua", "sv_sandbox.lua", "sv_settings.lua" }
+local xgui_server = { "sv_bans.lua", "sv_groups.lua", "sv_items.lua", "sv_maps.lua", "sv_sandbox.lua", "sv_settings.lua" }
 for _, file in ipairs( xgui_server ) do
 	include( "ulx/xgui/server/" .. file )
 	Msg( "//  " .. file .. string.rep( " ", 25 - file:len() ) .. "//\n" )

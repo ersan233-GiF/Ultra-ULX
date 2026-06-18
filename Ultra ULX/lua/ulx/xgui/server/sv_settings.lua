@@ -55,7 +55,7 @@ function settings.init()
 	xgui.addCmd( "removeGimp", settings.removeGimp )
 
 	function settings.saveGimps()
-		local orig_file = ULib.fileRead( "data/ulx/gimps.txt" )
+		local orig_file = ULib.fileRead( "data/ultra_ulx/gimps.txt" )
 		local comment = xgui.getCommentHeader( orig_file )
 
 		local new_file = comment
@@ -64,7 +64,7 @@ function settings.init()
 			new_file = new_file .. gimpSay .. "\n"
 		end
 
-		ULib.fileWrite( "data/ulx/gimps.txt", new_file )
+		ULib.fileWrite( "data/ultra_ulx/gimps.txt", new_file )
 	end
 
 	function settings.addBanReason( ply, args )
@@ -91,7 +91,7 @@ function settings.init()
 	xgui.addCmd( "removeBanReason", settings.removeBanReason )
 
 	function settings.saveBanReasons()
-		local orig_file = ULib.fileRead( "data/ulx/banreasons.txt" )
+		local orig_file = ULib.fileRead( "data/ultra_ulx/banreasons.txt" )
 		local comment = xgui.getCommentHeader( orig_file )
 
 		local new_file = comment
@@ -100,7 +100,7 @@ function settings.init()
 			new_file = new_file .. banReason .. "\n"
 		end
 
-		ULib.fileWrite( "data/ulx/banreasons.txt", new_file )
+		ULib.fileWrite( "data/ultra_ulx/banreasons.txt", new_file )
 	end
 
 	--[1]Message, [2]Delay, [3]GroupName/number, [4]Red, [5]Green, [6]Blue, [7]Length, [8]Hold
@@ -199,7 +199,7 @@ function settings.init()
 	xgui.addCmd( "removeAdvertGroup", settings.removeAdvertGroup )
 
 	function settings.saveAdverts()
-		local orig_file = ULib.fileRead( "data/ulx/adverts.txt" )
+		local orig_file = ULib.fileRead( "data/ultra_ulx/adverts.txt" )
 		local comment = xgui.getCommentHeader( orig_file )
 		local new_file = comment
 
@@ -221,7 +221,7 @@ function settings.init()
 			new_file = new_file .. output
 		end
 
-		ULib.fileWrite( "data/ulx/adverts.txt", new_file )
+		ULib.fileWrite( "data/ultra_ulx/adverts.txt", new_file )
 	end
 
 	util.AddNetworkString( "XGUI.AddVotemaps" )
@@ -262,7 +262,7 @@ function settings.init()
 	end
 
 	function settings.saveVotemaps( mapmode )
-		local orig_file = ULib.fileRead( "data/ulx/votemaps.txt" )
+		local orig_file = ULib.fileRead( "data/ultra_ulx/votemaps.txt" )
 		local comment = xgui.getCommentHeader( orig_file )
 		local new_file = comment
 
@@ -281,7 +281,7 @@ function settings.init()
 			return
 		end
 
-		ULib.fileWrite( "data/ulx/votemaps.txt", new_file )
+		ULib.fileWrite( "data/ultra_ulx/votemaps.txt", new_file )
 		settings.updatevotemaps()
 	end
 
@@ -309,12 +309,12 @@ function settings.init()
 	util.AddNetworkString( "XGUI.SaveBanMessage" )
 	net.Receive( "XGUI.SaveBanMessage", function( len, ply )
 		if ULib.ucl.query( ply, "xgui_svsettings" ) then
-			local orig_file = ULib.fileRead( "data/ulx/banmessage.txt" )
+			local orig_file = ULib.fileRead( "data/ultra_ulx/banmessage.txt" )
 			local comment = xgui.getCommentHeader( orig_file )
 			local new_file = comment
 
 			ULib.BanMessage = net.ReadString():Trim()
-			ULib.fileWrite( "data/ulx/banmessage.txt", new_file .. ULib.BanMessage )
+			ULib.fileWrite( "data/ultra_ulx/banmessage.txt", new_file .. ULib.BanMessage )
 			xgui.sendDataTable( {}, "banmessage" )
 		end
 	end)
@@ -349,14 +349,14 @@ function settings.init()
 	end)
 
 	function settings.saveMotdSettings()
-		local orig_file = ULib.fileRead( "data/ulx/motd.txt" )
+		local orig_file = ULib.fileRead( "data/ultra_ulx/motd.txt" )
 		local comment = xgui.getCommentHeader( orig_file )
 		local new_file = comment
 
 		local motdSave = { info=ulx.motdSettings.info, style=ulx.motdSettings.style }
 		new_file = new_file .. ULib.makeKeyValues( motdSave )
 
-		ULib.fileWrite( "data/ulx/motd.txt", new_file )
+		ULib.fileWrite( "data/ultra_ulx/motd.txt", new_file )
 	end
 end
 

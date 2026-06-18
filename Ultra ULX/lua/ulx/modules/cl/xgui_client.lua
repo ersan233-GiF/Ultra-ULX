@@ -43,7 +43,7 @@ function xgui.addModule( name, panel, icon, access, tooltip )
 	end
 	local displayName = ULib.ulx_lang.T( "tab_" .. name )
 	table.insert( xgui.modules.tab, { name=name, displayName=displayName, panel=panel, icon=icon, access=access, tooltip=tooltip } )
-	if refreshModules then xgui.processModules() end
+	if refreshModules then xgui.buildTabs() end
 end
 
 xgui.modules.setting = xgui.modules.setting or {}
@@ -59,7 +59,7 @@ function xgui.addSettingModule( name, panel, icon, access, tooltip )
 	end
 	local displayName = ULib.ulx_lang.T( "tab_" .. name )
 	table.insert( xgui.modules.setting, { name=name, displayName=displayName, panel=panel, _origPanel=panel, icon=icon, access=access, tooltip=tooltip } )
-	if refreshModules then xgui.processModules() end
+	if refreshModules then xgui.buildTabs() end
 end
 
 xgui.modules.submodule = xgui.modules.submodule or {}
@@ -74,126 +74,29 @@ function xgui.addSubModule( name, panel, access, mtype )
 	end
 	local displayName = ULib.ulx_lang.T( "tab_" .. name )
 	table.insert( xgui.modules.submodule, { name=name, displayName=displayName, panel=panel, _origPanel=panel, access=access, mtype=mtype } )
-	if refreshModules then xgui.processModules() end
+	if refreshModules then xgui.buildTabs() end
 end
 --Set up a spot to store entries for autocomplete.
 xgui.tabcompletes = xgui.tabcompletes or {}
 xgui.ulxmenucompletes = xgui.ulxmenucompletes or {}
 
 
---Set up XGUI clientside settings, load settings from file if it exists
-xgui.settings = xgui.settings or {}
-if ULib.fileExists( "data/ulx/xgui_settings.txt" ) then
-	local input = ULib.fileRead( "data/ulx/xgui_settings.txt" )
-	input = input:match( "^.-\n(.*)$" )
-	xgui.settings = ULib.parseKeyValues( input )
-end
---Set default settings if they didn't get loaded
-if not xgui.settings.moduleOrder then xgui.settings.moduleOrder = { "commands", "groups", "maps", "settings", "bans", "items", "ai_bot" } end
-if not xgui.settings.settingOrder then xgui.settings.settingOrder = { "sandbox", "server", "client" } end
-if not xgui.settings.animTime then xgui.settings.animTime = 0.22 else xgui.settings.animTime = tonumber( xgui.settings.animTime ) end
-if not xgui.settings.infoColor then
-	--Default color
-	xgui.settings.infoColor = Color( 100, 255, 255, 128 )
-else
-	--Ensure that the color contains numbers, not strings
-	xgui.settings.infoColor = Color(xgui.settings.infoColor.r, xgui.settings.infoColor.g, xgui.settings.infoColor.b, xgui.settings.infoColor.a)
-end
-if not xgui.settings.showLoadMsgs then xgui.settings.showLoadMsgs = true else xgui.settings.showLoadMsgs = ULib.toBool( xgui.settings.showLoadMsgs ) end
-if not xgui.settings.skin then xgui.settings.skin = "Default" end
-if not xgui.settings.xguipos then xgui.settings.xguipos = { pos=5, xoff=0, yoff=0 } end
-if not xgui.settings.animIntype then xgui.settings.animIntype = 1 end
-if not xgui.settings.animOuttype then xgui.settings.animOuttype = 1 end
-if not xgui.settings.clickOutClose then xgui.settings.clickOutClose = false else xgui.settings.clickOutClose = ULib.toBool( xgui.settings.clickOutClose ) end
-
+-- XGUI 框架初始化 (精简版 — 核心逻辑已移至 xgui/framework/)
+include( "ulx/xgui/framework/init.lua" )
 
 function xgui.init( ply )
-	xgui.load_helpers()
+	xgui.loadSettings()
+	xgui.buildBaseWindow()
+	xgui.loadAllModules()
+	xgui.syncModuleOrder()
 
-	--Initiate the base window (see xgui_helpers.lua for code)
-	xgui.makeXGUIbase{}
-
-	--Create the bottom infobar
-	xgui.infobar = xlib.makepanel{ x=10, y=399, w=580, h=20, parent=xgui.anchor }
-	xgui.infobar:NoClipping( true )
-	xgui.infobar.Paint = function( self, w, h )
-		draw.RoundedBoxEx( 4, 0, 1, 580, 20, xgui.settings.infoColor, false, false, true, true )
-	end
-	local infoLabel = string.format( "\n" .. ULib.ulx_lang.T("xgui_infobar"), ULib.pluginVersionStr("ULX"), ULib.pluginVersionStr("ULib") )
-	xgui.infoLabel = xlib.makelabel{ x=5, y=-10, label=infoLabel, parent=xgui.infobar }
-	xgui.infoLabel:NoClipping( true )
-	xgui.thetime = xlib.makelabel{ x=515, y=-10, label="", parent=xgui.infobar }
-	xgui.thetime:NoClipping( true )
-	xgui.thetime.check = function()
-		xgui.thetime:SetText( os.date( "\n%I:%M:%S %p" ) )
-		xgui.thetime:SizeToContents()
-		timer.Simple( 1, xgui.thetime.check )
-	end
-	xgui.thetime.check()
-
-	--Create an offscreen place to parent modules that the player can't access
-	xgui.null = xlib.makepanel{ x=-10, y=-10, w=0, h=0 }
-	xgui.null:SetVisible( false )
-
-	--Load modules
-	local sm = xgui.settings.showLoadMsgs
-	if sm then
-		Msg( "\n///////////////////////////////////////\n" )
-		Msg( "//  ULX GUI -- Made by Stickly Man!  //\n" )
-		Msg( "///////////////////////////////////////\n" )
-		Msg( "// Loading GUI Modules...            //\n" )
-	end
-	-- Load core framework first (provides xgui.registerRefresh used by settings)
-	include( "ulx/xgui/xgui_core.lua" )
-	for _, file in ipairs( file.Find( "ulx/xgui/*.lua", "LUA" ) ) do
-		include( "ulx/xgui/" .. file )
-		if sm then Msg( "//   " .. file .. string.rep( " ", 32 - file:len() ) .. "//\n" ) end
-	end
-	if sm then Msg( "// Loading Setting Modules...        //\n" ) end
-	for _, file in ipairs( file.Find( "ulx/xgui/settings/*.lua", "LUA" ) ) do
-		include( "ulx/xgui/settings/" .. file )
-		if sm then Msg( "//   " .. file .. string.rep( " ", 32 - file:len() ) .. "//\n" ) end
-	end
-	if sm then Msg( "// Loading Gamemode Module(s)...     //\n" ) end
-	if ULib.isSandbox() and GAMEMODE.FolderName ~= "sandbox" then -- If the gamemode sandbox-derived (but not sandbox, that will get added later), then add the sandbox Module
-		include( "ulx/xgui/gamemodes/sandbox.lua" )
-		if sm then Msg( "//   sandbox.lua                     //\n" ) end
-	end
-	for _, file in ipairs( file.Find( "ulx/xgui/gamemodes/*.lua", "LUA" ) ) do
-		if string.lower( file ) == string.lower( GAMEMODE.FolderName .. ".lua" ) then
-			include( "ulx/xgui/gamemodes/" .. file )
-			if sm then Msg( "//   " .. file .. string.rep( " ", 32 - file:len() ) .. "//\n" ) end
-			break
-		end
-		if sm then Msg( "//   No module found!                //\n" ) end
-	end
-	if sm then Msg( "// Modules Loaded!                   //\n" ) end
-	if sm then Msg( "///////////////////////////////////////\n\n" ) end
-
-	--Find any existing modules that aren't listed in the requested order.
-	local function checkModulesOrder( moduleTable, sortTable )
-		for _, m in ipairs( moduleTable ) do
-			local notlisted = true
-			for _, existing in ipairs( sortTable ) do
-				if m.name == existing then
-					notlisted = false
-					break
-				end
-			end
-			if notlisted then
-				table.insert( sortTable, m.name )
-			end
-		end
-	end
-	checkModulesOrder( xgui.modules.tab, xgui.settings.moduleOrder )
-	checkModulesOrder( xgui.modules.setting, xgui.settings.settingOrder )
-
-	--Check if the server has XGUI installed
 	RunConsoleCommand( "_xgui", "getInstalled" )
-
 	xgui.initialized = true
+	xgui.buildTabs()
 
-	xgui.processModules()
+	timer.Simple( 2, function()
+		if xgui.initialized then xgui.buildTabs() end
+	end )
 end
 hook.Add( ULib.HOOK_LOCALPLAYERREADY, "InitXGUI", xgui.init, HOOK_MONITOR_LOW )
 
@@ -203,12 +106,12 @@ hook.Add( "UCLChanged", "xgui_processModulesOnAuth", function()
 end )
 
 function xgui.saveClientSettings()
-	if not ULib.fileIsDir( "data/ulx" ) then
-		ULib.fileCreateDir( "data/ulx" )
+	if not ULib.fileIsDir( "data/ultra_ulx" ) then
+		ULib.fileCreateDir( "data/ultra_ulx" )
 	end
 	local output = "// This file stores clientside settings for XGUI.\n"
 	output = output .. ULib.makeKeyValues( xgui.settings )
-	ULib.fileWrite( "data/ulx/xgui_settings.txt", output )
+	ULib.fileWrite( "data/ultra_ulx/xgui_settings.txt", output )
 end
 
 function xgui.checkModuleExists( modulename, moduletable )
@@ -220,107 +123,11 @@ function xgui.checkModuleExists( modulename, moduletable )
 	return false
 end
 
+-- processModules 已迁移至 framework/init.lua → xgui.buildTabs() (含标签页恢复逻辑)
 function xgui.processModules()
-	-- 等待 UCL 认证数据到达后再处理模块，避免 query() 报错
-	if not game.SinglePlayer() and not ULib.ucl.authed[LocalPlayer():UniqueID()] then return end
-
-	-- Update display names for language changes
-	for _, m in ipairs( xgui.modules.tab ) do
-		m.displayName = ULib.ulx_lang.T( "tab_" .. m.name )
-	end
-	for _, m in ipairs( xgui.modules.setting ) do
-		m.displayName = ULib.ulx_lang.T( "tab_" .. m.name )
-	end
-	for _, m in ipairs( xgui.modules.submodule ) do
-		m.displayName = ULib.ulx_lang.T( "tab_" .. m.name )
-	end
-
-	local activetab = nil
-	if xgui.base:GetActiveTab() then
-		activetab = xgui.base:GetActiveTab():GetValue()
-	end
-
-	local activesettingstab = nil
-	if xgui.settings_tabs:GetActiveTab() then
-		activesettingstab = xgui.settings_tabs:GetActiveTab():GetValue()
-	end
-
-	xgui.base:Clear() --We need to remove any existing tabs in the GUI
-	xgui.tabcompletes = {}
-	xgui.ulxmenucompletes = {}
-	for _, modname in ipairs( xgui.settings.moduleOrder ) do
-		local module = xgui.checkModuleExists( modname, xgui.modules.tab )
-		if module then
-			module = xgui.modules.tab[module]
-			if module.xbutton == nil then
-				module.xbutton = xlib.makebutton{ x=555, y=-5, w=32, h=24, btype="close", parent=module.panel }
-				module.xbutton.DoClick = function()
-					xgui.hide()
-				end
-			end
-			if LocalPlayer():query( module.access ) then
-				xgui.base:AddSheet( module.displayName, module.panel, module.icon, false, false, module.tooltip )
-				module.tabpanel = xgui.base.Items[#xgui.base.Items].Tab
-				table.insert( xgui.tabcompletes, "xgui show " .. modname )
-				table.insert( xgui.ulxmenucompletes, "ulx menu " .. modname )
-			else
-				module.tabpanel = nil
-				module.panel:SetParent( xgui.null )
-			end
-		end
-	end
-
-	xgui.settings_tabs:Clear() --Clear out settings tabs for reprocessing
-	for _, modname in ipairs( xgui.settings.settingOrder ) do
-		local module = xgui.checkModuleExists( modname, xgui.modules.setting )
-		if module then
-			module = xgui.modules.setting[module]
-			if LocalPlayer():query( module.access ) then
-				xgui.settings_tabs:AddSheet( module.displayName, module.panel, module.icon, false, false, module.tooltip )
-				module.tabpanel = xgui.settings_tabs.Items[#xgui.settings_tabs.Items].Tab
-				table.insert( xgui.tabcompletes, "xgui show " .. modname )
-				table.insert( xgui.ulxmenucompletes, "ulx menu " .. modname )
-			else
-				module.tabpanel = nil
-				module.panel:SetParent( xgui.null )
-			end
-		end
-	end
-
-	--Call any functions that requested to be called when permissions change
+	xgui.buildTabs()
+	-- 调用模块处理完成后的钩子
 	xgui.callUpdate( "onProcessModules" )
-	table.sort( xgui.tabcompletes )
-	table.sort( xgui.ulxmenucompletes )
-
-	local hasFound = false
-	if activetab then
-		for _, v in pairs( xgui.base.Items ) do
-			if v.Tab:GetValue() == activetab then
-				xgui.base:SetActiveTab( v.Tab, true )
-				hasFound = true
-				break
-			end
-		end
-		if not hasFound then
-			xgui.base.m_pActiveTab = "none"
-			xgui.base:SetActiveTab( xgui.base.Items[1].Tab, true )
-		end
-	end
-
-	hasFound = false
-	if activesettingstab then
-		for _, v in pairs( xgui.settings_tabs.Items ) do
-			if v.Tab:GetValue() == activesettingstab then
-				xgui.settings_tabs:SetActiveTab( v.Tab, true )
-				hasFound = true
-				break
-			end
-		end
-		if not hasFound then
-			xgui.settings_tabs.m_pActiveTab = "none"
-			xgui.settings_tabs:SetActiveTab( xgui.settings_tabs.Items[1].Tab, true )
-		end
-	end
 end
 
 function xgui.checkNotInstalled( tabname )

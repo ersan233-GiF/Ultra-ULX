@@ -405,12 +405,13 @@ if SERVER then
 	local function log(msg) MsgN("[ULib UCL] " .. msg) end
 
 	local function serializeUsers(tbl)
-		-- Prefer ULib's KeyValues for human-readable snapshots,
-		-- but fall back to JSON if anything goes weird.
-		local ok, out = pcall(function() return ULib.makeKeyValues(tbl or {}) end)
+		-- JSON first (more reliable), KeyValues as fallback for human-readable snapshots
+		local ok, out = pcall(function() return util.TableToJSON(tbl or {}, true) end)
 		if ok and type(out) == "string" and #out > 0 then return out end
-		log("KeyValues serialization failed, falling back to JSON.")
-		return util.TableToJSON(tbl or {}, true) or "{}"
+		log("JSON serialization failed, falling back to KeyValues.")
+		local ok2, out2 = pcall(function() return ULib.makeKeyValues(tbl or {}) end)
+		if ok2 and type(out2) == "string" and #out2 > 0 then return out2 end
+		return "{}"
 	end
 
 	local function doBackup()
@@ -1520,11 +1521,15 @@ local function sendUCLDataToClient( ply )
 end
 hook.Add( ULib.HOOK_LOCALPLAYERREADY, "ULibSendUCLDataToClient", sendUCLDataToClient, HOOK_MONITOR_HIGH )
 
--- 客户端就绪时通过 ulib_cl_ready 触发 HOOK_LOCALPLAYERREADY
+-- 客户端就绪时通过 ulib_cl_ready 触发 HOOK_LOCALPLAYERREADY 并发送版本号
 local function clReady( ply )
 	if ply.ulib_ready then return end
 	ply.ulib_ready = true
 	hook.Call( ULib.HOOK_LOCALPLAYERREADY, _, ply )
+	-- 发送版本号供客户端比对
+	net.Start("ulx_version_check")
+	net.WriteString(ulx.VERSION)
+	net.Send(ply)
 end
 concommand.Add( "ulib_cl_ready", clReady )
 

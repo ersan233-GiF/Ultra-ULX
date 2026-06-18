@@ -52,7 +52,7 @@ function ucl.query( ply, access, hide )
 
 	if not ucl.authed[ unique_id ] then
 		if CLIENT then return false end -- 客户端尚未收到认证数据，安全拒绝
-		return error( "[ULIB] Unauthed player" )
+		error( "[ULIB] Unauthed player" )
 	end -- Sanity check
 	local playerInfo = ucl.authed[ unique_id ]
 
@@ -65,7 +65,7 @@ function ucl.query( ply, access, hide )
 	local group = ply:GetUserGroup()
 	while group do -- While group is not nil
 		local groupInfo = ucl.groups[ group ]
-		if not groupInfo then return error( "[ULib] Player " .. ply:Nick() .. " has an invalid group (" .. group .. "), aborting. Please be careful when modifying the ULib files!" ) end
+		if not groupInfo then error( "[ULib] Player " .. ply:Nick() .. " has an invalid group (" .. group .. "), aborting. Please be careful when modifying the ULib files!" ) end
 		if table.HasValue( groupInfo.allow, access ) then return true end
 		if groupInfo.allow[ access ] then return true, groupInfo.allow[ access ] end
 
@@ -170,7 +170,7 @@ end
 ]]
 function ucl.getGroupCanTarget( group )
 	ULib.checkArg( 1, "ULib.ucl.getGroupCanTarget", "string", group )
-	if not ucl.groups[ group ] then return error( "Group does not exist (" .. group .. ")", 2 ) end
+	if not ucl.groups[ group ] then error( "Group does not exist (" .. group .. ")", 2 ) end
 
 	return ucl.groups[ group ].can_target
 end
@@ -182,7 +182,7 @@ if CLIENT then
 		ucl.groups = groups
 		for name, data in pairs( groups ) do
 			if not ULib.findInTable( {"superadmin", "admin", "user"}, name ) then
-				inherit_from = data.inherit_from or "user"
+				local inherit_from = data.inherit_from or "user"
 				CAMI.RegisterUsergroup( {Name=name, Inherits=inherit_from}, CAMI.ULX_TOKEN )
 			end
 		end

@@ -1,116 +1,6 @@
-﻿-- 道具模块 v3
+﻿-- 道具模块 v3 — 从 ulx.itemRegistry 动态读取
+-- 数据源: lua/ulx/items/*.lua (模组/插件各自注册，无需修改本文件)
 -- t1=永久无模型无弹药(无生成) t2=消耗品(有生成) t3=有弹药武器(有生成) t4=永久无弹药(有生成) t5=纯实体(有生成)
-local item_data = {
-	["武器"] = {
-		{ c="weapon_fists",      n="拳头",       t=1 },
-		{ c="weapon_bugbait",    n="虫饵",       t=1 },
-		{ c="weapon_frag",       n="手雷",       t=2 },
-		{ c="weapon_slam",       n="SLAM地雷",   t=2 },
-		{ c="weapon_crowbar",    n="撬棍",       t=4 },
-		{ c="weapon_stunstick",  n="电棍",       t=4 },
-		{ c="weapon_shotgun",    n="霰弹枪",     t=3 },
-		{ c="weapon_pistol",     n="手枪",       t=3 },
-		{ c="weapon_357",        n="左轮",       t=3 },
-		{ c="weapon_smg1",       n="SMG",        t=3 },
-		{ c="weapon_ar2",        n="AR2步枪",    t=3 },
-		{ c="weapon_crossbow",   n="弩",         t=3 },
-		{ c="weapon_rpg",        n="RPG",        t=3 },
-	},
-	["CSS武器"] = {
-		{ c="weapon_hegrenade",  n="手雷(CS)",   t=2 },
-		{ c="weapon_flashbang",  n="闪光弹",     t=2 },
-		{ c="weapon_smokegrenade",n="烟雾弹",    t=2 },
-		{ c="weapon_deagle",    n="沙漠之鹰",   t=3 },
-		{ c="weapon_elite",     n="双持贝雷塔", t=3 },
-		{ c="weapon_fiveseven", n="FN57",        t=3 },
-		{ c="weapon_glock",     n="格洛克",      t=3 },
-		{ c="weapon_usp",       n="USP消音版",   t=3 },
-		{ c="weapon_p228",      n="P228",        t=3 },
-		{ c="weapon_m3",        n="M3霰弹枪",    t=3 },
-		{ c="weapon_mac10",     n="MAC-10",      t=3 },
-		{ c="weapon_mp5navy",   n="MP5海军",     t=3 },
-		{ c="weapon_p90",       n="P90",         t=3 },
-		{ c="weapon_tmp",       n="TMP",         t=3 },
-		{ c="weapon_ump45",     n="UMP45",       t=3 },
-		{ c="weapon_ak47",      n="AK-47",       t=3 },
-		{ c="weapon_aug",       n="AUG",         t=3 },
-		{ c="weapon_famas",     n="FAMAS",       t=3 },
-		{ c="weapon_galil",     n="Galil",       t=3 },
-		{ c="weapon_m4a1",      n="M4A1消音版",  t=3 },
-		{ c="weapon_sg552",     n="SG552",       t=3 },
-		{ c="weapon_awp",       n="AWP",         t=3 },
-		{ c="weapon_g3sg1",     n="G3SG1",       t=3 },
-		{ c="weapon_scout",     n="Scout",       t=3 },
-		{ c="weapon_sg550",     n="SG550",       t=3 },
-		{ c="weapon_m249",      n="M249",        t=3 },
-	},
-	["管理员武器"] = {
-		{ c="weapon_flechettegun",       n="钢茅枪",       t=4, a="superadmin" },
-		{ c="weapon_xm1014",             n="XM1014",       t=3, a="superadmin" },
-		{ c="weapon_knife",              n="匕首",         t=4, a="superadmin" },
-		{ c="weapon_medkit",             n="医疗包",       t=4, a="superadmin" },
-		{ c="manhack_welder",            n="飞锯枪",       t=4, a="superadmin" },
-		{ c="weapon_spraypatterncreator",n="喷漆图案器",   t=4, a="superadmin" },
-		{ c="weapon_awp_awesome",        n="AWP强化",      t=3, a="superadmin" },
-		{ c="weapon_deagleawesome",      n="沙鹰强化",     t=3, a="superadmin" },
-		{ c="weapon_g3sg1_awesome",      n="G3SG1强化",    t=3, a="superadmin" },
-		{ c="weapon_glockinator",        n="格洛克强化",   t=3, a="superadmin" },
-		{ c="weapon_macdadster",         n="MAC10强化",    t=3, a="superadmin" },
-		{ c="weapon_xm9000",             n="XM9000",       t=3, a="superadmin" },
-	},
-	["工具"] = {
-		{ c="weapon_physgun",    n="物理枪",     t=4 },
-		{ c="weapon_physcannon", n="重力枪",     t=4 },
-		{ c="gmod_tool",         n="工具枪",     t=4 },
-		{ c="gmod_camera",       n="相机",       t=4 },
-	},
-	["弹药"] = {
-		{ c="item_ammo_pistol",       n="手枪弹药",     t=2 },
-		{ c="item_ammo_pistol_large", n="手枪弹药(大)", t=2 },
-		{ c="item_ammo_357",          n="左轮弹药",     t=2 },
-		{ c="item_ammo_357_large",    n="左轮弹药(大)", t=2 },
-		{ c="item_ammo_smg1",         n="SMG弹药",      t=2 },
-		{ c="item_ammo_smg1_large",   n="SMG弹药(大)",  t=2 },
-		{ c="item_ammo_ar2",          n="AR2弹药",      t=2 },
-		{ c="item_ammo_ar2_large",    n="AR2弹药(大)",  t=2 },
-		{ c="item_ammo_ar2_altfire",  n="AR2能量球",    t=2 },
-		{ c="item_ammo_smg1_grenade", n="SMG榴弹",      t=2 },
-		{ c="item_ammo_buckshot",     n="霰弹弹药",     t=2 },
-		{ c="item_ammo_crossbow",     n="弩箭",         t=2 },
-		{ c="item_rpg_round",         n="RPG火箭弹",    t=2 },
-	},
-	["道具"] = {
-		{ c="item_healthkit",         n="医疗包",       t=2 },
-		{ c="item_healthvial",        n="医疗瓶",       t=2 },
-		{ c="item_healthcharger",     n="生命恢复仪",   t=2 },
-		{ c="item_battery",           n="电池",         t=2 },
-		{ c="item_suitcharger",       n="防护服充电仪", t=2 },
-		{ c="item_box_buckshot",      n="霰弹弹药箱",   t=2 },
-		{ c="item_suit",              n="防护服",       t=4 },
-		{ c="combine_mine",           n="联合军跳雷",   t=5 },
-		{ c="combine_mine_resistance",n="反抗军跳雷",   t=5 },
-		{ c="grenade_helicopter",     n="直升机炸弹",   t=5 },
-		{ c="sent_ball",              n="弹力球",       t=5 },
-		{ c="prop_ragdoll",           n="布娃娃",       t=5 },
-	},
-	["座椅"] = {
-		{ c="prop_vehicle_prisoner_pod", k="Chair_Office1", n="办公室座椅", t=5 },
-		{ c="prop_vehicle_prisoner_pod", k="Chair_Office2", n="真皮办公椅", t=5 },
-		{ c="prop_vehicle_prisoner_pod", k="Chair_Plastic", n="铁质凳子",   t=5 },
-		{ c="prop_vehicle_prisoner_pod", k="Chair_Wood",   n="木质凳子",   t=5 },
-		{ c="prop_vehicle_prisoner_pod", k="Seat_Airboat", n="汽艇座椅",   t=5 },
-		{ c="prop_vehicle_prisoner_pod", k="Seat_Jalopy",  n="老爷车座椅", t=5 },
-		{ c="prop_vehicle_prisoner_pod", k="Seat_Jeep",    n="吉普车座椅", t=5 },
-	},
-	["载具"] = {
-		{ c="prop_vehicle_airboat",      k="Airboat",          n="汽艇",     t=5 },
-		{ c="prop_vehicle_jeep",         k="Jalopy",           n="老爷车",   t=5 },
-		{ c="prop_vehicle_jeep_old",     k="Jeep",             n="吉普车",   t=5 },
-		{ c="prop_vehicle_prisoner_pod", k="Pod",              n="囚犯舱",   t=5 },
-		{ c="prop_vehicle_apc",          k="prop_vehicle_apc", n="装甲战车", t=5 },
-	},
-}
-local cat_order = { "武器", "CSS武器", "管理员武器", "工具", "弹药", "道具", "座椅", "载具" }
 
 -- 双弹药武器: SMG(榴弹), AR2(能量球)
 local dualAmmo = { ["weapon_smg1"] = true, ["weapon_ar2"] = true }
@@ -208,42 +98,18 @@ function items.buildArgsList( classname )
 	local itype = items.seltype or 1
 	local z = 0
 
-	-- 布局: 标签+小数量框(同行) / 拖动条满宽(下一行)
+	-- 原版 ULX 滑块布局 (与 xgui_helpers.lua NumArg.x_getcontrol 一致)
 	local function makeSlider( label, min, max, def )
-		local p = xlib.makepanel{ h=48 }
-		p.xguiIgnore = true
-		xlib.makelabel{ x=0, y=2, label=label, parent=p }
-		local txt = vgui.Create( "DTextEntry", p )
-		txt:SetPos( 60, 0 ); txt:SetSize( 40, 18 ); txt:SetValue( tostring( def ) )
-		local sl = xlib.makeslider{ x=0, y=22, w=160, h=20, label="", min=min, max=max, value=def, decimal=0, parent=p }
-		sl.TextArea:SetWide( 0 )
-		local updating = false
-		txt.OnChange = function( self )
-			if updating then return end
-			local num = tonumber( self:GetValue() )
-			if num then
-				updating = true
-				sl:SetValue( math.Clamp( num, min, max ) )
-				updating = false
-			end
-		end
-		sl.Slider.OnValueChanged = function( self, frac )
-			if updating then return end
-			updating = true
-			txt:SetValue( tostring( math.floor( sl:GetValue() ) ) )
-			updating = false
-		end
-		items.argslist:Add( p ); p:SetZPos( z ); z = z + 1
+		local p = xlib.makepanel{ h=35, parent=items.argslist }; p.xguiIgnore = true
+		local sl = xlib.makeslider{ y=0, w=165, min=min, max=max, value=def, decimal=0, label="<--->", parent=p }
+		xlib.makelabel{ y=20, label=label, parent=p }
+		p:SetZPos( z ); z = z + 1
 		return sl
 	end
 
 	local function makeBtn( label )
-		local b = xlib.makebutton{ label=label }
-		b.xguiIgnore = true
-		b:SetSize( 160, 22 )
-		items.argslist:Add( b )
-		b:SetZPos( z ); z = z + 1
-		return b
+		local b = xlib.makebutton{ label=label, parent=items.argslist }; b.xguiIgnore = true
+		b:SetZPos( z ); z = z + 1; return b
 	end
 
 	local function addLabel( txt )
@@ -300,19 +166,28 @@ function items.buildArgsList( classname )
 	-- ===== 布局 =====
 
 	if itype == 1 then
+		-- 永久无模型无弹药 (拳头/虫饵): 仅给予，无数量无生成
 		makeBtn( T("items_give_btn") ).DoClick = function() sendGive( 1 ) end
 
-	elseif itype == 2 or itype == 4 then
+	elseif itype == 2 then
+		-- 消耗品 (手雷/医疗包/弹药): 数量滑块 + 给予 + 生成
 		local sl
 		makeBtn( T("items_give_btn") ).DoClick = function() sendGive( math.floor( sl:GetValue() ) ) end
 		sl = makeSlider( T("items_qty"), 0, 9999, 10 )
 
-		local slSpawn24
-		makeBtn( T("items_spawn_btn") ).DoClick = function() sendSpawn( math.floor( slSpawn24:GetValue() ) ) end
-		slSpawn24 = makeSlider( T("items_entity_qty"), 1, 10, 1 )
+		local slSpawn2
+		makeBtn( T("items_spawn_btn") ).DoClick = function() sendSpawn( math.floor( slSpawn2:GetValue() ) ) end
+		slSpawn2 = makeSlider( T("items_entity_qty"), 1, 10, 1 )
 		addLabel( T("items_spawn_warn") )
-		items.argslist:InvalidateLayout( true )
-		return
+
+	elseif itype == 4 then
+		-- 永久无弹药有实体 (撬棍/电棍/物理枪/工具枪/医疗包等): 仅给予 1 件 + 生成实体
+		makeBtn( T("items_give_weapon_btn") ).DoClick = function() sendGive( 1, 0 ) end
+
+		local slSpawn4
+		makeBtn( T("items_spawn_btn") ).DoClick = function() sendSpawn( math.floor( slSpawn4:GetValue() ) ) end
+		slSpawn4 = makeSlider( T("items_entity_qty"), 1, 10, 1 )
+		addLabel( T("items_spawn_warn") )
 
 	elseif itype == 3 then
 		local isDual = dualAmmo[classname]
@@ -334,16 +209,37 @@ function items.buildArgsList( classname )
 		makeBtn( T("items_spawn_btn") ).DoClick = function() sendSpawn( math.floor( slSpawn3:GetValue() ) ) end
 		slSpawn3 = makeSlider( T("items_entity_qty"), 1, 10, 1 )
 		addLabel( T("items_spawn_warn") )
-		items.argslist:InvalidateLayout( true )
-		return
 
 	elseif itype == 5 then
 		local slSpawn5
 		makeBtn( T("items_spawn_btn") ).DoClick = function() sendSpawn( math.floor( slSpawn5:GetValue() ) ) end
 		slSpawn5 = makeSlider( T("items_entity_qty"), 1, 10, 1 )
 		addLabel( T("items_spawn_warn") )
-		items.argslist:InvalidateLayout( true )
-		return
+
+	elseif itype == 6 then
+		-- 挂墙实体: 仅生成1个
+		makeBtn( T("items_spawn_btn") ).DoClick = function() sendSpawn( 1 ) end
+	end
+
+	-- 撤回按钮 (所有可生成类型通用: 2,3,4,5,6)
+	if itype >= 2 then
+		local undoBtn = xlib.makebutton{ label = xgui.T("items_spawn_undo") or "撤回上一次", parent=items.argslist }
+		undoBtn.xguiIgnore = true
+		
+		undoBtn.DoClick = function()
+			net.Start( "ulx_items_spawn_undo" )
+			net.SendToServer()
+		end
+		items.argslist:Add( undoBtn ); undoBtn:SetZPos( z ); z = z + 1
+
+		local clearBtn = xlib.makebutton{ label = xgui.T("items_spawn_clear") or "清除所有", parent=items.argslist }
+		clearBtn.xguiIgnore = true
+		
+		clearBtn.DoClick = function()
+			net.Start( "ulx_items_spawn_clear" )
+			net.SendToServer()
+		end
+		items.argslist:Add( clearBtn ); clearBtn:SetZPos( z ); z = z + 1
 	end
 
 	items.argslist:InvalidateLayout( true )
@@ -351,12 +247,33 @@ end
 
 -- 玩家列表刷新
 function items.refreshPlist()
+	-- 记住当前选中的玩家 SteamID64
+	local lastSelected = {}
+	for _, line in ipairs( items.plist:GetSelected() ) do
+		if line.ply and line.ply:IsValid() then
+			table.insert( lastSelected, line.ply:SteamID64() )
+		end
+	end
+
 	items.plist:Clear()
+	local localLine = nil
 	for _, ply in ipairs( player.GetAll() ) do
 		local line = items.plist:AddLine( ply:Nick(), translateGroup( ply:GetUserGroup() ) )
 		line.ply = ply
+		-- 恢复上次选中的玩家
+		if table.HasValue( lastSelected, ply:SteamID64() ) then
+			items.plist:SelectItem( line )
+		end
+		-- 标记本地玩家行
+		if ply == LocalPlayer() then localLine = line end
 	end
 	items.plist:SortByColumn( 1, false )
+
+	-- 无选中时自动选中自己
+	if #items.plist:GetSelected() == 0 and localLine then
+		items.plist:SelectItem( localLine )
+	end
+
 	if #items.plist:GetSelected() == 0 then
 		if not xlib.animRunning then
 			if items.argslist.open then items.argslist:Close(); xlib.animQueue_start() end
@@ -372,68 +289,83 @@ function items.refresh()
 	items.expandedcat = nil
 	items.selitem = nil
 
-	for _, catname in ipairs( cat_order ) do
-		local data = item_data[catname]
+	local lp = LocalPlayer()
+	for _, catname in ipairs( ulx.itemOrder ) do
+		local data = ulx.itemRegistry[catname]
 		if data then
-			local T = ULib.ulx_lang.T
-			-- 武器分类仅管理员可见 (使用 data key 判断，非翻译文本)
-			local isWeaponCat = ( catname == "武器" or catname == "CSS武器" or catname == "管理员武器" )
-			if isWeaponCat and not LocalPlayer():IsAdmin() then
-				-- 非管理员不显示武器分类
-			elseif catname == "管理员武器" and not LocalPlayer():IsSuperAdmin() then
-				-- 非超级管理员不显示管理员武器
-			else
-			items.cmd_contents[catname] = xlib.makelistview{ headerheight=0, multiselect=false, h=136 }
-			items.cmd_contents[catname].OnRowSelected = function( self, LineID )
-				items.setselected( self, LineID )
-			end
-			items.cmd_contents[catname]:AddColumn( "" )
-
-			-- 翻译分类显示名
-			local cat_tkeys = {
-				["武器"] = "items_weapons",
-				["CSS武器"] = "items_css_weapons",
-				["管理员武器"] = "items_admin_weapons",
-				["工具"] = "items_tools",
-				["弹药"] = "items_ammo",
-				["道具"] = "items_props",
-				["座椅"] = "items_seats",
-				["载具"] = "items_vehicles",
-			}
-			local tkey = cat_tkeys[catname]
-			local displayName = tkey and T(tkey) or catname
-			local cat = xlib.makecat{ label=displayName, contents=items.cmd_contents[catname], expanded=false, parent=xgui.null }
-			function cat.Header:OnMousePressed( mcode )
-				if mcode == MOUSE_LEFT then
-					self:GetParent():Toggle()
-					if items.expandedcat then
-						if items.expandedcat ~= self:GetParent() then
-							items.expandedcat:Toggle()
-						else
-							items.expandedcat = nil
-							return
-						end
-					end
-					items.expandedcat = self:GetParent()
-					return
-				end
-				return self:GetParent():OnMousePressed( mcode )
-			end
-
+			-- 收集当前分类中该玩家有权限看到的道具 (ULX 聊天指令式权限过滤)
+			local visibleItems = {}
+			local hasAny = false
 			for _, it in ipairs( data ) do
-				-- 跳过需要超级管理员权限的物品
-				if not it.a or it.a == "" or LocalPlayer():IsSuperAdmin() then
-					-- 使用语言键查找翻译名；有 k 参数用 itm_<c>_<k>，回退 itm_<c>，最后用 n 字段
+				-- ULX 聊天指令式权限过滤：有 a 字段则检查对应权限
+				local allowed = true
+				if it.a and it.a ~= "" then
+					if it.a == "superadmin" then
+						allowed = LocalPlayer():IsSuperAdmin()  -- 听服立即可用
+					elseif it.a == "admin" then
+						allowed = LocalPlayer():IsAdmin()
+					else
+						allowed = lp:query( it.a )  -- 自定义权限走 UCL 查询
+					end
+				end
+				if allowed then
+					table.insert( visibleItems, it )
+					hasAny = true
+				end
+			end
+			-- 分类下无可显示道具则跳过整个分类（但仍需关闭 if data then）
+			if hasAny then
+				items.cmd_contents[catname] = xlib.makelistview{ headerheight=0, multiselect=false, h=136 }
+				items.cmd_contents[catname].OnRowSelected = function( self, LineID )
+					items.setselected( self, LineID )
+				end
+				items.cmd_contents[catname]:AddColumn( "" )
+
+				-- 翻译分类显示名
+				local cat_tkeys = {
+					["武器"] = "items_weapons",
+					["CSS武器"] = "items_css_weapons",
+					["工具"] = "items_tools",
+					["弹药"] = "items_ammo",
+					["道具"] = "items_props",
+					["座椅"] = "items_seats",
+					["载具"] = "items_vehicles",
+				}
+				local T = ULib.ulx_lang.T
+				local tkey = cat_tkeys[catname]
+				local displayName = tkey and T(tkey) or catname
+				local cat = xlib.makecat{ label=displayName, contents=items.cmd_contents[catname], expanded=false, parent=xgui.null }
+				function cat.Header:OnMousePressed( mcode )
+					if mcode == MOUSE_LEFT then
+						self:GetParent():Toggle()
+						if items.expandedcat then
+							if items.expandedcat ~= self:GetParent() then
+								items.expandedcat:Toggle()
+							else
+								items.expandedcat = nil
+								return
+							end
+						end
+						items.expandedcat = self:GetParent()
+						return
+					end
+					return self:GetParent():OnMousePressed( mcode )
+				end
+
+				for _, it in ipairs( visibleItems ) do
 					local langKey = "itm_" .. it.c
 					if it.k and it.k ~= "" then langKey = langKey .. "_" .. it.k end
 					local itemName = T(langKey)
 					if itemName == langKey then itemName = it.n end
+					-- 受限物品在名称后加标记
+					if it.a and it.a ~= "" then
+						itemName = itemName .. " (管理员)"
+					end
 					items.cmd_contents[catname]:AddLine( itemName, it.c, tostring( it.t or 1 ), it.k or "" )
 				end
-			end
-			items.cmd_contents[catname]:SortByColumn( 1 )
-			items.cmd_contents[catname]:SetHeight( 17 * #items.cmd_contents[catname]:GetLines() )
-			items.cmds:Add( cat )
+				items.cmd_contents[catname]:SortByColumn( 1 )
+				items.cmd_contents[catname]:SetHeight( 17 * #items.cmd_contents[catname]:GetLines() )
+				items.cmds:Add( cat )
 			end
 		end
 	end
@@ -462,7 +394,6 @@ end
 local cat_tkeys = {
 	["武器"] = "items_weapons",
 	["CSS武器"] = "items_css_weapons",
-	["管理员武器"] = "items_admin_weapons",
 	["工具"] = "items_tools",
 	["弹药"] = "items_ammo",
 	["道具"] = "items_props",
@@ -485,17 +416,24 @@ function items.refreshTexts()
 				local itemKey = line:GetColumnText(4)
 				if itemKey and itemKey ~= "" then langKey = langKey .. "_" .. itemKey end
 				local itemName = T(langKey)
-				-- 无翻译时从 item_data 回退
-				if itemName == langKey then
-					for _, data in pairs( item_data ) do
-						for _, it in ipairs( data ) do
-							if it.c == classname and (itemKey == "" or it.k == itemKey) then
-								itemName = it.n
-								break
-							end
+				-- 查找注册表中的条目以获取 a 字段和回退名称
+				local foundIt = nil
+				for _, data in pairs( ulx.itemRegistry ) do
+					for _, it in ipairs( data ) do
+						if it.c == classname and (itemKey == "" or it.k == itemKey) then
+							foundIt = it
+							break
 						end
-						if itemName ~= langKey then break end
 					end
+					if foundIt then break end
+				end
+				-- 无翻译时回退到 n 字段
+				if itemName == langKey and foundIt then
+					itemName = foundIt.n
+				end
+				-- 权限受限物品加标记
+				if foundIt and foundIt.a and foundIt.a ~= "" then
+					itemName = itemName .. " (管理员)"
 				end
 				line:SetColumnText( 1, itemName )
 			end
@@ -522,7 +460,12 @@ function items.refreshTexts()
 end
 
 -- === 初始化 ===
+-- 立即刷新道具列表（与 GitHub 原版一致，不等 UCLChanged 首次触发）
 items.refresh()
+-- UCL 认证完成后重新刷新 (管理员武器等权限物品在认证后才可见)
+hook.Add( "UCLChanged", "xgui_items_refresh_items", function()
+	items.refresh()
+end )
 hook.Add( "UCLChanged", "xgui_items_refresh", items.refreshPlist )
 -- 语言刷新：仅更新文本（不重建道具列表结构）
 xgui.registerRefresh( "items", function()

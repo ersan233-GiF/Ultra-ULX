@@ -92,7 +92,7 @@ function cvarChanged( sv_cvar, cl_cvar, ply, old_value, new_value )
 	local command = sv_cvar:gsub( "^ulx_", "" ):lower() -- Strip it off for lookup below
 	if not ulx.cvars[ command ] then return end
 	sv_cvar = ulx.cvars[ command ].original -- Make sure we have intended casing
-	local path = "data/ulx/config.txt"
+	local path = "data/ultra_ulx/config.txt"
 	if not ULib.fileExists( path ) then
 		Msg( "[ULX ERROR] Config doesn't exist at " .. path .. "\n" )
 		return

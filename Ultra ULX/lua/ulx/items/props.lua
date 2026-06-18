@@ -1,0 +1,16 @@
+-- 道具 / 实体 (与 sv_items.lua persistent_items 同步)
+ulx.registerItems({
+	{ class = "prop_ragdoll",            name = "布娃娃",       type = 5 },
+	{ class = "item_healthkit",          name = "医疗包(道具)", type = 2 },
+	{ class = "item_healthvial",         name = "医疗瓶",       type = 2 },
+	{ class = "item_healthcharger",      name = "生命恢复仪",   type = 6 },
+	{ class = "item_battery",            name = "电池",         type = 2 },
+	{ class = "item_suitcharger",        name = "防护服充电仪", type = 6 },
+	{ class = "item_box_buckshot",       name = "霰弹弹药箱",   type = 2 },
+	{ class = "item_suit",               name = "防护服",       type = 4 },
+	{ class = "weapon_medkit",           name = "医疗包(武器)", type = 4, access = "superadmin" },
+	{ class = "combine_mine",            name = "联合军跳雷",   type = 5 },
+	{ class = "combine_mine_resistance", name = "反抗军跳雷",   type = 5 },
+	{ class = "grenade_helicopter",      name = "直升机炸弹",   type = 5 },
+	{ class = "sent_ball",               name = "弹力球",       type = 5 },
+}, "道具")

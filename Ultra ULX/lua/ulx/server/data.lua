@@ -73,8 +73,8 @@ Disobeying the rules
 
 files["config.txt"] =
 [[;Any of the settings in here can be added to the per-map or per-gamemode configs.
-;To add per-map and per-gamemode configs, create data/ulx/maps/<mapname>/config.txt
-;and data/ulx/gamemodes/<gamemodename>/config.txt files. This can also be done for
+;To add per-map and per-gamemode configs, create data/ultra_ulx/maps/<mapname>/config.txt
+;and data/ultra_ulx/gamemodes/<gamemodename>/config.txt files. This can also be done for
 ;All other configuration files (adverts.txt, downloads.txt, gimps.txt, votemaps.txt)
 ;All configurations add to each other except gimps and votemaps, which takes the most
 ;specific config only.
@@ -114,7 +114,7 @@ ulx logEcho 1 ; Echo mode
 ; 2 - FULL Output to players similar to "Foo slapped Bob with 0 damage"
 
 ulx logEchoColors 1 ; Whether or not echoed commands in chat are colored
-ulx logEchoColorDefault "151 211 255" ; The default text color (RGB)
+ulx logEchoColorDefault "60 160 240" ; The default text color (RGB)
 ulx logEchoColorConsole "0 0 0" ; The color that Console gets when using actions
 ulx logEchoColorSelf "75 0 130" ; The color for yourself in echoes
 ulx logEchoColorEveryone "0 128 128" ; The color to use when everyone is targeted in echoes
@@ -411,7 +411,7 @@ files["motd.txt"] =
 		"contents"
 		{
 			"此服务器正在运行 ULX 管理插件。"
-			"要编辑此默认 MOTD，请打开 XGUI->设置->服务器->ULX MOTD，或编辑 data\ulx\motd.txt。"
+			"要编辑此默认 MOTD，请打开 XGUI->设置->服务器->ULX MOTD，或编辑 data\ultra_ulx\motd.txt。"
 		}
 	}
 	{
@@ -493,9 +493,9 @@ files["motd.txt"] =
 }
 ]]
 
-ULib.fileCreateDir( "data/ulx" ) -- This is ignored if the folder already exists
+ULib.fileCreateDir( "data/ultra_ulx" ) -- This is ignored if the folder already exists
 for filename, content in pairs( files ) do
-	local filepath = "data/ulx/" .. filename
+	local filepath = "data/ultra_ulx/" .. filename
 	if not ULib.fileExists( filepath, true ) then
 		ULib.fileWrite( filepath, content )
 	end

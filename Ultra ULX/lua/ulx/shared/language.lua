@@ -2,10 +2,11 @@
 ULib.ulx_lang = ULib.ulx_lang or {}
 local L = ULib.ulx_lang
 
-L.available = { "zh-cn", "en", "ru" }
+L.available = { "zh-cn", "en", "ru", "lzh" }
 L.names = {
 	["zh-cn"] = "简体中文",
 	["en"]    = "English",
+	["lzh"]   = "文言文",
 	["ru"]    = "Русский",
 }
 L.data = L.data or {}  -- 当前语言数据表
@@ -25,7 +26,7 @@ function L.load( lang )
 	L.data = {}
 	if SERVER then
 		-- 服务端也加载，用于 fancyLog
-		local ok = pcall( include, "ulx/language/" .. lang .. ".lua" )
+		pcall( include, "ulx/language/" .. lang .. ".lua" )
 	else
 		include( "ulx/language/" .. lang .. ".lua" )
 	end
@@ -45,9 +46,9 @@ end
 if CLIENT then
 	-- 保存语言设置（双写保障：独立文件 + XGUI设置）
 	function L.saveClientLang( lang )
-		-- 直接写入 data/ulx/language.txt（绕过 ULib 文件函数，更可靠）
-		file.CreateDir( "ulx" )
-		file.Write( "ulx/language.txt", lang )
+		-- 直接写入 data/ultra_ulx/language.txt（绕过 ULib 文件函数，更可靠）
+		file.CreateDir( "ultra_ulx" )
+		file.Write( "ultra_ulx/language.txt", lang )
 		-- 同时保存到 XGUI 设置中作为备份
 		if xgui and xgui.settings then
 			xgui.settings.language = lang
@@ -58,8 +59,8 @@ if CLIENT then
 	-- 加载缓存
 	function L.loadCachedLang()
 		-- 优先从独立文件读取
-		if file.Exists( "ulx/language.txt", "DATA" ) then
-			local lang = file.Read( "ulx/language.txt", "DATA" ):Trim()
+		if file.Exists( "ultra_ulx/language.txt", "DATA" ) then
+			local lang = file.Read( "ultra_ulx/language.txt", "DATA" ):Trim()
 			if L.names[lang] then
 				L.switch( lang )
 				return

@@ -161,6 +161,12 @@ function cmds.buildArgsList( cmd )
 	cmds.curargs = {}
 	local argnum = 0
 	local zpos = 0
+
+
+
+
+
+
 	local expectingplayers = cmd.args[2] and ( ( cmd.args[2].type == ULib.cmds.PlayersArg ) or ( cmd.args[2].type == ULib.cmds.PlayerArg ) ) or false
 	for _, arg in ipairs( cmd.args ) do
 		if not arg.type.invisible then
@@ -236,6 +242,22 @@ function cmds.buildArgsList( cmd )
 		cmds.argslist:Add( panel )
 		panel:SetZPos( zpos )
 		zpos = zpos + 1
+
+		-- 处决类指令：追加"处决并复活"按钮
+		local executionCmds = { ["ulx slay"]=true, ["ulx explode"]=true, ["ulx rocket"]=true, ["ulx ignite"]=true }
+		if executionCmds[ cmd.cmd ] then
+			local revivePanel = xlib.makebutton{ label=btnLabel .. " + 复活", parent=cmds.argslist }
+			revivePanel.xguiIgnore = true
+			revivePanel.DoClick = function()
+				cmds.runCmd( cmd.cmd )
+				timer.Simple( 0.3, function()
+					cmds.runCmd( "ulx respawn" )
+				end )
+			end
+			cmds.argslist:Add( revivePanel )
+			revivePanel:SetZPos( zpos )
+			zpos = zpos + 1
+		end
 	end
 	if cmd.opposite and LocalPlayer():query( cmd.opposite ) then
 		local oppLabel = xgui.translateCommand( cmd.opposite )
@@ -388,9 +410,12 @@ function cmds.argslist:closeAnim( secondary )
 	end
 	xlib.addToAnimQueue( function() cmds.argslist.secondaryPos = nil end )
 end
--------------
+------------
 
--- 初始化由 UCLChanged 钩子触发，避免在认证前调用 query 导致错误
+-- 立即尝试刷新（仅当认证已完成时），否则等待 UCLChanged 钩子触发
+if game.SinglePlayer() or ULib.ucl.authed[LocalPlayer():UniqueID()] then
+	cmds.refresh()
+end
 hook.Add( "UCLChanged", "xgui_RefreshPlayerCmds", cmds.refresh )
 hook.Add( "ULibPlayerNameChanged", "xgui_plyUpdateCmds", cmds.playerNameChanged )
 

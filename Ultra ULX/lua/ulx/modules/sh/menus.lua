@@ -3,7 +3,7 @@ local CATEGORY_NAME = "菜单"
 
 if ULib.fileExists( "lua/ulx/modules/cl/motdmenu.lua" ) or ulx.motdmenu_exists then
 	local function sendMotd( ply, showMotd )
-		if ply.ulxHasMotd then return end -- This player already has the motd data
+		
 		if showMotd == "1" then -- Assume it's a file
 			if not ULib.fileExists( GetConVarString( "ulx_motdfile" ) ) then return end -- Invalid
 			local f = ULib.fileRead( GetConVarString( "ulx_motdfile" ) )
@@ -11,12 +11,12 @@ if ULib.fileExists( "lua/ulx/modules/cl/motdmenu.lua" ) or ulx.motdmenu_exists t
 			ULib.clientRPC( ply, "ulx.rcvMotd", showMotd, f )
 
 		elseif showMotd == "2" then
+			ulx.populateMotdData() -- 每次发送前刷新
 			ULib.clientRPC( ply, "ulx.rcvMotd", showMotd, ulx.motdSettings )
 
 		else -- Assume URL
 			ULib.clientRPC( ply, "ulx.rcvMotd", showMotd, GetConVarString( "ulx_motdurl" ) )
 		end
-		ply.ulxHasMotd = true
 	end
 
 	local function showMotd( ply )
@@ -82,7 +82,7 @@ if ULib.fileExists( "lua/ulx/modules/cl/motdmenu.lua" ) or ulx.motdmenu_exists t
 			-- Gather addon/admin information to display
 			for i=1, #ulx.motdSettings.info do
 				local sectionInfo = ulx.motdSettings.info[i]
-				if sectionInfo.type == "mods" and not ulx.motdSettings.addons then
+				if sectionInfo.type == "mods" then
 					getAddonInfo = true
 				elseif sectionInfo.type == "admins" then
 					for a=1, #sectionInfo.contents do
@@ -93,6 +93,7 @@ if ULib.fileExists( "lua/ulx/modules/cl/motdmenu.lua" ) or ulx.motdmenu_exists t
 
 			if getAddonInfo then
 				ulx.motdSettings.addons = {}
+				-- 方法1: 已挂载的 Workshop 插件
 				local addons = engine.GetAddons()
 				for i=1, #addons do
 					local addon = addons[i]
@@ -101,13 +102,38 @@ if ULib.fileExists( "lua/ulx/modules/cl/motdmenu.lua" ) or ulx.motdmenu_exists t
 					end
 				end
 
+				-- 方法2: 本地 addons 目录 (addon.json 或 addon.txt)
 				local _, possibleaddons = file.Find( "addons/*", "GAME" )
 				for _, addon in ipairs( possibleaddons ) do
-					if ULib.fileExists( "addons/" .. addon .. "/addon.txt" ) then
+					local name, author = nil, nil
+					if ULib.fileExists( "addons/" .. addon .. "/addon.json" ) then
+						local js = ULib.fileRead( "addons/" .. addon .. "/addon.json" )
+						if js then
+							local t = util.JSONToTable( js )
+							if t then name, author = t.title, t.author end
+						end
+					end
+					if not name and ULib.fileExists( "addons/" .. addon .. "/addon.txt" ) then
 						local t = ULib.parseKeyValues( ULib.stripComments( ULib.fileRead( "addons/" .. addon .. "/addon.txt" ), "//" ) )
+						if t and t.AddonInfo then name, author = t.AddonInfo.name, t.AddonInfo.author_name end
+					end
+					if name then
+						table.insert( ulx.motdSettings.addons, { title=name, author=author } )
+					end
+				end
+
+				-- 方法3: gamemodes 目录 (TTT2/Murder 等以 gamemode 形式安装的插件)
+				local _, gamemodes = file.Find( "gamemodes/*", "GAME" )
+				for _, gm in ipairs( gamemodes ) do
+					local gmPath = "gamemodes/" .. gm
+					if ULib.fileExists( gmPath .. "/addon.txt" ) then
+						local t = ULib.parseKeyValues( ULib.stripComments( ULib.fileRead( gmPath .. "/addon.txt" ), "//" ) )
 						if t and t.AddonInfo then
-							local name = t.AddonInfo.name or addon
-							table.insert( ulx.motdSettings.addons, { title=name, author=t.AddonInfo.author_name } )
+							local name = t.AddonInfo.name or gm
+							-- 排除 GMod 自带的基础 gamemode
+							if gm ~= "base" and gm ~= "sandbox" and gm ~= "terrortown" then
+								table.insert( ulx.motdSettings.addons, { title=name, author=t.AddonInfo.author_name } )
+							end
 						end
 					end
 				end

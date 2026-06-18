@@ -9,15 +9,24 @@ local isnumber = isnumber
 local math = math
 local IsValid = IsValid
 
+local OldHooks = hook.GetTable()
+local _G = _G
+
+module("hook")
+
+-- 挂载优先级常量到 hook 命名空间（避免全局污染）
 HOOK_MONITOR_HIGH = -2
 HOOK_HIGH = -1
 HOOK_NORMAL = 0
 HOOK_LOW = 1
 HOOK_MONITOR_LOW = 2
 
-local OldHooks = hook.GetTable()
-
-module("hook")
+-- 为向后兼容保留全局别名
+_G.HOOK_MONITOR_HIGH = HOOK_MONITOR_HIGH
+_G.HOOK_HIGH = HOOK_HIGH
+_G.HOOK_NORMAL = HOOK_NORMAL
+_G.HOOK_LOW = HOOK_LOW
+_G.HOOK_MONITOR_LOW = HOOK_MONITOR_LOW
 
 local Hooks = {}
 local BackwardsHooks = {}

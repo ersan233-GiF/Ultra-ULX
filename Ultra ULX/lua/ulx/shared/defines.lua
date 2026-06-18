@@ -17,7 +17,17 @@ ULib.ACCESS_SUPERADMIN = "superadmin"
 
 ULib.DEFAULT_ACCESS = ULib.ACCESS_ALL
 
-ULib.DEFAULT_TSAY_COLOR = Color( 151, 211, 255 ) -- Found by using MS Paint
+-- ===== Ultra ULX 加深颜色主题 =====
+-- 原版 ULX 颜色太浅，统一加深 20-40%
+ULib.COLOR_ACCENT   = Color( 60,  160, 240 )  -- 主色调: 深蓝 (原版 151,211,255 太淡)
+ULib.COLOR_SUCCESS  = Color( 40,  200, 80  )  -- 成功: 深绿
+ULib.COLOR_WARN     = Color( 220, 140, 0   )  -- 警告: 深金
+ULib.COLOR_ERROR    = Color( 220, 80,  30  )  -- 错误: 深红
+ULib.COLOR_INFO     = Color( 0,   170, 220 )  -- 信息: 深青
+ULib.COLOR_MUTED    = Color( 160, 160, 170 )  -- 弱化: 深灰
+ULib.COLOR_HIGHLIGHT = Color( 255, 180, 0  ) -- 高亮: 深黄
+
+ULib.DEFAULT_TSAY_COLOR = ULib.COLOR_ACCENT
 
 
 --[[
@@ -471,4 +481,8 @@ if SERVER then
 	util.AddNetworkString( "ulib_repWriteCvarBatch_Part" )
 	util.AddNetworkString( "ulib_repWriteCvarBatch_Complete" )
 	util.AddNetworkString( "ulib_repChangeCvar" )
+	util.AddNetworkString( "ulx_version_check" )
 end
+
+-- Ultra ULX 版本号，用于客户端自动同步
+ulx.VERSION = "2026.06.08"

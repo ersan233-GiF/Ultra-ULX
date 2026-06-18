@@ -9,7 +9,10 @@ function xgui.translateGroup(name)
 end
 function xgui.translateCategory(catname)
 	if not catname or catname == "" then catname = "_Uncategorized" end
-	return xgui.T("cat_" .. catname)
+	local key = "cat_" .. catname
+	local translated = xgui.T(key)
+	if translated == key then return catname end  -- 翻译不存在时回退到原始分类名
+	return translated
 end
 function xgui.translateCommand(fullCmd)
 	local cmdName = string.gsub(fullCmd, "^ulx ", "")
@@ -77,7 +80,7 @@ hook.Add("ULXLanguageChanged", "XGUI_CoreRefresh", function()
 			m.displayName = xgui.T("tab_" .. m.name)
 		end
 	end)
-	-- 更新标签页标题文本 + 重排布局（直接通过 module.tabpanel 引用，最可靠）
+	-- 更新标签页标题文本 + 轻量重排（仅 tab 栏，不重建内容）
 	pcall(function()
 		-- 主模块标签页
 		for _, m in ipairs(xgui.modules.tab) do
@@ -93,19 +96,74 @@ hook.Add("ULXLanguageChanged", "XGUI_CoreRefresh", function()
 				m.tabpanel:SizeToContents()
 			end
 		end
-		-- PropertySheet 布局刷新
-		if xgui.base then
-			pcall(function()
-				if xgui.base.tabScroller then xgui.base.tabScroller:InvalidateLayout(true) end
-			end)
-			xgui.base:InvalidateLayout(true)
+		-- 仅刷新 tab 滚动条布局（不刷新整个 PropertySheet，避免界面闪烁）
+		if xgui.base and xgui.base.tabScroller then
+			xgui.base.tabScroller:InvalidateLayout(true)
 		end
-		if xgui.settings_tabs then
-			pcall(function()
-				if xgui.settings_tabs.tabScroller then xgui.settings_tabs.tabScroller:InvalidateLayout(true) end
-			end)
-			xgui.settings_tabs:InvalidateLayout(true)
+		if xgui.settings_tabs and xgui.settings_tabs.tabScroller then
+			xgui.settings_tabs.tabScroller:InvalidateLayout(true)
 		end
 	end)
+	-- 调用所有模块的文本级刷新回调
 	pcall(xgui.refreshAllPanels)
 end)
+
+
+-- ============================================
+-- Ultra ULX - 数据导入 ConCommand
+-- 处理 XGUI 导入对话框的请求和跳过操作
+-- ============================================
+if SERVER then
+    concommand.Add("_xgui_importOldData", function(ply, cmd, args)
+        if not IsValid(ply) or not ply:IsSuperAdmin() then return end
+
+        local fileList = args[1] or ""
+        if fileList == "" then
+            ULib.tsayColor(ply, true, Color(255, 0, 0), "[Ultra ULX] 参数错误：未指定文件")
+            return
+        end
+
+        local selectedFiles = {}
+        for file in string.gmatch(fileList, "([^,]+)") do
+            table.insert(selectedFiles, file)
+        end
+
+        local imported = ulx.importOldData(ply, selectedFiles)
+
+        -- 通知客户端刷新导入面板
+        if #imported > 0 then
+            ULib.tsayColor(ply, true, ULib.COLOR_ACCENT, "[Ultra ULX] 已成功导入 " .. #imported .. " 个文件")
+            -- 发送刷新信号到客户端
+            net.Start("UltraULX_ImportComplete")
+            net.Send(ply)
+        end
+    end)
+
+    concommand.Add("_xgui_skipImport", function(ply)
+        if not IsValid(ply) or not ply:IsSuperAdmin() then return end
+
+        -- 标记为已跳过
+        ULib.fileWrite("data/ultra_ulx/.import_skipped", "1")
+        ULib.fileDelete("data/ultra_ulx/.import_pending")
+        ULib.tsayColor(ply, true, ULib.COLOR_MUTED, "[Ultra ULX] 已跳过导入，将使用全新配置")
+    end)
+end
+
+if CLIENT then
+    -- 接收导入完成信号，刷新面板
+    net.Receive("UltraULX_ImportComplete", function()
+        -- 刷新设置面板中的导入子模块
+        if xgui and xgui.settings then
+            xgui.settings:ClearControls()
+            local importPanel = xgui.getSubModule("数据导入")
+            if importPanel then
+                importPanel(xgui.settings)
+            end
+        end
+    end)
+
+    -- 查询导入状态（连接时检查是否需要弹窗）
+    net.Receive("UltraULX_CheckImport", function()
+        -- 由服务端在处理 PlayerAuthed 时调用
+    end)
+end

@@ -1,0 +1,16 @@
+-- 弹药
+ulx.registerItems({
+	{ class = "item_ammo_pistol",        name = "手枪弹药",     type = 2 },
+	{ class = "item_ammo_pistol_large",  name = "手枪弹药(大)", type = 2 },
+	{ class = "item_ammo_357",           name = "左轮弹药",     type = 2 },
+	{ class = "item_ammo_357_large",     name = "左轮弹药(大)", type = 2 },
+	{ class = "item_ammo_smg1",          name = "SMG弹药",      type = 2 },
+	{ class = "item_ammo_smg1_large",    name = "SMG弹药(大)",  type = 2 },
+	{ class = "item_ammo_ar2",           name = "AR2弹药",      type = 2 },
+	{ class = "item_ammo_ar2_large",     name = "AR2弹药(大)",  type = 2 },
+	{ class = "item_ammo_ar2_altfire",   name = "AR2能量球",    type = 2 },
+	{ class = "item_ammo_smg1_grenade",  name = "SMG榴弹",      type = 2 },
+	{ class = "item_ammo_buckshot",      name = "霰弹弹药",     type = 2 },
+	{ class = "item_ammo_crossbow",      name = "弩箭",         type = 2 },
+	{ class = "item_rpg_round",          name = "RPG火箭弹",    type = 2 },
+}, "弹药")

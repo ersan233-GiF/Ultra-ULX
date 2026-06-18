@@ -427,7 +427,7 @@ function ulx.mapvote( calling_ply )
 		Msg( "无法从控制台使用 mapvote。\n" )
 		return
 	end
-	ulx.fancyLogAdmin( calling_ply, "#A 触发了 mapvote（地图投票）" )
+	ulx.fancyLogAdmin( calling_ply, "#A 发起了地图投票" )
 	ULib.tsay( _, calling_ply:Nick() .. " 发起了一个地图投票！输入 !votemap <地图名> 来投票。", true )
 end
 local mapvoteCmd = ulx.command( CATEGORY_NAME, "ulx mapvote", ulx.mapvote, "!mapvote" )
@@ -440,7 +440,7 @@ function ulx.gmvote( calling_ply )
 		Msg( "无法从控制台使用 gmvote。\n" )
 		return
 	end
-	ulx.fancyLogAdmin( calling_ply, "#A 触发了 gmvote（游戏模式投票）" )
+	ulx.fancyLogAdmin( calling_ply, "#A 发起了游戏模式投票" )
 	ULib.tsay( _, calling_ply:Nick() .. " 发起了一个游戏模式投票！", true )
 end
 local gmvoteCmd = ulx.command( CATEGORY_NAME, "ulx gmvote", ulx.gmvote, "!gmvote" )

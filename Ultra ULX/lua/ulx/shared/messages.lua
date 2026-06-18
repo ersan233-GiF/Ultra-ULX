@@ -189,7 +189,7 @@ end
 		v2.40 - Initial.
 ]]
 function ULib.tsayError( ply, msg, wait )
-	return ULib.tsayColor( ply, wait, Color( 255, 140, 39 ), msg )
+	return ULib.tsayColor( ply, wait, ULib.COLOR_ERROR, msg )
 end
 
 

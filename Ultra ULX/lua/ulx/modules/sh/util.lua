@@ -393,8 +393,8 @@ function ulx.debuginfo( calling_ply )
 		end
 	end
 
-	ULib.fileWrite( "data/ulx/debugdump.txt", str )
-	Msg( "Debug information written to garrysmod/data/ulx/debugdump.txt on server.\n" )
+	ULib.fileWrite( "data/ultra_ulx/debugdump.txt", str )
+	Msg( "Debug information written to garrysmod/data/ultra_ulx/debugdump.txt on server.\n" )
 end
 local debuginfo = ulx.command( CATEGORY_NAME, "ulx debuginfo", ulx.debuginfo )
 debuginfo:defaultAccess( ULib.ACCESS_SUPERADMIN )
@@ -414,13 +414,13 @@ function ulx.resettodefaults( calling_ply, param )
 		return
 	end
 
-	ULib.fileDelete( "data/ulx/adverts.txt" )
-	ULib.fileDelete( "data/ulx/banreasons.txt" )
-	ULib.fileDelete( "data/ulx/config.txt" )
-	ULib.fileDelete( "data/ulx/downloads.txt" )
-	ULib.fileDelete( "data/ulx/gimps.txt" )
-	ULib.fileDelete( "data/ulx/sbox_limits.txt" )
-	ULib.fileDelete( "data/ulx/votemaps.txt" )
+	ULib.fileDelete( "data/ultra_ulx/adverts.txt" )
+	ULib.fileDelete( "data/ultra_ulx/banreasons.txt" )
+	ULib.fileDelete( "data/ultra_ulx/config.txt" )
+	ULib.fileDelete( "data/ultra_ulx/downloads.txt" )
+	ULib.fileDelete( "data/ultra_ulx/gimps.txt" )
+	ULib.fileDelete( "data/ultra_ulx/sbox_limits.txt" )
+	ULib.fileDelete( "data/ultra_ulx/votemaps.txt" )
 	ULib.fileDelete( "data/ulib/bans.txt" )
 	ULib.fileDelete( "data/ulib/groups.txt" )
 	ULib.fileDelete( "data/ulib/misc_registered.txt" )

@@ -26,6 +26,10 @@ end
 
 addSideLabel("sv_alltalk")
 server.alltalkCombo = xlib.makecombobox{ dock=TOP, dockmargin={0,2,0,0}, w=140, repconvar="rep_sv_alltalk", isNumberConvar=true, choices={ T("sv_alltalk_local"), T("sv_alltalk_team"), T("sv_alltalk_near"), T("sv_alltalk_all") }, parent=sidepanel }
+-- 服务器语言选择
+addSideLabelM("sv_server_language", 20)
+server.langCombo = xlib.makecombobox{ dock=TOP, dockmargin={0,2,0,0}, w=140, repconvar="ulx_language", choices={ "简体中文", "English", "Русский", "文言文" }, parent=sidepanel }
+
 addSideCheckbox("sv_voice", xlib.ifListenHost("sv_voiceenable"), xlib.ifNotListenHost("rep_sv_voiceenable"))
 addSideCheckbox("sv_ai_disable", xlib.ifListenHost("ai_disabled"), xlib.ifNotListenHost("rep_ai_disabled"), 20)
 addSideCheckbox("sv_ai_ignore", xlib.ifListenHost("ai_ignoreplayers"), xlib.ifNotListenHost("rep_ai_ignoreplayers"))
@@ -37,7 +41,7 @@ addSideCheckbox("sv_hev_suit", xlib.ifListenHost("gmod_suit"), xlib.ifNotListenH
 addSideLabelM("sv_gravity")
 xlib.makeslider{ dock=TOP, dockmargin={0,2,5,0}, label="<--->", w=125, min=-1000, max=1000, convar=xlib.ifListenHost("sv_gravity"), repconvar=xlib.ifNotListenHost("rep_sv_gravity"), parent=sidepanel, fixclip=true }
 addSideLabelM("sv_friction")
-xlib.makeslider{ dock=TOP, dockmargin={0,2,5,0}, label="<--->", w=125, min=-2, max=16, convar=xlib.ifListenHost("sv_friction"), repconvar=xlib.ifNotListenHost("rep_sv_friction"), parent=sidepanel, fixclip=true }
+xlib.makeslider{ dock=TOP, dockmargin={0,2,5,0}, label="<--->", w=125, min=0, max=16, convar=xlib.ifListenHost("sv_friction"), repconvar=xlib.ifNotListenHost("rep_sv_friction"), parent=sidepanel, fixclip=true }
 addSideLabelM("sv_phys_timescale")
 xlib.makeslider{ dock=TOP, dockmargin={0,2,5,0}, label="<--->", w=125, min=0, max=4, decimal=2, convar=xlib.ifListenHost("phys_timescale"), repconvar=xlib.ifNotListenHost("rep_phys_timescale"), parent=sidepanel, fixclip=true }
 addSideLabelM("sv_deploy_speed")
@@ -135,6 +139,14 @@ xgui.hookEvent( "onProcessModules", nil, server.processModules, "serverSettingsP
 -- 语言刷新：纯文本更新（不重建 UI，避免增生和卡顿）
 xgui.registerRefresh( "server_settings", function()
 	xgui.refreshLabels( server.sideLabels )
+	-- 服务器语言下拉框：按序号重建选项
+	if server.langCombo then
+		local prevId = server.langCombo:GetSelectedID()
+		server.langCombo:Clear()
+		local langChoices = { xgui.T("lang_zhcn"), xgui.T("lang_en"), xgui.T("lang_ru"), xgui.T("lang_lzh") }
+		for _, v in ipairs( langChoices ) do server.langCombo:AddChoice( v ) end
+		if prevId and prevId <= #langChoices then server.langCombo:ChooseOptionID( prevId ) end
+	end
 	-- 全员麦克风模式下拉框：按序号重建选项
 	if server.alltalkCombo then
 		local prevId = server.alltalkCombo:GetSelectedID()

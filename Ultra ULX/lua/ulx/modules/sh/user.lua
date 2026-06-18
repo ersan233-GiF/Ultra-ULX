@@ -123,8 +123,6 @@ removeuserid:defaultAccess( ULib.ACCESS_SUPERADMIN )
 removeuserid:help( "通过ID永久移除用户的所有权限." )
 
 function ulx.userallow( calling_ply, target_ply, access_string, access_tag )
-	if access_tag then access_tag = access_tag end
-
 	local accessTable
 	if access_tag and access_tag ~= "" then
 		accessTable = { [access_string]=access_tag }
@@ -154,7 +152,6 @@ userallow:defaultAccess( ULib.ACCESS_SUPERADMIN )
 userallow:help( "为用户添加权限." )
 
 function ulx.userallowid( calling_ply, id, access_string, access_tag )
-	if access_tag then access_tag = access_tag end
 	id = id:upper() -- Steam id needs to be upper
 
 	-- Check for valid and properly formatted ID
@@ -316,8 +313,6 @@ removegroup:defaultAccess( ULib.ACCESS_SUPERADMIN )
 removegroup:help( "移除一个用户组。请谨慎使用！" )
 
 function ulx.groupallow( calling_ply, group_name, access_string, access_tag )
-	access_tag = access_tag
-
 	local accessTable
 	if access_tag and access_tag ~= "" then
 		accessTable = { [access_string]=access_tag }

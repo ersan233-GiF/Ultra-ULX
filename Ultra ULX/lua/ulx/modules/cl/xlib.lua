@@ -87,9 +87,14 @@ function xlib.makelabel( t )
 	if t.font then pnl:SetFont( t.font ) end
 	if t.w and t.wordwrap then
 		pnl:SetText( xlib.wordWrap( t.label, t.w, t.font or "Default" ) )
+		pnl:SetWrap( true )
+		pnl:SetAutoStretchVertical( true )
+		pnl:SetWidth( t.w )
+		pnl:SizeToContents()
+	else
+		pnl:SizeToContents()
+		if t.w then pnl:SetWidth( t.w ) end
 	end
-	pnl:SizeToContents()
-	if t.w then pnl:SetWidth( t.w ) end
 	if t.h then pnl:SetHeight( t.h ) end
 	if t.textcolor then
 		pnl:SetTextColor( t.textcolor )

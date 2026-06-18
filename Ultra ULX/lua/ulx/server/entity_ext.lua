@@ -123,13 +123,13 @@ hook.Add( "CanTool", "ULibEntToolCheck", tool, HOOK_HIGH )
 
 local function property( ply, propertymode, ent )
 	if ent.NoMoving then
-		if not table.HasValue( ULib.moveWhitelist, toolmode ) then
+		if not table.HasValue( ULib.moveWhitelist, propertymode ) then
 			return false
 		end
 	end
 	
 	if ent.NoDeleting then
-		if not table.HasValue( ULib.delWhitelist, toolmode ) then
+		if not table.HasValue( ULib.delWhitelist, propertymode ) then
 			return false
 		end
 	end
@@ -152,12 +152,6 @@ local function physgunReload( weapon, ply )
 end
 hook.Add( "OnPhysgunReload", "ULibEntPhysReloadCheck", physgunReload, HOOK_HIGH )
 
-local function damageCheck( ent )
-	if ent.NoDeleting then
-		-- return false
-	end
-end
-hook.Add( "EntityTakeDamage", "ULibEntDamagedCheck", damageCheck, HOOK_MONITOR_HIGH )
 
 -- This is just in case we have some horribly programmed addon that goes rampant in deleting things
 local function removedCheck( ent )
