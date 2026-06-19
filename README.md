@@ -14,7 +14,7 @@
 
 ## 模块简介
 
-**Ultra ULX** 是 Garry's Mod 服务端管理插件 [ULX](https://github.com/TeamUlysses/ulx) 的增强分支，在保留原版全部功能的基础上，新增 69+ 条管理命令，支持 4 种语言，并深度优化性能与稳定性。
+[**Ultra ULX** ](https://github.com/ersan233-GiF/Ultra-ULX)是 Garry's Mod 服务端管理插件 [ULX](https://github.com/TeamUlysses/ulx) 的增强分支，在保留原版全部功能的基础上，新增 69+ 条管理命令，支持 4 种语言，并深度优化性能与稳定性。
 
 ### 核心功能
 
