@@ -9,28 +9,6 @@ T["tab_maps"] = "Maps"
 T["tab_settings"] = "Settings"
 T["tab_bans"] = "Bans"
 T["tab_items"] = "Items"
-T["tab_ai_bot"] = "AI Bot"
-
--- ===== AI Bot Sub-tabs =====
-T["tab_ai_bot_mgmt"] = "Bot Management"
-T["tab_ai_chat"] = "AI Chat"
-T["ai_chat_placeholder"] = "AI Chat coming soon..."
-
--- ===== Bot Panel =====
-T["bots_spawn"] = "Spawn Bots:"
-T["bots_spawn_btn"] = "Spawn"
-T["bots_remove"] = "Remove Bots:"
-T["bots_kick_sel"] = "Kick Selected"
-T["bots_kick_all"] = "Kick All"
-T["bots_behavior"] = "Behavior:"
-T["bots_freeze"] = "Freeze"
-T["bots_unfreeze"] = "Unfreeze"
-T["bots_give_weapon"] = "Give Weapon..."
-T["bots_strip"] = "Strip Weapons"
-T["bots_mimic"] = "Mimic Player..."
-T["bots_stop_mimic"] = "Stop Mimic"
-T["bots_hp"] = "Set Health:"
-T["bots_no_bots"] = "No Bots"
 -- ===== Ban Panel =====
 T["bans_steamid"] = "SteamID:"
 T["bans_never"] = "Never"

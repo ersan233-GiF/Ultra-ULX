@@ -10,12 +10,6 @@ T["tab_settings"] = "设定"
 T["tab_bans"] = "禁锢"
 T["tab_items"] = "器物"
 T["tab_bhop"] = "腾跃"
-T["tab_ai_bot"] = "灵傀"
-
--- ===== AI Bot 管理子标签 =====
-T["tab_ai_bot_mgmt"] = "灵傀辖"
-T["tab_ai_chat"] = "灵言"
-T["ai_chat_placeholder"] = "灵言之术，将至未至……"
 
 -- ===== XGUI 设置子标签 =====
 T["tab_sandbox"] = "沙盒"
