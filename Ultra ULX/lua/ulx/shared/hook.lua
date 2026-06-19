@@ -10,6 +10,8 @@ local math = math
 local IsValid = IsValid
 
 local OldHooks = hook.GetTable()
+-- Preserve GMod's original hook.Call for base hooks and gamemode functions
+local oldHookCall = hook.Call
 
 -- 优先级常量（全局，兼容旧代码）
 HOOK_MONITOR_HIGH = -2
@@ -61,15 +63,11 @@ hook_mt.Remove        = function(event_name, name)
 	BackwardsHooks[event_name][name] = nil
 end
 
-local currentGM
-
 hook_mt.Run           = function(name, ...)
-	if not currentGM then
-		currentGM = gmod and gmod.GetGamemode() or nil
-	end
-	return hook_mt.Call(name, currentGM, ...)
+	return hook_mt.Call(name, gmod and gmod.GetGamemode() or nil, ...)
 end
 hook_mt.Call          = function(name, gm, ...)
+	-- 先运行 ULib 自定义优先级钩子
 	local HookTable = Hooks[name]
 	if HookTable ~= nil then
 		for i=-2, 2 do
@@ -94,10 +92,10 @@ hook_mt.Call          = function(name, gm, ...)
 		end
 	end
 
-	if not gm then return end
-	local GamemodeFunction = gm[name]
-	if GamemodeFunction == nil then return end
-	return GamemodeFunction(gm, ...)
+	-- 回退到原始 hook.Call 处理 GMod 基础钩子和游戏模式函数
+	if oldHookCall then
+		return oldHookCall(name, gm, ...)
+	end
 end
 
 -- Import existing hooks
