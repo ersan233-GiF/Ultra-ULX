@@ -1,12 +1,20 @@
 # Ultra ULX v2.69.1
 
-> 基于 Team Ulysses ULX v3.71 ⸱ 完全中文化 ⸱ 69+ 新命令
+[![GitHub release](https://img.shields.io/badge/version-2.69.1-blue)](https://github.com/ersan233-GiF/Ultra-ULX/releases)
+[![GitHub stars](https://img.shields.io/github/stars/ersan233-GiF/Ultra-ULX?style=social)](https://github.com/ersan233-GiF/Ultra-ULX)
+[![GitHub license](https://img.shields.io/badge/license-MIT-green)](https://github.com/ersan233-GiF/Ultra-ULX/blob/main/LICENSE)
+[![ULX](https://img.shields.io/badge/ULX-3.81%20compatible-orange)](https://github.com/TeamUlysses/ulx)
+[![GMod](https://img.shields.io/badge/Garry's%20Mod-Addon-ff69b4)](https://gmod.facepunch.com/)
+
+> 基于 [Team Ulysses ULX v3.71](https://github.com/TeamUlysses/ulx) · 完全中文化 · 69+ 新命令
+
+**[GitHub 仓库](https://github.com/ersan233-GiF/Ultra-ULX)** · **[下载发布包](https://github.com/ersan233-GiF/Ultra-ULX/releases)** · **[提交 Issue](https://github.com/ersan233-GiF/Ultra-ULX/issues)**
 
 ---
 
 ## 模块简介
 
-[**Ultra ULX**](https://github.com/ersan233-GiF/Ultra-ULX/tree/main) 是 Garry's Mod 服务端管理插件 [ULX](https://github.com/TeamUlysses/ulx) 的增强分支，在保留原版全部功能的基础上，新增 69+ 条管理命令，完整中文化，并深度优化性能与稳定性。
+**Ultra ULX** 是 Garry's Mod 服务端管理插件 [ULX](https://github.com/TeamUlysses/ulx) 的增强分支，在保留原版全部功能的基础上，新增 69+ 条管理命令，支持 4 种语言，并深度优化性能与稳定性。
 
 ### 核心功能
 
@@ -30,10 +38,12 @@
 > **优先级：[P0] 安装必读**
 
 ```
-1. 将 Ultra ULX 文件夹放入 garrysmod/addons/
+1. 下载发布包 → 解压 → 将 Ultra ULX 文件夹放入 garrysmod/addons/
 2. 重启服务器
 3. 控制台显示 // Ultra ULX v2.69.1 Loaded! // 即成功
 ```
+
+[⬇️ 下载最新发布包](https://github.com/ersan233-GiF/Ultra-ULX/releases)
 
 ## 命令使用
 
@@ -194,7 +204,7 @@ ulx removeuser 玩家名                          ← 按名称移除
 | `Groups file was not formatted correctly` | 删除 `data/ulib/groups.txt`，重启自动重建 |
 | 命令无反应 | 确认自己有对应权限（SuperAdmin/Admin） |
 | 语言切换后乱码 | 输入 `ulx_lang zh-cn` 切回中文 |
-| 怎么给自己权限？ | 服务器控制台执行 `ulx adduser 你的名字 superadmin` |
+| 怎么给自己权限？ | 服务器控制台执行 `ulx adduserid <你的SteamID> superadmin` |
 | 忘记了自己的 SteamID？ | 聊天框输入 `!who` 即可查看自己和在线玩家 |
 | BHOP 开了没效果？ | 检查地图是否启用了其他物理插件，部分模式（如 DarkRP）自带移动限制 |
 | 道具生成不出来？ | 确认 `data/ultra_ulx/sbox_limits.txt` 中的限制是否过小，或 `!menu`→道具面板中查看已勾选的类别 |
@@ -226,7 +236,6 @@ ulx removeuser 玩家名                          ← 按名称移除
 addons/Ultra ULX/                          [~1.07 MB / ~26,100 行]
 │
 ├── addon.json ........................... 412 B    插件元数据 JSON（GMod 识别入口）
-├── README.md                     ~19 KB    本文件
 │
 └── lua/
     ├── autorun/
@@ -628,3 +637,11 @@ ulx.item.Register("my_category", {
 ```
 
 已有分类：weapons_hl2（14件）、weapons_css（12件）、weapons_admin（2件）、tools（3件）、ammo（7种）、props（8件）、seats（3件）、vehicles（2件）。
+
+---
+
+**[⬆ 返回顶部](#ultra-ulx-v2691)**
+
+---
+
+*Ultra ULX — 基于 [ULX](https://github.com/TeamUlysses/ulx) by Team Ulysses · [GitHub 仓库](https://github.com/ersan233-GiF/Ultra-ULX) · [提交 Issue](https://github.com/ersan233-GiF/Ultra-ULX/issues)*
