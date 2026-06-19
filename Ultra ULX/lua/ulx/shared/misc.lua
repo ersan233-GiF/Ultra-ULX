@@ -268,7 +268,8 @@ end
 		v2.40 - Properly handles escaped quotes now.
 ]]
 function ULib.parseKeyValues( str, convert )
-	local lines = ULib.explode( "\r?\n", str )
+	-- Normalize line endings: \r\n → \n, then split by \n
+	local lines = ULib.explode( "\n", str:gsub( "\r\n", "\n" ):gsub( "\r", "\n" ) )
 	local parent_tables = {} -- Traces our way to root
 	local current_table = {}
 	local is_insert_last_op = false

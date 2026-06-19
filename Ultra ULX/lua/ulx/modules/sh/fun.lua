@@ -19,7 +19,7 @@ local slap = ulx.command( CATEGORY_NAME, "ulx slap", ulx.slap, "!slap" )
 slap:addParam{ type=ULib.cmds.PlayersArg }
 slap:addParam{ type=ULib.cmds.NumArg, min=0, default=0, hint="伤害值", ULib.cmds.optional, ULib.cmds.round }
 slap:defaultAccess( ULib.ACCESS_ADMIN )
-slap:help( "扇目标巴掌。" )
+slap:help( "扇目标巴掌造成伤害" )
 
 ------------------------------ Whip (连续扇) ------------------------------
 function ulx.whip( calling_ply, target_plys, times, freq, dmg )
@@ -55,7 +55,7 @@ whip:addParam{ type=ULib.cmds.NumArg, min=1, max=9999, default=10, hint="次数"
 whip:addParam{ type=ULib.cmds.NumArg, min=0.1, max=100, default=2, hint="频率/秒", ULib.cmds.optional }
 whip:addParam{ type=ULib.cmds.NumArg, min=0, default=0, hint="伤害值", ULib.cmds.optional, ULib.cmds.round }
 whip:defaultAccess( ULib.ACCESS_ADMIN )
-whip:help( "连续扇目标。频率 0.1~30次/秒。" )
+whip:help( "连续扇目标指定次数，!unwhip 停止" )
 whip:setOpposite( "ulx unwhip", {_, _, 0}, "!unwhip" )
 
 ------------------------------ Slay ------------------------------
@@ -82,7 +82,7 @@ end
 local slay = ulx.command( CATEGORY_NAME, "ulx slay", ulx.slay, "!slay" )
 slay:addParam{ type=ULib.cmds.PlayersArg }
 slay:defaultAccess( ULib.ACCESS_ADMIN )
-slay:help( "杀死目标." )
+slay:help( "直接杀死目标" )
 
 ------------------------------ Sslay ------------------------------
 function ulx.sslay( calling_ply, target_plys )
@@ -112,7 +112,7 @@ end
 local sslay = ulx.command( CATEGORY_NAME, "ulx sslay", ulx.sslay, "!sslay" )
 sslay:addParam{ type=ULib.cmds.PlayersArg }
 sslay:defaultAccess( ULib.ACCESS_SUPERADMIN )
-sslay:help( "静默杀死目标（不显示死亡信息）." )
+sslay:help( "静默杀死目标，不显示死亡消息" )
 
 ------------------------------ Ignite ------------------------------
 function ulx.ignite( calling_ply, target_plys, seconds, should_extinguish )
@@ -143,7 +143,7 @@ ignite:addParam{ type=ULib.cmds.PlayersArg }
 ignite:addParam{ type=ULib.cmds.NumArg, min=1, max=300, default=300, hint="秒数", ULib.cmds.optional, ULib.cmds.round }
 ignite:addParam{ type=ULib.cmds.BoolArg, invisible=true }
 ignite:defaultAccess( ULib.ACCESS_ADMIN )
-ignite:help( "点燃目标." )
+ignite:help( "点燃目标持续灼烧，!unignite 熄灭" )
 ignite:setOpposite( "ulx unignite", {_, _, _, true}, "!unignite" )
 
 local function checkFireDeath( ply )
@@ -175,7 +175,7 @@ function ulx.unigniteall( calling_ply )
 end
 local unigniteall = ulx.command( CATEGORY_NAME, "ulx unigniteall", ulx.unigniteall, "!unigniteall" )
 unigniteall:defaultAccess( ULib.ACCESS_ADMIN )
-unigniteall:help( "熄灭所有玩家和实体的火焰." )
+unigniteall:help( "熄灭所有玩家和实体的火焰" )
 
 ------------------------------ Playsound ------------------------------
 if SERVER then
@@ -197,7 +197,7 @@ end
 local playsound = ulx.command( CATEGORY_NAME, "ulx playsound", ulx.playsound )
 playsound:addParam{ type=ULib.cmds.StringArg, hint="音效路径", autocomplete_fn=ulx.soundComplete }
 playsound:defaultAccess( ULib.ACCESS_ADMIN )
-playsound:help( "播放声音（路径相对于 sound 目录）." )
+playsound:help( "服务器广播播放音效文件" )
 
 ------------------------------ Freeze ------------------------------
 function ulx.freeze( calling_ply, target_plys, should_unfreeze )
@@ -241,7 +241,7 @@ local freeze = ulx.command( CATEGORY_NAME, "ulx freeze", ulx.freeze, "!freeze" )
 freeze:addParam{ type=ULib.cmds.PlayersArg }
 freeze:addParam{ type=ULib.cmds.BoolArg, invisible=true }
 freeze:defaultAccess( ULib.ACCESS_ADMIN )
-freeze:help( "冻结目标." )
+freeze:help( "冻结目标无法移动，!unfreeze 解除" )
 freeze:setOpposite( "ulx unfreeze", {_, _, true}, "!unfreeze" )
 
 ------------------------------ God ------------------------------
@@ -283,7 +283,7 @@ local god = ulx.command( CATEGORY_NAME, "ulx god", ulx.god, "!god" )
 god:addParam{ type=ULib.cmds.PlayersArg, ULib.cmds.optional }
 god:addParam{ type=ULib.cmds.BoolArg, invisible=true }
 god:defaultAccess( ULib.ACCESS_ADMIN )
-god:help( "给予目标无敌模式." )
+god:help( "给予目标无敌模式，!ungod 解除" )
 god:setOpposite( "ulx ungod", {_, _, true}, "!ungod" )
 
 ------------------------------ Hp ------------------------------
@@ -297,7 +297,7 @@ local hp = ulx.command( CATEGORY_NAME, "ulx hp", ulx.hp, "!hp" )
 hp:addParam{ type=ULib.cmds.PlayersArg }
 hp:addParam{ type=ULib.cmds.NumArg, min=1, max=2^32/2-1, hint="生命值", ULib.cmds.round }
 hp:defaultAccess( ULib.ACCESS_ADMIN )
-hp:help( "设置目标的生命值." )
+hp:help( "设置目标的生命值" )
 
 ------------------------------ Armor ------------------------------
 function ulx.armor( calling_ply, target_plys, amount )
@@ -310,7 +310,7 @@ local armor = ulx.command( CATEGORY_NAME, "ulx armor", ulx.armor, "!armor" )
 armor:addParam{ type=ULib.cmds.PlayersArg }
 armor:addParam{ type=ULib.cmds.NumArg, min=0, max=255, hint="护甲值", ULib.cmds.round }
 armor:defaultAccess( ULib.ACCESS_ADMIN )
-armor:help( "设置目标的护甲值." )
+armor:help( "设置目标的护甲值" )
 
 ------------------------------ Cloak ------------------------------
 function ulx.cloak( calling_ply, target_plys, amount, should_uncloak )
@@ -336,7 +336,7 @@ cloak:addParam{ type=ULib.cmds.PlayersArg, ULib.cmds.optional }
 cloak:addParam{ type=ULib.cmds.NumArg, min=0, max=255, default=255, hint="透明度", ULib.cmds.round, ULib.cmds.optional }
 cloak:addParam{ type=ULib.cmds.BoolArg, invisible=true }
 cloak:defaultAccess( ULib.ACCESS_ADMIN )
-cloak:help( "使目标隐身." )
+cloak:help( "使目标隐身，!uncloak 恢复可见" )
 cloak:setOpposite( "ulx uncloak", {_, _, _, true}, "!uncloak" )
 
 ------------------------------ Blind ------------------------------
@@ -391,7 +391,7 @@ blind:addParam{ type=ULib.cmds.NumArg, min=0, max=255, default=255, hint="黑屏
 blind:addParam{ type=ULib.cmds.NumArg, min=0, max=3600, default=0, hint="持续时间/秒 (0=永久)", ULib.cmds.round, ULib.cmds.optional }
 blind:addParam{ type=ULib.cmds.BoolArg, invisible=true }
 blind:defaultAccess( ULib.ACCESS_ADMIN )
-blind:help( "使目标致盲。指定时间则到时自动解除。" )
+blind:help( "使目标屏幕变黑，!unblind 解除。可指定持续时间" )
 blind:setOpposite( "ulx unblind", {_, _, _, _, true}, "!unblind" )
 
 ------------------------------ Jail ------------------------------
@@ -434,21 +434,47 @@ jail:addParam{ type=ULib.cmds.PlayersArg }
 jail:addParam{ type=ULib.cmds.NumArg, min=0, default=0, hint="秒, 0为永久", ULib.cmds.round, ULib.cmds.optional }
 jail:addParam{ type=ULib.cmds.BoolArg, invisible=true }
 jail:defaultAccess( ULib.ACCESS_ADMIN )
-jail:help( "将目标关入监狱." )
+jail:help( "将目标关入监狱，!unjail 释放" )
 jail:setOpposite( "ulx unjail", {_, _, _, true}, "!unjail" )
 
 ------------------------------ Jail TP ------------------------------
-function ulx.jailtp( calling_ply, target_ply, seconds )
-	local t = {}
-	t.start = calling_ply:GetPos() + Vector( 0, 0, 32 ) -- Move them up a bit so they can travel across the ground
-	t.endpos = calling_ply:GetPos() + calling_ply:EyeAngles():Forward() * 16384
-	t.filter = target_ply
-	if target_ply ~= calling_ply then
-		t.filter = { target_ply, calling_ply }
+function ulx.jailtp( calling_ply, target_ply, seconds, should_unjail )
+	-- 释放模式：直接调用 unjail
+	if should_unjail then
+		if target_ply.jail then
+			target_ply.jail.unjail()
+			target_ply.jail = nil
+			ulx.fancyLogAdmin( calling_ply, "#A teleported and unjailed #T", target_ply )
+		else
+			ULib.tsayError( calling_ply, target_ply:Nick() .. " 没有被囚禁！", true )
+		end
+		return
 	end
-	local tr = util.TraceEntity( t, target_ply )
 
+	-- 从执行者准星方向发射射线，找到目标位置
+	local shootPos = calling_ply:GetShootPos()
+	local aimVec = calling_ply:GetAimVector()
+	local tr = util.TraceLine( {
+		start = shootPos,
+		endpos = shootPos + aimVec * 16384,
+		filter = { calling_ply, target_ply }
+	} )
+	-- 如果没击中任何东西，用准星前方 256 单位处
 	local pos = tr.HitPos
+	if not tr.Hit or pos:Distance(shootPos) > 8000 then
+		pos = shootPos + aimVec * 256
+		-- 向下照射找地面，让囚笼放在地面上
+		local ground = util.TraceLine( {
+			start = pos + Vector(0, 0, 64),
+			endpos = pos - Vector(0, 0, 512),
+			filter = { calling_ply, target_ply }
+		} )
+		if ground.Hit then
+			pos = ground.HitPos
+		end
+	end
+	-- 微调：把坐标抬高让玩家站在地面上
+	pos = pos + Vector(0, 0, 4)
 
 	if ulx.getExclusive( target_ply, calling_ply ) then
 		ULib.tsayError( calling_ply, ulx.getExclusive( target_ply, calling_ply ), true )
@@ -482,8 +508,10 @@ end
 local jailtp = ulx.command( CATEGORY_NAME, "ulx jailtp", ulx.jailtp, "!jailtp" )
 jailtp:addParam{ type=ULib.cmds.PlayerArg }
 jailtp:addParam{ type=ULib.cmds.NumArg, min=0, default=0, hint="秒, 0为永久", ULib.cmds.round, ULib.cmds.optional }
+jailtp:addParam{ type=ULib.cmds.BoolArg, invisible=true }
 jailtp:defaultAccess( ULib.ACCESS_ADMIN )
-jailtp:help( "将目标传送到准星位置并关入监狱." )
+jailtp:help( "将目标传送到准星位置并关入监狱，!unjailtp 释放" )
+jailtp:setOpposite( "ulx unjailtp", {_, _, _, true}, "!unjailtp" )
 
 local function jailCheck()
 	local remove_timer = true
@@ -544,7 +572,8 @@ doJail = function( v, seconds )
 	-- Force other players to let go of this player
 	if v.physgunned_by then
 		for ply, v in pairs( v.physgunned_by ) do
-			if ply:IsValid() and ply:GetActiveWeapon():IsValid() and ply:GetActiveWeapon():GetClass() == "weapon_physgun" then
+			local wep = ply:GetActiveWeapon()
+			if IsValid( wep ) and wep:GetClass() == "weapon_physgun" then
 				ply:ConCommand( "-attack" )
 			end
 		end
@@ -563,7 +592,8 @@ doJail = function( v, seconds )
 		ent:SetPos( pos + info.pos )
 		ent:SetAngles( info.ang )
 		ent:Spawn()
-		ent:GetPhysicsObject():EnableMotion( false )
+		local phys = ent:GetPhysicsObject()
+		if IsValid( phys ) then phys:EnableMotion( false ) end
 		ent:SetMoveType( MOVETYPE_NONE )
 		ent.jailWall = true
 		table.insert( walls, ent )
@@ -744,7 +774,7 @@ local ragdoll = ulx.command( CATEGORY_NAME, "ulx ragdoll", ulx.ragdoll, "!ragdol
 ragdoll:addParam{ type=ULib.cmds.PlayersArg }
 ragdoll:addParam{ type=ULib.cmds.BoolArg, invisible=true }
 ragdoll:defaultAccess( ULib.ACCESS_ADMIN )
-ragdoll:help( "使目标变成布娃娃。" )
+ragdoll:help( "使目标变成布娃娃无法行动，!unragdoll 恢复" )
 ragdoll:setOpposite( "ulx unragdoll", {_, _, true}, "!unragdoll" )
 
 local function ragdollSpawnCheck( ply )
@@ -938,7 +968,7 @@ end
 local maul = ulx.command( CATEGORY_NAME, "ulx maul", ulx.maul, "!maul" )
 maul:addParam{ type=ULib.cmds.PlayersArg }
 maul:defaultAccess( ULib.ACCESS_SUPERADMIN )
-maul:help( "召唤僵尸群围攻目标。" )
+maul:help( "召唤僵尸群围攻目标" )
 
 checkMaulDeath = function( ply, weapon, killer )
 	if ply.maul_npcs then
@@ -1016,6 +1046,6 @@ end
 local strip = ulx.command( CATEGORY_NAME, "ulx strip", ulx.stripweapons, "!strip" )
 strip:addParam{ type=ULib.cmds.PlayersArg }
 strip:defaultAccess( ULib.ACCESS_ADMIN )
-strip:help( "卸下目标的所有武器。" )
+strip:help( "卸下目标的所有武器" )
 
 

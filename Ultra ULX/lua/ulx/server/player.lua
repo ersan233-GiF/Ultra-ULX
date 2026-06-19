@@ -117,7 +117,7 @@ local function doInvis()
 		local t = player:GetTable()
 		if t.invis then
 			remove = false
-			if player:Alive() and player:GetActiveWeapon():IsValid() then
+			if player:Alive() and IsValid( player:GetActiveWeapon() ) then
 				if player:GetActiveWeapon() ~= t.invis.wep then
 
 					if t.invis.wep and IsValid( t.invis.wep ) then		-- If changed weapon, set the old weapon to be visible.

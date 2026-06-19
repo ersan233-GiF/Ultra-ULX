@@ -13,7 +13,7 @@ local logChat                   = ulx.convar( "logChat", "1", "Log player chat",
 local logSpawns                 = ulx.convar( "logSpawns", "1", "Log when players spawn objects (props, effects, etc)", ULib.ACCESS_SUPERADMIN )
 local logSpawnsEcho             = ulx.convar( "logSpawnsEcho", "1", "Echo spawns to players in server. -1 = Off, 0 = Console only, 1 = Admins only, 2 = All players. (Echoes to console)", ULib.ACCESS_SUPERADMIN )
 local logJoinLeaveEcho          = ulx.convar( "logJoinLeaveEcho", "1", "Echo players leaves and joins to admins in the server (useful for banning minges)", ULib.ACCESS_SUPERADMIN )
-local logDir                    = ulx.convar( "logDir", "ulx_logs", "The log dir under garrysmod/data", ULib.ACCESS_SUPERADMIN )
+local logDir                    = ulx.convar( "logDir", "ultra_ulx_logs", "The log dir under garrysmod/data", ULib.ACCESS_SUPERADMIN )
 
 local hiddenechoAccess = "ulx hiddenecho"
 ULib.ucl.registerAccess( hiddenechoAccess, ULib.ACCESS_SUPERADMIN, "查看隐藏回显的权限", "Other" ) -- 默认给超级管理员查看隐藏回显的权限
@@ -207,6 +207,10 @@ end
 hook.Add( "PlayerInitialSpawn", "ULXLogInitialSpawn", playerInitialSpawn, HOOK_MONITOR_HIGH )
 
 local function playerDisconnect( ply )
+	-- 清理 joinTimer，防止内存泄漏（玩家可能在 PlayerInitialSpawn 前断开）
+	local ip = ply:IPAddress()
+	joinTimer[ip] = nil
+
 	local txt = string.format( "Dropped \"%s\" from server<%s>", ply:Nick(), ply:SteamID() )
 	if logEvents:GetBool() then
 		ulx.logString( txt )

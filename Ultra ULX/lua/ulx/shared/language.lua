@@ -16,19 +16,39 @@ L.current = L.current or "zh-cn"
 
 -- 获取翻译
 function L.T( key, ... )
+	if key == nil then return "" end
 	local str = L.data[key] or key
-	if ... then str = string.format( str, ... ) end
+	if ... then
+		local ok, result = pcall( string.format, str, ... )
+		if ok then str = result end
+	end
 	return str
 end
 
 -- 加载语言文件到数据表
 function L.load( lang )
-	L.data = {}
+	-- 安全检查：只允许加载已知语言文件，防止路径遍历
+	if not L.names[lang] then
+		ErrorNoHalt("[ULX] Attempted to load unknown language: " .. tostring(lang) .. "\n")
+		return
+	end
+	local newData = {}
+	local oldData = L.data
+	L.data = newData
 	if SERVER then
-		-- 服务端也加载，用于 fancyLog
-		pcall( include, "ulx/language/" .. lang .. ".lua" )
+		local ok, err = pcall( include, "ulx/language/" .. lang .. ".lua" )
+		if not ok then
+			L.data = oldData
+			ErrorNoHalt("[ULX] Failed to load language file '" .. lang .. "': " .. tostring(err) .. "\n")
+			return
+		end
 	else
-		include( "ulx/language/" .. lang .. ".lua" )
+		local ok, err = pcall( include, "ulx/language/" .. lang .. ".lua" )
+		if not ok then
+			L.data = oldData
+			ErrorNoHalt("[ULX] Failed to load language file '" .. lang .. "': " .. tostring(err) .. "\n")
+			return
+		end
 	end
 	L.current = lang
 end
@@ -58,21 +78,26 @@ if CLIENT then
 
 	-- 加载缓存
 	function L.loadCachedLang()
-		-- 优先从独立文件读取
-		if file.Exists( "ultra_ulx/language.txt", "DATA" ) then
-			local lang = file.Read( "ultra_ulx/language.txt", "DATA" ):Trim()
-			if L.names[lang] then
-				L.switch( lang )
-				return
+		local ok, err = pcall( function()
+			-- 优先从独立文件读取
+			if file.Exists( "ultra_ulx/language.txt", "DATA" ) then
+				local lang = file.Read( "ultra_ulx/language.txt", "DATA" ):Trim()
+				if L.names[lang] then
+					L.switch( lang )
+					return
+				end
 			end
-		end
-		-- 回退：从 XGUI 设置读取（可能尚未加载，安全忽略）
-		if xgui and xgui.settings and xgui.settings.language then
-			local lang = xgui.settings.language
-			if L.names[lang] then
-				L.switch( lang )
-				return
+			-- 回退：从 XGUI 设置读取
+			if xgui and xgui.settings and xgui.settings.language then
+				local lang = xgui.settings.language
+				if L.names[lang] then
+					L.switch( lang )
+					return
+				end
 			end
+		end )
+		if not ok then
+			ErrorNoHalt("[ULX] Language cache load failed: " .. tostring(err) .. "\n")
 		end
 		-- 默认简体中文
 		L.switch( "zh-cn" )

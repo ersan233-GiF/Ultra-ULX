@@ -257,6 +257,15 @@ local function reloadGroups()
 			Msg( "Error while reading groups file was: " .. err .. "\n" )
 		end
 		Msg( "Original file was backed up to " .. ULib.backupFile( ULib.UCL_GROUPS ) .. "\n" )
+		if not ucl.groups or not ucl.groups[ ULib.ACCESS_ALL ] then
+			-- 确保标准组始终存在
+			ucl.groups = {
+				["user"] = { allow = {}, inherit_from = nil },
+				["operator"] = { allow = {}, inherit_from = "user", can_target = "!%admin" },
+				["admin"] = { allow = {}, inherit_from = "operator", can_target = "!%superadmin" },
+				["superadmin"] = { allow = {}, inherit_from = "admin" },
+			}
+		end
 		ucl.saveGroups()
 	end
 end
@@ -745,8 +754,12 @@ function ucl.addGroup( name, allows, inherit_from, from_CAMI )
 
 	if ucl.groups[ name ] then return error( "Group already exists, cannot add again (" .. name .. ")", 2 ) end
 	if inherit_from then
-		if inherit_from == name then return error( "Group cannot inherit from itself", 2 ) end
-		if not ucl.groups[ inherit_from ] then return error( "Invalid group for inheritance (" .. tostring( inherit_from ) .. ")", 2 ) end
+		-- "user" 是根级组，允许自己继承自己（无父组）
+		if inherit_from == name then inherit_from = nil end
+		if inherit_from and not ucl.groups[ inherit_from ] then
+			-- 父组不存在时自动创建（递归确保完整继承链）
+			ucl.addGroup( inherit_from, {}, "user", from_CAMI )
+		end
 	end
 
 	-- Lower case'ify

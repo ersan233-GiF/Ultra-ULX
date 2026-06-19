@@ -36,7 +36,7 @@ files["adverts.txt"] =
 	"time" "300"
 }
 {
-	"text" "此服务器正在运行 ULX 管理插件 %ulx_version% (Ulysses 团队 - ulyssesmod.net)"
+	"text" "此服务器正在运行 Ultra ULX %ulx_version% (基于 ULX - Ulysses 团队)"
 	"time" "635"
 }
 ]]
@@ -106,7 +106,7 @@ ulx logChat 1 ; Log player chat
 ulx logSpawns 1 ; Log when players spawn objects (props, effects, etc)
 ulx logSpawnsEcho 1 ; Echo spawns to players in server. -1 = Off, 0 = Dedicated console only, 1 = Admins only, 2 = All players. (Echoes to console)
 ulx logJoinLeaveEcho 1 ; Echo players leaves and joins to admins in the server (useful for banning minges)
-ulx logDir "ulx_logs" ; The log dir under garrysmod/data
+ulx logDir "ultra_ulx_logs" ; The log dir under garrysmod/data
 ulx logEcho 1 ; Echo mode
 ; Echo modes:
 ; 0 - OFF No output to any players when an admin command is used

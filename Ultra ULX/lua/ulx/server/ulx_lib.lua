@@ -72,7 +72,7 @@ local function advertiseNewVersions( ply )
 			end
 		end
 		if #updatesFor > 0 then
-			ULib.tsay( ply, "[ULX] 以下插件有可用更新: " .. string.Implode( ", ", updatesFor ) )
+			ULib.tsay( ply, "[ULX] 以下插件有可用更新: " .. table.concat( updatesFor, ", " ) )
 		end
 		ply.ULX_UpdatesAdvertised = true
 	end

@@ -116,7 +116,7 @@ function ULib.findInTable( t, check, init, last, recursive )
 	for i=init, last do
 		if t[ i ] == check then return i end
 
-		if type( t[ i ] ) == "table" and recursive then return ULib.findInTable( v, check, 1, recursive ) end
+		if type( t[ i ] ) == "table" and recursive then return ULib.findInTable( t[ i ], check, 1, nil, recursive ) end
 	end
 
 	return false

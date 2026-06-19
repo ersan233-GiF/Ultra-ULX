@@ -14,7 +14,7 @@ local psay = ulx.command( CATEGORY_NAME, "ulx psay", ulx.psay, "!p", true )
 psay:addParam{ type=ULib.cmds.PlayerArg, target="!^", ULib.cmds.ignoreCanTarget }
 psay:addParam{ type=ULib.cmds.StringArg, hint="消息内容", ULib.cmds.takeRestOfLine }
 psay:defaultAccess( ULib.ACCESS_ALL )
-psay:help( "向目标发送私密消息." )
+psay:help( "向目标发送私密消息，只有目标能看到" )
 
 ------------------------------ Asay ------------------------------
 local seeasayAccess = "ulx seeasay"
@@ -43,7 +43,7 @@ end
 local asay = ulx.command( CATEGORY_NAME, "ulx asay", ulx.asay, "@", true, true )
 asay:addParam{ type=ULib.cmds.StringArg, hint="消息内容", ULib.cmds.takeRestOfLine }
 asay:defaultAccess( ULib.ACCESS_ALL )
-asay:help( "向当前在线的管理员发送消息." )
+asay:help( "向所有在线管理员发送消息" )
 
 ------------------------------ Tsay ------------------------------
 function ulx.tsay( calling_ply, message )
@@ -56,7 +56,7 @@ end
 local tsay = ulx.command( CATEGORY_NAME, "ulx tsay", ulx.tsay, "@@", true, true )
 tsay:addParam{ type=ULib.cmds.StringArg, hint="消息内容", ULib.cmds.takeRestOfLine }
 tsay:defaultAccess( ULib.ACCESS_ADMIN )
-tsay:help( "向聊天框中所有玩家显示消息." )
+tsay:help( "向所有玩家的聊天框发送消息" )
 
 ------------------------------ Csay ------------------------------
 function ulx.csay( calling_ply, message )
@@ -69,7 +69,7 @@ end
 local csay = ulx.command( CATEGORY_NAME, "ulx csay", ulx.csay, "@@@", true, true )
 csay:addParam{ type=ULib.cmds.StringArg, hint="消息内容", ULib.cmds.takeRestOfLine }
 csay:defaultAccess( ULib.ACCESS_ADMIN )
-csay:help( "在所有玩家屏幕中央显示消息." )
+csay:help( "在所有玩家屏幕中央显示消息" )
 
 ------------------------------ Thetime ------------------------------
 local waittime = 60
@@ -85,7 +85,7 @@ function ulx.thetime( calling_ply )
 end
 local thetime = ulx.command( CATEGORY_NAME, "ulx thetime", ulx.thetime, "!thetime" )
 thetime:defaultAccess( ULib.ACCESS_ALL )
-thetime:help( "显示服务器当前时间." )
+thetime:help( "显示服务器当前时间" )
 
 
 ------------------------------ Adverts ------------------------------
@@ -186,7 +186,7 @@ local gimp = ulx.command( CATEGORY_NAME, "ulx gimp", ulx.gimp, "!gimp" )
 gimp:addParam{ type=ULib.cmds.PlayersArg }
 gimp:addParam{ type=ULib.cmds.BoolArg, invisible=true }
 gimp:defaultAccess( ULib.ACCESS_ADMIN )
-gimp:help( "限制目标的正常聊天，使其只能说出预设的蠢话." )
+gimp:help( "限制目标只能说出预设的蠢话，!ungimp 恢复" )
 gimp:setOpposite( "ulx ungimp", {_, _, true}, "!ungimp" )
 
 ------------------------------ Mute ------------------------------
@@ -211,7 +211,7 @@ local mute = ulx.command( CATEGORY_NAME, "ulx mute", ulx.mute, "!mute" )
 mute:addParam{ type=ULib.cmds.PlayersArg }
 mute:addParam{ type=ULib.cmds.BoolArg, invisible=true }
 mute:defaultAccess( ULib.ACCESS_ADMIN )
-mute:help( "禁言目标，使其无法聊天." )
+mute:help( "禁言目标无法聊天，!unmute 解除" )
 mute:setOpposite( "ulx unmute", {_, _, true}, "!unmute" )
 
 if SERVER then
@@ -244,7 +244,7 @@ local gag = ulx.command( CATEGORY_NAME, "ulx gag", ulx.gag, "!gag" )
 gag:addParam{ type=ULib.cmds.PlayersArg }
 gag:addParam{ type=ULib.cmds.BoolArg, invisible=true }
 gag:defaultAccess( ULib.ACCESS_ADMIN )
-gag:help( "禁止目标使用麦克风." )
+gag:help( "禁止目标使用麦克风语音，!ungag 解除" )
 gag:setOpposite( "ulx ungag", {_, _, true}, "!ungag" )
 
 local function gagHook( listener, talker )

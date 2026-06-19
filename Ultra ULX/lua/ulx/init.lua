@@ -10,7 +10,7 @@ if not ULib.consoleCommand then ULib.consoleCommand = game.ConsoleCommand end
 file.CreateDir("ulib")
 file.CreateDir("ultra_ulx")
 
-Msg("// Ultra ULX v" .. (ulx.VERSION or "3.81") .. " Loading... //\n")
+Msg("// Ultra ULX " .. (ulx.VERSION_STR or "v2.69.1") .. " Loading... //\n")
 
 -- ULib shared library (load-order dependent)
 include("ulx/shared/defines.lua")
@@ -75,7 +75,7 @@ for _, f in ipairs(sh_modules) do safeInclude("sh", f) end
 -- Config loading engine
 include("ulx/server/end.lua")
 
-Msg("// Ultra ULX Loaded! //\n")
+Msg("// Ultra ULX " .. (ulx.VERSION_STR or "v2.69.1") .. " Loaded! //\n")
 
 -- Send client files
 AddCSLuaFile("ulx/cl_init.lua")
@@ -101,8 +101,6 @@ for _, f in ipairs( ulx.ITEM_FILES ) do
 	AddCSLuaFile( "ulx/items/" .. f )
 end
 
--- 数据导入面板 (client-side via AddCSLuaFile)
-AddCSLuaFile( "ulx/xgui/server/sv_import.lua" )
 
 -- ============================================
 -- 服务器语言 ConVar
@@ -190,94 +188,40 @@ if SERVER then
     end)
 end
 
+
+
 -- ============================================
--- P1: 旧数据导入检测
--- 在 Initialize 阶段检测原版 data/ulx/ 中的旧配置
+-- P2: 服务端文件同步 — 基于 CRC 哈希的逐文件校验
+-- 客户端连接时自动校验核心文件哈希，不一致则单独下发
 -- ============================================
-if SERVER then
-    hook.Add("Initialize", "UltraULX_ImportCheck", function()
-        local hasOldData = ULib.fileExists("data/ulx/groups.txt")
-        local hasNewData = ULib.fileExists("data/ultra_ulx/groups.txt")
-
-        if hasOldData and not hasNewData then
-            ULib.fileWrite("data/ultra_ulx/.import_pending", "1")
-            Msg("[Ultra ULX] 检测到原版 ULX 数据，等待管理员导入\n")
-        end
-    end)
-
-    -- PlayerAuthed 时向管理员推送导入通知
-    hook.Add("PlayerAuthed", "UltraULX_NotifyAdmin", function(ply)
-        if not IsValid(ply) then return end
-        timer.Simple(2, function()
-            if not IsValid(ply) then return end
-            local isPending = ULib.fileExists("data/ultra_ulx/.import_pending")
-            local isSkipped = ULib.fileExists("data/ultra_ulx/.import_skipped")
-            local isComplete = ULib.fileExists("data/ultra_ulx/.import_complete")
-
-            -- 如果 .import_pending 标记不存在，但旧数据存在且新数据不存在，再次检测（第二道防线）
-            if not isPending and not isSkipped and not isComplete then
-                local hasOldData = ULib.fileExists("data/ulx/groups.txt")
-                local hasNewData = ULib.fileExists("data/ultra_ulx/groups.txt")
-                if hasOldData and not hasNewData then
-                    ULib.fileWrite("data/ultra_ulx/.import_pending", "1")
-                    isPending = true
-                    Msg("[Ultra ULX] 检测到原版 ULX 数据（PlayerAuthed 二次检测）\n")
-                end
-            end
-
-            if isPending and (ply:IsSuperAdmin() or ply:IsAdmin()) then
-                ULib.tsayColor(ply, true, Color(255, 200, 0), "[Ultra ULX] 检测到原版 ULX 数据！")
-                ULib.tsayColor(ply, true, Color(255, 200, 0), "请在 XGUI -> 设置 -> 数据导入 中导入配置")
-                -- 客户端弹窗
-                net.Start("UltraULX_PromptImport")
-                net.Send(ply)
-            end
-        end)
-    end)
+local function rebuildSyncCache()
+	if not ulx.SYNC_FILES then return end
+	for _, relPath in ipairs(ulx.SYNC_FILES) do
+		local content = file.Read(relPath, "GAME") or ""
+		local crc = content ~= "" and util.CRC(content) or ""
+		ulx._sync_cache[relPath] = crc
+	end
+	ulx._sync_ready = true
 end
+hook.Add("InitPostEntity", "ULX_BuildSyncCache", function()
+	rebuildSyncCache()
+	Msg("[ULX] 文件同步清单已生成 (" .. #(ulx.SYNC_FILES or {}) .. " 个核心文件)\n")
+end)
 
--- ============================================
--- P1: 旧数据导入函数
--- 供 XGUI 导入对话框调用
--- ============================================
-function ulx.importOldData(ply, selectedFiles)
-    -- ply: 执行导入的管理员 Player 对象
-    -- selectedFiles: 用户勾选的文件名列表，如 {"groups.txt", "users.txt"}
-    if not selectedFiles or #selectedFiles == 0 then
-        selectedFiles = {
-            "config.txt", "groups.txt", "users.txt",
-            "adverts.txt", "motd.txt", "votemaps.txt",
-            "banreasons.txt", "banmessage.txt",
-        }
-    end
+net.Receive("ulx_file_sync_manifest", function(len, ply)
+	if not IsValid(ply) then return end
+	if not ulx._sync_ready then rebuildSyncCache() end
+	local count = #(ulx.SYNC_FILES or {})
+	net.Start("ulx_file_sync_manifest")
+	net.WriteString(ulx.VERSION)
+	net.WriteUInt(count, 16)
+	for _, relPath in ipairs(ulx.SYNC_FILES) do
+		net.WriteString(relPath)
+		net.WriteString(ulx._sync_cache[relPath] or "")
+	end
+	net.Send(ply)
+end)
 
-    local targetDir = "data/ultra_ulx/"
-    local oldDir = "data/ulx/"
-
-    if not ULib.fileIsDir(targetDir) then
-        ULib.fileCreateDir(targetDir)
-    end
-
-    local imported = {}
-    for _, file in ipairs(selectedFiles) do
-        local oldPath = oldDir .. file
-        if ULib.fileExists(oldPath) then
-            local content = ULib.fileRead(oldPath)
-            if content and content ~= "" then
-                ULib.fileWrite(targetDir .. file, content)
-                table.insert(imported, file)
-            end
-        end
-    end
-
-    if #imported > 0 then
-        ULib.fileWrite(targetDir .. ".import_complete", table.concat(imported, "\n"))
-        ULib.fileDelete("data/ultra_ulx/.import_pending")
-        if IsValid(ply) then
-            ULib.tsayColor(ply, true, ULib.COLOR_ACCENT, "[Ultra ULX] 已导入 " .. #imported .. " 个配置文件")
-        end
-        Msg("[Ultra ULX] 数据导入完成: " .. table.concat(imported, ", ") .. "\n")
-    end
-
-    return imported
-end
+-- 注意：客户端实际文件下载由 GMod 原生 AddCSLuaFile 机制处理。
+-- 客户端在收到 manifest 后，仅删除哈希不匹配的旧文件并 retry，
+-- 服务端会在重连后自动下发最新文件。

@@ -10,52 +10,48 @@ local math = math
 local IsValid = IsValid
 
 local OldHooks = hook.GetTable()
-local _G = _G
 
-module("hook")
-
--- 挂载优先级常量到 hook 命名空间（避免全局污染）
+-- 优先级常量（全局，兼容旧代码）
 HOOK_MONITOR_HIGH = -2
 HOOK_HIGH = -1
 HOOK_NORMAL = 0
 HOOK_LOW = 1
 HOOK_MONITOR_LOW = 2
 
--- 为向后兼容保留全局别名
-_G.HOOK_MONITOR_HIGH = HOOK_MONITOR_HIGH
-_G.HOOK_HIGH = HOOK_HIGH
-_G.HOOK_NORMAL = HOOK_NORMAL
-_G.HOOK_LOW = HOOK_LOW
-_G.HOOK_MONITOR_LOW = HOOK_MONITOR_LOW
-
 local Hooks = {}
 local BackwardsHooks = {}
 
-function GetTable() return BackwardsHooks end
-function GetULibTable() return Hooks end
-
-function Add(event_name, name, func, priority)
+-- Mount functions onto the global hook table (replaces module("hook"))
+local hook_mt = hook
+hook_mt.GetTable      = function() return BackwardsHooks end
+hook_mt.GetULibTable  = function() return Hooks end
+hook_mt.Add           = function(event_name, name, func, priority)
+	-- 支持匿名函数：如果 name 是函数而没传 func，交换参数
+	if not func and isfunction(name) then
+		func = name
+		name = tostring(func)
+	end
 	priority = priority or 0
 	if not isfunction(func) then return end
 	if not isstring(event_name) then return end
+	if not isstring(name) then name = tostring(name) end
 	if not isnumber(priority) then return end
 
 	priority = math.floor(priority)
 	if priority < -2 then priority = -2 end
 	if priority > 2 then priority = 2 end
 
-	Remove(event_name, name)
+	hook_mt.Remove(event_name, name)
 
 	if Hooks[event_name] == nil then
 		Hooks[event_name] = {[-2]={}, [-1]={}, [0]={}, [1]={}, [2]={}}
 		BackwardsHooks[event_name] = {}
 	end
 
-	Hooks[event_name][priority][name] = {fn=func, isstring=isstring(name)}
+	Hooks[event_name][priority][name] = {fn=func, isstring=true}
 	BackwardsHooks[event_name][name] = func
 end
-
-function Remove(event_name, name)
+hook_mt.Remove        = function(event_name, name)
 	if not isstring(event_name) then return end
 	if not Hooks[event_name] then return end
 
@@ -67,14 +63,13 @@ end
 
 local currentGM
 
-function Run(name, ...)
+hook_mt.Run           = function(name, ...)
 	if not currentGM then
 		currentGM = gmod and gmod.GetGamemode() or nil
 	end
-	return Call(name, currentGM, ...)
+	return hook_mt.Call(name, currentGM, ...)
 end
-
-function Call(name, gm, ...)
+hook_mt.Call          = function(name, gm, ...)
 	local HookTable = Hooks[name]
 	if HookTable ~= nil then
 		for i=-2, 2 do
@@ -108,6 +103,6 @@ end
 -- Import existing hooks
 for event_name, t in pairs(OldHooks) do
 	for name, func in pairs(t) do
-		Add(event_name, name, func)
+		hook_mt.Add(event_name, name, func)
 	end
 end

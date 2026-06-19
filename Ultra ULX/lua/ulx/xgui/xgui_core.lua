@@ -64,7 +64,7 @@ hook.Add("ULXLanguageChanged", "XGUI_CoreRefresh", function()
 	pcall(function()
 		if xgui.infoLabel then
 			xgui.infoLabel:SetText(string.format("\n" .. xgui.T("xgui_infobar"),
-				ULib.pluginVersionStr("ULX"), ULib.pluginVersionStr("ULib")))
+				ulx.VERSION_STR or "v2.69.1", ULib.pluginVersionStr("ULX"), ULib.pluginVersionStr("ULib")))
 			xgui.infoLabel:SizeToContents()
 		end
 	end)
@@ -114,54 +114,9 @@ end)
 -- 处理 XGUI 导入对话框的请求和跳过操作
 -- ============================================
 if SERVER then
-    concommand.Add("_xgui_importOldData", function(ply, cmd, args)
-        if not IsValid(ply) or not ply:IsSuperAdmin() then return end
-
-        local fileList = args[1] or ""
-        if fileList == "" then
-            ULib.tsayColor(ply, true, Color(255, 0, 0), "[Ultra ULX] 参数错误：未指定文件")
-            return
-        end
-
-        local selectedFiles = {}
-        for file in string.gmatch(fileList, "([^,]+)") do
-            table.insert(selectedFiles, file)
-        end
-
-        local imported = ulx.importOldData(ply, selectedFiles)
-
-        -- 通知客户端刷新导入面板
-        if #imported > 0 then
-            ULib.tsayColor(ply, true, ULib.COLOR_ACCENT, "[Ultra ULX] 已成功导入 " .. #imported .. " 个文件")
-            -- 发送刷新信号到客户端
-            net.Start("UltraULX_ImportComplete")
-            net.Send(ply)
-        end
-    end)
-
-    concommand.Add("_xgui_skipImport", function(ply)
-        if not IsValid(ply) or not ply:IsSuperAdmin() then return end
-
-        -- 标记为已跳过
-        ULib.fileWrite("data/ultra_ulx/.import_skipped", "1")
-        ULib.fileDelete("data/ultra_ulx/.import_pending")
-        ULib.tsayColor(ply, true, ULib.COLOR_MUTED, "[Ultra ULX] 已跳过导入，将使用全新配置")
-    end)
 end
 
 if CLIENT then
-    -- 接收导入完成信号，刷新面板
-    net.Receive("UltraULX_ImportComplete", function()
-        -- 刷新设置面板中的导入子模块
-        if xgui and xgui.settings then
-            xgui.settings:ClearControls()
-            local importPanel = xgui.getSubModule("数据导入")
-            if importPanel then
-                importPanel(xgui.settings)
-            end
-        end
-    end)
-
     -- 查询导入状态（连接时检查是否需要弹窗）
     net.Receive("UltraULX_CheckImport", function()
         -- 由服务端在处理 PlayerAuthed 时调用

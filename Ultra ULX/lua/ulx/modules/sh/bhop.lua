@@ -8,8 +8,8 @@ if SERVER then
 	-- ====== 引擎 Cvar 管理 ======
 	local bhopCount = 0
 	local savedCvars = {}
-	local BHOP_CVARS  = { "sv_airaccelerate", "sv_accelerate", "sv_friction", "sv_gravity", "sv_maxspeed", "sv_maxvelocity" }
-	local BHOP_VALUES = { "2000", "5", "4", "800", "10000", "10000" }
+	local BHOP_CVARS  = { "sv_airaccelerate", "sv_accelerate", "sv_friction", "sv_stopspeed", "sv_gravity", "sv_maxspeed", "sv_maxvelocity" }
+	local BHOP_VALUES = { "2000", "5", "4", "0", "800", "10000", "10000" }
 
 	local function applyCvars()
 		if bhopCount == 1 then
@@ -39,9 +39,20 @@ if SERVER then
 
 	-- ====== 玩家物理 保存 / 应用 / 还原 ======
 	local playerPhys = {}
+	-- SteamID64 缓存表（弱引用，必须在使用前声明）
+	local sidCache = setmetatable({}, { __mode = "k" })
+
+	local function getSid(ply)
+		local sid = sidCache[ply]
+		if not sid then
+			sid = ply:SteamID64()
+			sidCache[ply] = sid
+		end
+		return sid
+	end
 
 	local function savePhysics(ply)
-		local sid = ply:SteamID64()
+		local sid = getSid(ply)
 		playerPhys[sid] = playerPhys[sid] or {}
 		local p = playerPhys[sid]
 		p.run  = ply:GetRunSpeed()
@@ -53,7 +64,7 @@ if SERVER then
 	end
 
 	local function restorePhysics(ply)
-		local p = playerPhys[ply:SteamID64()]
+		local p = playerPhys[getSid(ply)]
 		if not p then return end
 		ply:SetRunSpeed(p.run)
 		ply:SetWalkSpeed(p.walk)
@@ -61,7 +72,7 @@ if SERVER then
 		ply:SetGravity(p.grav)
 		ply:SetStepSize(p.step)
 		ply:SetMaxSpeed(p.maxspd)
-		playerPhys[ply:SteamID64()] = nil
+		playerPhys[getSid(ply)] = nil
 	end
 
 	local function applyPhysics(ply)
@@ -82,7 +93,7 @@ if SERVER then
 		speedlimit = tonumber(speedlimit) or 0
 
 		for _, ply in ipairs(target_plys) do
-			local sid = ply:SteamID64()
+			local sid = getSid(ply)
 
 			if active then
 				if bhopActive[sid] == nil then
@@ -152,23 +163,25 @@ if SERVER then
 
 	-- ====== 限速 + 冲破 Murder 模式的 mv:SetMaxSpeed 封锁 ======
 	hook.Add("SetupMove", "ULXBHopPhys", function(ply, mv)
-		local sl = bhopActive[ply:SteamID64()]
+		local sid = getSid(ply)
+		local sl = bhopActive[sid]
 		if sl == nil then return end
 		if not ply:Alive() or ply:GetMoveType() ~= MOVETYPE_WALK or ply:InVehicle() then return end
 		mv:SetMaxSpeed(10000)
 		mv:SetMaxClientSpeed(10000)
-		if sl > 0 and bit.band(ply:GetFlags(), FL_ONGROUND) == FL_ONGROUND then
+		if sl > 0 and ply:OnGround() then
 			local v = mv:GetVelocity()
-			local h = math.sqrt(v.x * v.x + v.y * v.y)
-			if h > sl then
-				local s = sl / h
+			local h = v.x * v.x + v.y * v.y
+			local sl2 = sl * sl
+			if h > sl2 then
+				local s = sl / math.sqrt(h)
 				mv:SetVelocity(Vector(v.x * s, v.y * s, v.z))
 			end
 		end
 	end)
 
 	hook.Add("PlayerSpawn", "ULXBHopSpawn", function(ply)
-		if bhopActive[ply:SteamID64()] ~= nil then
+		if bhopActive[getSid(ply)] ~= nil then
 			timer.Simple(0.1, function()
 				if IsValid(ply) then applyPhysics(ply) end
 			end)
@@ -176,7 +189,8 @@ if SERVER then
 	end)
 
 	hook.Add("PlayerDisconnected", "ULXBHopDisc", function(ply)
-		local sid = ply:SteamID64()
+		local sid = getSid(ply)
+		sidCache[ply] = nil
 		if bhopActive[sid] ~= nil then
 			restoreCvars()
 		end
@@ -220,7 +234,7 @@ else
 end
 
 -- ====== 命令注册 (仿 freeze) ======
-if not ulx.bhop then function ulx.bhop() end end
+-- ulx.bhop 已在上面定义，无需占位
 local bhopCmd = ulx.command(CAT, "ulx bhop", ulx.bhop, "!bhop")
 bhopCmd:addParam{ type = ULib.cmds.PlayersArg }
 bhopCmd:addParam{ type = ULib.cmds.NumArg, min = 0, max = 5000, default = 0, hint = "限速", ULib.cmds.optional, ULib.cmds.round }

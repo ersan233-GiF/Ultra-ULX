@@ -40,7 +40,7 @@ function xgui.buildBaseWindow()
 	xgui.infobar.Paint = function( self, w, h )
 		draw.RoundedBoxEx( 4, 0, 1, 580, 20, xgui.settings.infoColor, false, false, true, true )
 	end
-	local infoLabel = string.format( "\n" .. ULib.ulx_lang.T("xgui_infobar"), ULib.pluginVersionStr("ULX"), ULib.pluginVersionStr("ULib") )
+	local infoLabel = string.format( "\n" .. ULib.ulx_lang.T("xgui_infobar"), ulx.VERSION_STR or "v2.69.1", ULib.pluginVersionStr("ULX"), ULib.pluginVersionStr("ULib") )
 	xgui.infoLabel = xlib.makelabel{ x=5, y=-10, label=infoLabel, parent=xgui.infobar }
 	xgui.infoLabel:NoClipping( true )
 

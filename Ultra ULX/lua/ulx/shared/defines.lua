@@ -482,7 +482,53 @@ if SERVER then
 	util.AddNetworkString( "ulib_repWriteCvarBatch_Complete" )
 	util.AddNetworkString( "ulib_repChangeCvar" )
 	util.AddNetworkString( "ulx_version_check" )
+	util.AddNetworkString( "ulx_file_sync_manifest" )
 end
 
--- Ultra ULX 版本号，用于客户端自动同步
-ulx.VERSION = "2026.06.08"
+-- Ultra ULX 独立版本号（与原版 ULX 版本无关）
+-- v2 = 第二代管理工具 · 69 = 净新增 69 条指令 · 1 = 首版发布
+ulx.VERSION = "2.69.1"
+ulx.VERSION_STR = "v2.69.1"
+
+-- ===== 哈希版本同步：核心文件清单 =====
+-- 仅包含需同步的核心功能文件，排除语言/配置/服务端专用文件
+if SERVER then
+	ulx.SYNC_FILES = ulx.SYNC_FILES or {
+		-- 共享核心
+		"ulx/shared/defines.lua", "ulx/shared/misc.lua", "ulx/shared/util.lua",
+		"ulx/shared/hook.lua", "ulx/shared/tables.lua", "ulx/shared/player.lua",
+		"ulx/shared/messages.lua", "ulx/shared/commands.lua", "ulx/shared/sh_ucl.lua",
+		"ulx/shared/plugin.lua", "ulx/shared/cami_global.lua", "ulx/shared/cami_ulib.lua",
+		"ulx/shared/ulx_defines.lua", "ulx/shared/ulx_base.lua",
+		-- 语言系统（客户端展示用）
+		"ulx/shared/language.lua",
+		-- 客户端核心
+		"ulx/cl_init.lua",
+		"ulx/client/cl_commands.lua", "ulx/client/cl_util.lua",
+		"ulx/client/draw.lua", "ulx/client/ulx_cl_lib.lua",
+		-- 客户端模块
+		"ulx/modules/cl/motdmenu.lua", "ulx/modules/cl/uteam.lua",
+		"ulx/modules/cl/xgui_client.lua", "ulx/modules/cl/xgui_helpers.lua",
+		"ulx/modules/cl/xlib.lua",
+		-- 共享模块
+		"ulx/modules/sh/chat.lua", "ulx/modules/sh/community.lua",
+		"ulx/modules/sh/extras.lua", "ulx/modules/sh/fun.lua",
+		"ulx/modules/sh/menus.lua", "ulx/modules/sh/rcon.lua",
+		"ulx/modules/sh/teleport.lua", "ulx/modules/sh/user.lua",
+		"ulx/modules/sh/userhelp.lua", "ulx/modules/sh/util.lua",
+		"ulx/modules/sh/vote.lua", "ulx/modules/sh/bhop.lua",
+		"ulx/modules/sh/crouchjump.lua", "ulx/modules/sh/coord.lua",
+		-- 道具系统
+		"ulx/items/init.lua", "ulx/items/weapons_hl2.lua", "ulx/items/weapons_css.lua",
+		"ulx/items/weapons_admin.lua", "ulx/items/tools.lua", "ulx/items/ammo.lua",
+		"ulx/items/props.lua", "ulx/items/seats.lua", "ulx/items/vehicles.lua",
+		-- XGUI
+		"ulx/xgui/bans.lua", "ulx/xgui/commands.lua", "ulx/xgui/groups.lua",
+		"ulx/xgui/items.lua", "ulx/xgui/maps.lua", "ulx/xgui/settings.lua",
+		"ulx/xgui/xgui_core.lua", "ulx/xgui/framework/init.lua", "ulx/xgui/framework/layout.lua",
+		"ulx/xgui/gamemodes/sandbox.lua",
+		"ulx/xgui/settings/client.lua", "ulx/xgui/settings/server.lua",
+	}
+	-- 缓存文件 CRC，避免每连接重复计算
+	ulx._sync_cache = ulx._sync_cache or {}
+end

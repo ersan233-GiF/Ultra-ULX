@@ -11,7 +11,7 @@ if SERVER then
 end
 local cleanupCmd = ulx.command( CATEGORY_NAME, "ulx cleanup", ulx.cleanup, "!cleanup" )
 cleanupCmd:defaultAccess( ULib.ACCESS_ADMIN )
-cleanupCmd:help( "清理地图上的所有道具、布娃娃、NPC和散落武器。" )
+cleanupCmd:help( "清理地图上所有道具、布娃娃、NPC 和武器" )
 
 ------------------------------ Respawn ------------------------------
 if SERVER then
@@ -49,7 +49,7 @@ end
 local respawnCmd = ulx.command( CATEGORY_NAME, "ulx respawn", ulx.respawn, "!respawn" )
 respawnCmd:addParam{ type=ULib.cmds.PlayersArg }
 respawnCmd:defaultAccess( ULib.ACCESS_ADMIN )
-respawnCmd:help( "复活目标玩家。" )
+respawnCmd:help( "复活目标玩家" )
 
 ------------------------------ SetModel ------------------------------
 if SERVER then
@@ -69,7 +69,7 @@ local setmodelCmd = ulx.command( CATEGORY_NAME, "ulx setmodel", ulx.setmodel, "!
 setmodelCmd:addParam{ type=ULib.cmds.PlayersArg }
 setmodelCmd:addParam{ type=ULib.cmds.StringArg, hint="模型路径", ULib.cmds.takeRestOfLine }
 setmodelCmd:defaultAccess( ULib.ACCESS_ADMIN )
-setmodelCmd:help( "设置目标玩家的模型。例如: ulx setmodel ^ models/player/alyx.mdl" )
+setmodelCmd:help( "设置目标的模型" )
 
 ------------------------------ SetTeam ------------------------------
 if SERVER then
@@ -95,7 +95,7 @@ local setteamCmd = ulx.command( CATEGORY_NAME, "ulx setteam", ulx.setteam, "!set
 setteamCmd:addParam{ type=ULib.cmds.PlayersArg }
 setteamCmd:addParam{ type=ULib.cmds.NumArg, min=1, max=32, hint="队伍编号", ULib.cmds.round }
 setteamCmd:defaultAccess( ULib.ACCESS_ADMIN )
-setteamCmd:help( "强制切换目标玩家的队伍。" )
+setteamCmd:help( "强制切换目标的队伍" )
 
 ------------------------------ GiveWeapon ------------------------------
 if SERVER then
@@ -125,7 +125,7 @@ local giveweaponCmd = ulx.command( CATEGORY_NAME, "ulx giveweapon", ulx.giveweap
 giveweaponCmd:addParam{ type=ULib.cmds.PlayersArg }
 giveweaponCmd:addParam{ type=ULib.cmds.StringArg, hint="武器类名", ULib.cmds.takeRestOfLine }
 giveweaponCmd:defaultAccess( ULib.ACCESS_ADMIN )
-giveweaponCmd:help( "给予目标玩家指定武器。例如: ulx giveweapon ^ crowbar" )
+giveweaponCmd:help( "给予目标指定武器" )
 
 ------------------------------ Scale ------------------------------
 if SERVER then
@@ -195,7 +195,7 @@ local scaleCmd = ulx.command( CATEGORY_NAME, "ulx scale", ulx.scale, "!scale" )
 scaleCmd:addParam{ type=ULib.cmds.PlayersArg }
 scaleCmd:addParam{ type=ULib.cmds.NumArg, min=0.1, max=10, default=1, hint="缩放倍率" }
 scaleCmd:defaultAccess( ULib.ACCESS_ADMIN )
-scaleCmd:help( "调整目标玩家的体型大小 (0.1~10)。" )
+scaleCmd:help( "调整目标的体型大小 0.1~10" )
 
 ------------------------------ Gravity ------------------------------
 if SERVER then
@@ -211,7 +211,7 @@ local gravityCmd = ulx.command( CATEGORY_NAME, "ulx gravity", ulx.setgravity, "!
 gravityCmd:addParam{ type=ULib.cmds.PlayersArg }
 gravityCmd:addParam{ type=ULib.cmds.NumArg, min=0, max=6, default=1, hint="重力倍率" }
 gravityCmd:defaultAccess( ULib.ACCESS_ADMIN )
-gravityCmd:help( "设置目标玩家的重力倍率 (0=无重力, 1=正常, 最大6)。" )
+gravityCmd:help( "设置目标的重力倍率 0~6，1 为正常" )
 
 if not UltraULX_SilentReRegister then Msg( "[ULX] 扩展命令模块已加载 (cleanup/respawn/setmodel/setteam/giveweapon/scale/gravity)\n" ) end
 

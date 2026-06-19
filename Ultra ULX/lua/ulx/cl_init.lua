@@ -72,44 +72,85 @@ function authPlayerIfReady(ply, userid)
 	end
 end
 
--- ===== 客户端版本自动同步：静默删除旧版，自动重连从服务端下载 =====
-local versionSynced = false
-net.Receive("ulx_version_check", function()
-	if versionSynced then return end
+-- ===== 客户端文件同步：智能删除差异文件 + 重连下载 =====
+-- GMod 中 file.Write 只能写 data/ 目录，无法修改 addons/ 下的挂载文件。
+-- 因此正确方案是：仅删除哈希不匹配的核心文件，然后 retry 让 GMod 下载系统自动补齐。
+local syncState = { done = false, retryScheduled = false }
+
+net.Receive("ulx_file_sync_manifest", function()
+	if syncState.done then return end
+	if syncState.retryScheduled then return end
+
 	local serverVer = net.ReadString()
-	local clientVer = (ulx and ulx.VERSION) or "0"
-	if serverVer == clientVer then versionSynced = true; return end
+	local fileCount = net.ReadUInt(16)
+	local deleteList = {}
 
-	versionSynced = true
-	Msg("[ULX] " .. clientVer .. " -> " .. serverVer .. "\n")
-
-	-- 递归删除本地 Lua 文件
 	local addonBase = "addons/Ultra ULX"
-	local function deleteLua(dir)
-		local items = file.Find(addonBase .. "/" .. dir .. "/*", "MOD") or {}
-		for _, name in ipairs(items) do
-			local full = dir .. "/" .. name
-			if name:find("%.lua$") then
-				pcall(function() file.Delete(addonBase .. "/" .. full) end)
-			else
-				deleteLua(full)
-			end
+
+	for _ = 1, fileCount do
+		local relPath = net.ReadString()
+		local serverCRC = net.ReadString()
+		local localContent = file.Read(relPath, "GAME") or ""
+		local localCRC = localContent ~= "" and util.CRC(localContent) or ""
+		if localCRC ~= serverCRC then
+			deleteList[#deleteList + 1] = relPath
 		end
 	end
-	pcall(deleteLua, "lua")
 
-	-- 清除客户端缓存
+	if #deleteList == 0 then
+		syncState.done = true
+		Msg("[ULX] 所有核心文件哈希一致，无需同步\n")
+		return
+	end
+
+	-- 只删除哈希不匹配的文件，保留其他文件
+	local deletedCount = 0
+	for _, relPath in ipairs(deleteList) do
+		local fullPath = addonBase .. "/" .. relPath
+		pcall(function()
+			if file.Exists(fullPath, "MOD") then
+				file.Delete(fullPath)
+				deletedCount = deletedCount + 1
+			end
+		end)
+	end
+
+	-- 同时清理这些文件的编译缓存
 	pcall(function()
-		local c = "cache/lua"
-		if file.IsDir(c, "MOD") then
-			for _, f in ipairs(file.Find(c .. "/*", "MOD") or {}) do
-				pcall(function() file.Delete(c .. "/" .. f) end)
+		local cacheDir = "cache/lua"
+		if file.IsDir(cacheDir, "MOD") then
+			for _, f in ipairs(file.Find(cacheDir .. "/*", "MOD") or {}) do
+				-- 匹配缓存文件名中的 relPath 片段
+				for _, relPath in ipairs(deleteList) do
+					local cacheKey = relPath:gsub("/", "_"):gsub("%.lua$", "")
+					if f:find(cacheKey) then
+						file.Delete(cacheDir .. "/" .. f)
+						break
+					end
+				end
 			end
 		end
 	end)
 
-	-- 自动重连，服务端下发最新文件（全程加载界面，无提示）
+	syncState.retryScheduled = true
+	Msg("[ULX] 删除了 " .. deletedCount .. " 个旧文件，重连下载新版本…\n")
 	timer.Simple(0.1, function() RunConsoleCommand("retry") end)
+end)
+
+-- 接收版本号，触发文件同步检测
+local versionSynced = false
+net.Receive("ulx_version_check", function()
+	if versionSynced then return end
+	versionSynced = true
+	local serverVer = net.ReadString()
+	local clientVer = (ulx and ulx.VERSION) or "0"
+	if serverVer == clientVer then
+		Msg("[ULX] 版本一致 (" .. clientVer .. ")，无需同步\n")
+		return
+	end
+	Msg("[ULX] 版本差异: 本地 " .. clientVer .. " / 服务端 " .. serverVer .. "，请求文件清单…\n")
+	net.Start("ulx_file_sync_manifest")
+	net.SendToServer()
 end)
 
 
@@ -117,51 +158,4 @@ end)
 -- Ultra ULX - 旧数据导入客户端通知
 -- 接收服务端的导入提示，自动弹框
 -- ============================================
-net.Receive("UltraULX_PromptImport", function()
-    -- 延迟一小段时间确保 XGUI 已初始化
-    timer.Simple(1, function()
-        if not xgui then return end
 
-        -- 创建弹窗
-        local frame = vgui.Create("DFrame")
-        frame:SetSize(400, 250)
-        frame:Center()
-        frame:SetTitle("Ultra ULX - 数据导入")
-        frame:MakePopup()
-        frame:SetDraggable(true)
-        frame:SetDeleteOnClose(true)
-
-        local label = vgui.Create("DLabel", frame)
-        label:SetPos(20, 40)
-        label:SetSize(360, 80)
-        label:SetText("检测到原版 ULX 的配置文件。\n是否要导入到 Ultra ULX？\n\n导入后原文件保留，随时可回滚。")
-        label:SetFont("DermaDefaultBold")
-
-        local importBtn = vgui.Create("DButton", frame)
-        importBtn:SetPos(50, 140)
-        importBtn:SetSize(140, 30)
-        importBtn:SetText("打开导入面板")
-        importBtn.DoClick = function()
-            frame:Close()
-            -- 打开 XGUI 并切换到设置 -> 数据导入
-            if xgui and xgui.showSettings then
-                xgui.showSettings("数据导入")
-            end
-        end
-
-        local skipBtn = vgui.Create("DButton", frame)
-        skipBtn:SetPos(210, 140)
-        skipBtn:SetSize(140, 30)
-        skipBtn:SetText("跳过")
-        skipBtn.DoClick = function()
-            frame:Close()
-            RunConsoleCommand("_xgui_skipImport")
-        end
-
-        -- 关闭按钮也有跳过效果
-        frame.btnClose.DoClick = function()
-            frame:Close()
-            RunConsoleCommand("_xgui_skipImport")
-        end
-    end)
-end)

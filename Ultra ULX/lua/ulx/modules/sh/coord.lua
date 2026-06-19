@@ -72,8 +72,20 @@ if SERVER then
 		local a = net.ReadBool(); local m = net.ReadUInt(4); local ts = net.ReadString()
 		for _, p in ipairs(tg) do local d = getData(p); d.enabled = a; d.mode = m; d.targetSid = ts; broadcast(p) end
 	end)
-	timer.Create("ULXCoordBC", 0.25, 0, function()
-		for _, p in ipairs(player.GetAll()) do if getData(p).enabled then broadcast(p) end end
+	-- 缓存上次位置以减少不必要的网络广播
+	local lastPosCache = {}
+	timer.Create("ULXCoordBC", 0.5, 0, function()
+		for _, p in ipairs(player.GetAll()) do
+			if getData(p).enabled then
+				local pos = p:GetPos()
+				local cache = lastPosCache[p:SteamID64()]
+				-- 仅当玩家移动超过 1 单位或缓存不存在时才广播
+				if not cache or cache:DistToSqr(pos) > 1 then
+					lastPosCache[p:SteamID64()] = pos
+					broadcast(p)
+				end
+			end
+		end
 	end)
 	hook.Add("PlayerDisconnected", "ULXCClean", function(p) coordData[p:SteamID64()] = nil end)
 end
@@ -130,14 +142,13 @@ if CLIENT then
 end
 
 -- ====== 命令 ======
-if not ulx.coordhud then function ulx.coordhud() end end
-if not ulx.coord    then function ulx.coord()    end end
+-- 命令函数已在上面定义，无需重复占位
 
 local hudCmd = ulx.command(CAT, "ulx coordhud", ulx.coordhud, "!coordhud")
 hudCmd:addParam{ type = ULib.cmds.PlayersArg, ULib.cmds.optional }
 hudCmd:addParam{ type = ULib.cmds.BoolArg, invisible = true, default = true, ULib.cmds.optional }
 hudCmd:defaultAccess(ULib.ACCESS_ALL)
-hudCmd:help("屏幕正上方半透明坐标 HUD。")
+hudCmd:help("屏幕上方半透明实时坐标 HUD，!uncoordhud 关闭")
 hudCmd:setOpposite("ulx uncoordhud", {_, _, false}, "!uncoordhud")
 
 local coordCmd = ulx.command(CAT, "ulx coord", ulx.coord, "!coord")
@@ -146,7 +157,7 @@ coordCmd:addParam{ type = ULib.cmds.BoolArg, invisible = true, default = true, U
 coordCmd:addParam{ type = ULib.cmds.NumArg, min = 1, max = 4, default = 1, hint = "1=仅自己 2=管理员 3=公开 4=指定", ULib.cmds.optional, ULib.cmds.round }
 coordCmd:addParam{ type = ULib.cmds.StringArg, hint = "指定SteamID(模式4)", ULib.cmds.optional }
 coordCmd:defaultAccess(ULib.ACCESS_ADMIN)
-coordCmd:help("目标头顶名字+实时坐标。模式1=仅自己 2=管理员 3=公开 4=指定。")
+coordCmd:help("目标头顶显示名字和实时坐标，!uncoord 关闭")
 coordCmd:setOpposite("ulx uncoord", {_, _, false}, "!uncoord")
 
 if not UltraULX_SilentReRegister then Msg("[ULX] 坐标系统已加载 (coordhud + coord)\n") end

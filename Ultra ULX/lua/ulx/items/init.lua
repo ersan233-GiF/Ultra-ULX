@@ -11,7 +11,7 @@ ulx.ITEM_FILES = { "weapons_hl2.lua", "weapons_css.lua", "weapons_admin.lua", "t
 
 -- 注册一批道具到指定分类
 -- items: 数组，每项 { class, name, type, [access], [model], [vkey] }
--- type: 1=永久无弹药(无生成) 2=消耗品 3=武器含弹药 4=永久无弹药(有生成) 5=纯实体
+-- type: 1=永久无弹药(无生成) 2=消耗品 3=武器含弹药 4=永久无弹药(有生成) 5=纯实体 6=挂墙实体(仅生成1个)
 function ulx.registerItems( items, category )
 	if not items or #items == 0 then return end
 	if not ulx.itemRegistry[ category ] then

@@ -162,5 +162,5 @@ cjCmd:addParam{ type = ULib.cmds.PlayersArg }
 cjCmd:addParam{ type = ULib.cmds.NumArg, min = 1.0, max = 10.0, default = 2.0, hint = "跳力倍率", ULib.cmds.optional }
 cjCmd:addParam{ type = ULib.cmds.NumArg, min = 1.0, max = 5.0,  default = 1.5, hint = "蹲走速度倍率", ULib.cmds.optional }
 cjCmd:defaultAccess(ULib.ACCESS_ADMIN)
-cjCmd:help("蹲跳增强: 跳力倍率(默认2x) + 蹲姿解锁 + 蹲走速度(默认1.5x)。解决蹲跳不起/蹲走龟速/蹲锁跳。!uncrouchjump 关闭。")
+cjCmd:help( "蹲跳增强，!uncrouchjump 关闭" )
 cjCmd:setOpposite("ulx uncrouchjump", {_, _, 1.0, 1.0}, "!uncrouchjump")

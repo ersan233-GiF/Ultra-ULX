@@ -74,8 +74,9 @@ local function tsayColorCallback( ply, ... )
 	local current_chunk = { size = 0 }
 	local chunks = { current_chunk }
 	local max_chunk_size = 240
-	while #args > 0 do
-		local arg = table.remove( args, 1 )
+	-- 使用索引遍历替代 table.remove（O(n²) → O(n)）
+	for idx = 1, #args do
+		local arg = args[ idx ]
 		local typ = type( arg )
 		local arg_size = typ == "table" and 4 or #arg + 2 -- Include null in strings, bool in both
 		if typ == "string" and current_chunk.size + arg_size > max_chunk_size then -- Split a large string up into multiple messages
@@ -83,7 +84,13 @@ local function tsayColorCallback( ply, ... )
 			if #substr > 0 then
 				table.insert( current_chunk, substr )
 			end
-			table.insert( args, 1, arg:sub( #substr + 1) )
+			-- 将剩余部分放回原数组继续处理
+			local remaining = arg:sub( #substr + 1 )
+			if #remaining > 0 then
+				args[ idx ] = remaining
+				-- 重新处理当前索引
+				idx = idx - 1
+			end
 
 			current_chunk = { size = 0 }
 			table.insert( chunks, current_chunk )

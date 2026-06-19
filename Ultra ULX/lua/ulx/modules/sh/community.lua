@@ -37,7 +37,7 @@ local launchCmd = ulx.command(CAT, "ulx launch", ulx.launch, "!launch")
 launchCmd:addParam{type=ULib.cmds.PlayersArg}
 launchCmd:addParam{type=ULib.cmds.NumArg, min=100, max=5000, default=500, hint="力度", ULib.cmds.optional, ULib.cmds.round}
 launchCmd:defaultAccess(ULib.ACCESS_ADMIN)
-launchCmd:help("将目标弹射到空中。")
+launchCmd:help( "将目标弹射到空中" )
 
 -- ===== Rocket (火箭发射) =====
 if SERVER then
@@ -57,7 +57,7 @@ end
 local rocketCmd = ulx.command(CAT, "ulx rocket", ulx.rocket, "!rocket")
 rocketCmd:addParam{type=ULib.cmds.PlayersArg}
 rocketCmd:defaultAccess(ULib.ACCESS_ADMIN)
-rocketCmd:help("将目标像火箭一样发射升空。")
+rocketCmd:help( "将目标像火箭一样发射升空" )
 
 -- ===== Explode (爆炸) =====
 if SERVER then
@@ -80,7 +80,7 @@ end
 local explodeCmd = ulx.command(CAT, "ulx explode", ulx.explode, "!explode")
 explodeCmd:addParam{type=ULib.cmds.PlayersArg}
 explodeCmd:defaultAccess(ULib.ACCESS_SUPERADMIN)
-explodeCmd:help("引爆目标玩家。")
+explodeCmd:help( "引爆目标玩家" )
 
 -- ===== Color (设置玩家颜色 — 持久化，防止移动/受伤/换枪重置) =====
 if SERVER then
@@ -115,6 +115,10 @@ if SERVER then
 			timer.Simple(0.05, function() if IsValid(ply) then applyColor(ply, playerColors[ply]) end end)
 		end
 	end)
+	-- 玩家断开时清理颜色数据，防止内存泄漏
+	hook.Add("PlayerDisconnected", "ULX_ColorCleanup", function(ply)
+		playerColors[ply] = nil
+	end)
 end
 local colorCmd = ulx.command(CAT, "ulx color", ulx.color, "!color")
 colorCmd:addParam{type=ULib.cmds.PlayersArg}
@@ -122,7 +126,7 @@ colorCmd:addParam{type=ULib.cmds.NumArg, min=0, max=255, default=255, hint="红"
 colorCmd:addParam{type=ULib.cmds.NumArg, min=0, max=255, default=255, hint="绿", ULib.cmds.round}
 colorCmd:addParam{type=ULib.cmds.NumArg, min=0, max=255, default=255, hint="蓝", ULib.cmds.round}
 colorCmd:defaultAccess(ULib.ACCESS_ADMIN)
-colorCmd:help("设置目标玩家的渲染颜色(RGB)。")
+colorCmd:help( "设置目标玩家的渲染颜色 RGB" )
 
 -- ===== Halo (发光轮廓, 开/关合并) =====
 if SERVER then
@@ -145,7 +149,7 @@ local haloCmd = ulx.command(CAT, "ulx halo", ulx.halo, "!halo")
 haloCmd:addParam{type=ULib.cmds.PlayersArg}
 haloCmd:addParam{type=ULib.cmds.BoolArg, invisible=true}
 haloCmd:defaultAccess(ULib.ACCESS_ADMIN)
-haloCmd:help("切换目标玩家的发光轮廓特效。")
+haloCmd:help( "切换目标发光轮廓，!removehalo 关闭" )
 haloCmd:setOpposite("ulx removehalo", {_, _, true}, "!removehalo")
 
 -- ===== Trail (拖尾特效, 开/关合并) =====
@@ -169,7 +173,7 @@ local trailCmd = ulx.command(CAT, "ulx trail", ulx.trail, "!trail")
 trailCmd:addParam{type=ULib.cmds.PlayersArg}
 trailCmd:addParam{type=ULib.cmds.BoolArg, invisible=true}
 trailCmd:defaultAccess(ULib.ACCESS_ADMIN)
-trailCmd:help("切换目标玩家的拖尾特效。")
+trailCmd:help( "切换目标拖尾特效，!removetrail 关闭" )
 trailCmd:setOpposite("ulx removetrail", {_, _, true}, "!removetrail")
 
 -- ===== 工具类 =====
@@ -187,7 +191,7 @@ end
 local cdCmd = ulx.command(CAT_T, "ulx cleardecals", ulx.cleardecals, "!cleardecals")
 cdCmd:addParam{type=ULib.cmds.PlayersArg}
 cdCmd:defaultAccess(ULib.ACCESS_ADMIN)
-cdCmd:help("清除目标客户端的所有子弹痕迹和贴花。")
+cdCmd:help( "清除目标客户端的弹孔和贴花" )
 
 -- ===== Profile (打开Steam资料) =====
 function ulx.profile(calling_ply, target_ply)
@@ -201,7 +205,7 @@ end
 local profileCmd = ulx.command(CAT_T, "ulx profile", ulx.profile, "!profile")
 profileCmd:addParam{type=ULib.cmds.PlayerArg}
 profileCmd:defaultAccess(ULib.ACCESS_ALL)
-profileCmd:help("在Steam浏览器中打开目标的个人资料页。")
+profileCmd:help( "在浏览器中打开目标的 Steam 资料页" )
 
 -- ===== Redirect (重定向到另一服务器) =====
 if SERVER then
@@ -216,7 +220,7 @@ local redirectCmd = ulx.command(CAT_T, "ulx redirect", ulx.redirect, "!redirect"
 redirectCmd:addParam{type=ULib.cmds.PlayersArg}
 redirectCmd:addParam{type=ULib.cmds.StringArg, hint="服务器IP:端口", ULib.cmds.takeRestOfLine}
 redirectCmd:defaultAccess(ULib.ACCESS_SUPERADMIN)
-redirectCmd:help("将目标重定向到另一个服务器。")
+redirectCmd:help( "将目标重定向到另一台服务器" )
 
 -- ===== StopSound (停止音效) =====
 if SERVER then
@@ -231,7 +235,7 @@ end
 local ssCmd = ulx.command(CAT_T, "ulx stopsound", ulx.stopsound, "!stopsound")
 ssCmd:addParam{type=ULib.cmds.PlayersArg}
 ssCmd:defaultAccess(ULib.ACCESS_ADMIN)
-ssCmd:help("停止目标客户端的所有音效播放。")
+ssCmd:help( "停止目标客户端的所有音效" )
 
 -- ===== TimeScale (时间倍速) =====
 if SERVER then
@@ -244,7 +248,7 @@ end
 local tsCmd = ulx.command(CAT_T, "ulx timescale", ulx.timescale, "!timescale")
 tsCmd:addParam{type=ULib.cmds.NumArg, min=0.01, max=5, default=1, hint="倍速"}
 tsCmd:defaultAccess(ULib.ACCESS_SUPERADMIN)
-tsCmd:help("设置游戏全局时间倍速(0.01~5, 慢动作~快进)。")
+tsCmd:help( "设置游戏全局时间倍速 0.01~5" )
 
 -- ===== URL (打开网页) =====
 if SERVER then
@@ -261,7 +265,7 @@ local urlCmd = ulx.command(CAT_T, "ulx url", ulx.url, "!url")
 urlCmd:addParam{type=ULib.cmds.PlayersArg}
 urlCmd:addParam{type=ULib.cmds.StringArg, hint="网址", ULib.cmds.takeRestOfLine}
 urlCmd:defaultAccess(ULib.ACCESS_SUPERADMIN)
-urlCmd:help("在目标客户端打开指定网页。")
+urlCmd:help( "在目标客户端打开指定网页" )
 
 -- ===== Aliases (查看别名) =====
 if SERVER then
@@ -277,7 +281,7 @@ end
 local aliasesCmd = ulx.command(CAT_T, "ulx aliases", ulx.aliases, "!aliases")
 aliasesCmd:addParam{type=ULib.cmds.PlayersArg}
 aliasesCmd:defaultAccess(ULib.ACCESS_ADMIN)
-aliasesCmd:help("查看目标玩家的身份标识信息。")
+aliasesCmd:help( "查看目标的 SteamID 和 IP 信息" )
 
 -- ===== RemoveRagdolls (移除布娃娃) =====
 if SERVER then
@@ -291,7 +295,7 @@ if SERVER then
 end
 local rrCmd = ulx.command(CAT_T, "ulx removeragdolls", ulx.removeragdolls, "!removeragdolls")
 rrCmd:defaultAccess(ULib.ACCESS_ADMIN)
-rrCmd:help("清除所有客户端布娃娃实体。")
+rrCmd:help( "清除地图上所有布娃娃" )
 
 -- ===== 聊天类 =====
 
@@ -315,7 +319,7 @@ local deafenCmd = ulx.command(CAT_C, "ulx deafen", ulx.deafen, "!deafen")
 deafenCmd:addParam{type=ULib.cmds.PlayersArg}
 deafenCmd:addParam{type=ULib.cmds.BoolArg, invisible=true}
 deafenCmd:defaultAccess(ULib.ACCESS_ADMIN)
-deafenCmd:help("使目标完全看不到也听不到聊天。")
+deafenCmd:help( "屏蔽目标的聊天和语音，!undeafen 解除" )
 deafenCmd:setOpposite("ulx undeafen", {_, _, true}, "!undeafen")
 
 -- ===== RSay (彩色广播) - 共享域(CLIENT+SERVER皆可用) =====
@@ -335,7 +339,7 @@ end
 local rsayCmd = ulx.command(CAT_C, "ulx rsay", ulx.rsay, {"§", "!rsay"}, true, true)
 rsayCmd:addParam{type=ULib.cmds.StringArg, hint="消息", ULib.cmds.takeRestOfLine}
 rsayCmd:defaultAccess(ULib.ACCESS_ADMIN)
-rsayCmd:help("向所有人发送彩色广播消息。")
+rsayCmd:help( "向所有人发送彩色广播消息" )
 
 -- ===== Silence (禁言禁语音, 合并 unsilence) =====
 if SERVER then
@@ -357,7 +361,7 @@ local silenceCmd = ulx.command(CAT_C, "ulx silence", ulx.silence, "!silence")
 silenceCmd:addParam{type=ULib.cmds.PlayersArg}
 silenceCmd:addParam{type=ULib.cmds.BoolArg, invisible=true}
 silenceCmd:defaultAccess(ULib.ACCESS_ADMIN)
-silenceCmd:help("完全禁止目标说话和聊天。")
+silenceCmd:help( "完全禁言目标和语音，!unsilence 解除" )
 silenceCmd:setOpposite("ulx unsilence", {_, _, true}, "!unsilence")
 
 -- ===== 移动类 =====
@@ -376,7 +380,7 @@ local jpCmd = ulx.command(CAT_M, "ulx jumppower", ulx.jumppower, "!jumppower")
 jpCmd:addParam{type=ULib.cmds.PlayersArg}
 jpCmd:addParam{type=ULib.cmds.NumArg, min=0, max=1000, default=200, hint="力度", ULib.cmds.round}
 jpCmd:defaultAccess(ULib.ACCESS_ADMIN)
-jpCmd:help("设置目标玩家的跳跃力。")
+jpCmd:help( "设置目标的跳跃力度" )
 -- ===== 移动速度默认值自动检测 =====
 if SERVER then
 	ulx.DEF_RUNSPEED  = 400
@@ -403,7 +407,7 @@ local rsCmd = ulx.command(CAT_M, "ulx runspeed", ulx.runspeed, "!runspeed")
 rsCmd:addParam{type=ULib.cmds.PlayersArg}
 rsCmd:addParam{type=ULib.cmds.NumArg, min=0, max=1000, hint="速度", ULib.cmds.optional, ULib.cmds.round}
 rsCmd:defaultAccess(ULib.ACCESS_ADMIN)
-rsCmd:help("设置目标玩家的奔跑速度。不加参数则重置为游戏默认值。")
+rsCmd:help( "设置目标的奔跑速度，不加参数恢复默认" )
 -- ===== WalkSpeed =====
 if SERVER then
 	function ulx.walkspeed(calling_ply, target_plys, speed)
@@ -416,7 +420,7 @@ local wsCmd = ulx.command(CAT_M, "ulx walkspeed", ulx.walkspeed, "!walkspeed")
 wsCmd:addParam{type=ULib.cmds.PlayersArg}
 wsCmd:addParam{type=ULib.cmds.NumArg, min=0, max=1000, hint="速度", ULib.cmds.optional, ULib.cmds.round}
 wsCmd:defaultAccess(ULib.ACCESS_ADMIN)
-wsCmd:help("设置目标玩家的行走速度。不加参数则重置为游戏默认值。")
+wsCmd:help( "设置目标的行走速度，不加参数恢复默认" )
 -- ===== Speed =====
 if SERVER then
 	function ulx.speed(calling_ply, target_plys, speed)
@@ -431,7 +435,7 @@ local speedCmd = ulx.command(CAT_M, "ulx speed", ulx.speed, "!speed")
 speedCmd:addParam{type=ULib.cmds.PlayersArg}
 speedCmd:addParam{type=ULib.cmds.NumArg, min=0, max=1000, hint="走速", ULib.cmds.optional, ULib.cmds.round}
 speedCmd:defaultAccess(ULib.ACCESS_ADMIN)
-speedCmd:help("统一设置行走和奔跑速度(跑=走x2)。不加参数则重置。")
+speedCmd:help( "统一设置行走和奔跑速度，不加参数恢复默认" )
 -- ===== StepSize (跨步高度) =====
 if SERVER then
 	function ulx.stepsize(calling_ply, target_plys, stepsize)
@@ -446,7 +450,7 @@ local ssCmd = ulx.command(CAT_M, "ulx stepsize", ulx.stepsize, "!stepsize")
 ssCmd:addParam{type=ULib.cmds.PlayersArg}
 ssCmd:addParam{type=ULib.cmds.NumArg, min=0, max=500, default=18, hint="高度", ULib.cmds.round}
 ssCmd:defaultAccess(ULib.ACCESS_ADMIN)
-ssCmd:help("设置目标玩家的最大跨步高度。")
+ssCmd:help( "设置目标的最大跨步高度" )
 -- ===== 视角类 =====
 
 -- ===== ViewToggle (第一/三人称切换) =====
@@ -462,7 +466,7 @@ end
 local viewCmd = ulx.command(CAT_T, "ulx view", ulx.toggleview, "!view")
 viewCmd:addParam{type=ULib.cmds.PlayersArg}
 viewCmd:defaultAccess(ULib.ACCESS_ADMIN)
-viewCmd:help("切换目标的第一/第三人称视角。")
+viewCmd:help( "切换目标的第一/第三人称视角" )
 
 -- ===== 管理类 =====
 
@@ -480,7 +484,7 @@ banipCmd:addParam{type=ULib.cmds.StringArg, hint="IP地址"}
 banipCmd:addParam{type=ULib.cmds.NumArg, min=0, default=0, hint="分钟,0=永久", ULib.cmds.optional, ULib.cmds.allowTimeString}
 banipCmd:addParam{type=ULib.cmds.StringArg, hint="原因", ULib.cmds.optional, ULib.cmds.takeRestOfLine}
 banipCmd:defaultAccess(ULib.ACCESS_SUPERADMIN)
-banipCmd:help("通过IP地址封禁玩家。")
+banipCmd:help( "通过 IP 地址封禁玩家" )
 
 -- ===== Bot (生成/移除, 合并) =====
 if SERVER then
@@ -495,8 +499,7 @@ if SERVER then
 		end
 		amount = math.Clamp(amount, 1, 32)
 		local gmName = (GAMEMODE and GAMEMODE.FolderName) or ""
-		local gmDerived = false
-		pcall(function() if GAMEMODE and GAMEMODE.IsSandboxDerived then gmDerived = GAMEMODE:IsSandboxDerived() end end)
+		local gmDerived = GAMEMODE and GAMEMODE.IsSandboxDerived and GAMEMODE:IsSandboxDerived() or false
 		local allowed = (gmName == "sandbox" or gmName == "terrortown" or gmName == "murder" or gmDerived)
 		if not allowed then
 			ULib.tsayError(calling_ply, "当前游戏模式不支持生成BOT。", true); return
@@ -514,7 +517,7 @@ local botCmd = ulx.command(CAT_A, "ulx bot", ulx.bot, "!bot")
 botCmd:addParam{type=ULib.cmds.NumArg, min=1, max=32, default=1, hint="数量", ULib.cmds.round, ULib.cmds.optional}
 botCmd:addParam{type=ULib.cmds.BoolArg, invisible=true}
 botCmd:defaultAccess(ULib.ACCESS_SUPERADMIN)
-botCmd:help("生成指定数量的BOT玩家。")
+botCmd:help( "生成 BOT 玩家，!kickbots 全部移除" )
 botCmd:setOpposite("ulx kickbots", {_, _, true}, "!kickbots")
 
 -- ===== Warn (警告系统) =====
@@ -543,11 +546,11 @@ local warnCmd = ulx.command(CAT_A, "ulx warn", ulx.warn, "!warn")
 warnCmd:addParam{type=ULib.cmds.PlayerArg}
 warnCmd:addParam{type=ULib.cmds.StringArg, hint="原因", ULib.cmds.optional, ULib.cmds.takeRestOfLine}
 warnCmd:defaultAccess(ULib.ACCESS_ADMIN)
-warnCmd:help("警告目标玩家。累计3次自动封禁1小时。")
+warnCmd:help( "警告目标，累计 3 次自动封禁" )
 local uwCmd = ulx.command(CAT_A, "ulx unwarn", ulx.unwarn, "!unwarn")
 uwCmd:addParam{type=ULib.cmds.PlayerArg}
 uwCmd:defaultAccess(ULib.ACCESS_ADMIN)
-uwCmd:help("撤销目标玩家的一次警告记录。")
+uwCmd:help( "撤销一次警告记录" )
 
 -- ===== Disguise (伪装, 合并 undisguise) =====
 if SERVER then
@@ -585,7 +588,7 @@ disguiseCmd:addParam{type=ULib.cmds.PlayerArg}
 disguiseCmd:addParam{type=ULib.cmds.PlayerArg, hint="伪装目标", ULib.cmds.optional}
 disguiseCmd:addParam{type=ULib.cmds.BoolArg, invisible=true}
 disguiseCmd:defaultAccess(ULib.ACCESS_SUPERADMIN)
-disguiseCmd:help("将目标伪装成另一个玩家的名字。")
+disguiseCmd:help( "将目标伪装成另一个玩家的名字，!undisguise 恢复" )
 disguiseCmd:setOpposite("ulx undisguise", {_, _, _, true}, "!undisguise")
 
 -- ===== ESP 透视 (开/关 合并为单指令，参考 freeze/unfreeze) =====
@@ -608,7 +611,7 @@ local espCmd = ulx.command(CAT, "ulx esp", ulx.esp, "!esp")
 espCmd:addParam{type=ULib.cmds.PlayersArg}
 espCmd:addParam{type=ULib.cmds.BoolArg, invisible=true}
 espCmd:defaultAccess(ULib.ACCESS_SUPERADMIN)
-espCmd:help("切换目标的透视效果(显示名称/血量/距离/用户组)。")
+espCmd:help( "透视目标显示名称/血量/距离，!unesp 关闭" )
 espCmd:setOpposite("ulx unesp", {_, _, true}, "!unesp")
 
 if CLIENT then
@@ -768,15 +771,23 @@ if CLIENT then
 				trailTargets[ent] = nil
 				trailHistory[ent] = nil
 			else
-				trailHistory[ent] = trailHistory[ent] or {}
 				local h = trailHistory[ent]
-				h[#h + 1] = ent:GetPos() + Vector(0, 0, 10)
-				if #h > TRAIL_LIFE then table.remove(h, 1) end
-				if #h > 1 then
+				if not h then
+					h = { head = 0, count = 0, pts = {} }
+					trailHistory[ent] = h
+				end
+				local pts = h.pts
+				h.head = h.head + 1
+				pts[h.head] = ent:GetPos() + Vector(0, 0, 10)
+				if h.count < TRAIL_LIFE then h.count = h.count + 1 end
+				if h.count > 1 then
 					render.SetMaterial(Material("trails/laser"))
-					for i = 1, #h - 1 do
-						local alpha = (i / #h) * 255
-						render.DrawBeam(h[i], h[i + 1], 6 * (i / #h), 0, 1, ColorAlpha(Color(255, 200, 0), alpha))
+					local startIdx = h.head - h.count + 1
+					for i = 0, h.count - 2 do
+						local idx1 = startIdx + i
+						local idx2 = idx1 + 1
+						local alpha = ((i + 1) / h.count) * 255
+						render.DrawBeam(pts[idx1], pts[idx2], 6 * ((i + 1) / h.count), 0, 1, ColorAlpha(Color(255, 200, 0), alpha))
 					end
 				end
 			end

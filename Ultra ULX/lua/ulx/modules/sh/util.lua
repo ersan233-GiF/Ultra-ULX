@@ -37,8 +37,9 @@ who:help( "查看当前在线用户的信息." )
 
 ------------------------------ Version ------------------------------
 function ulx.versionCmd( calling_ply )
+	ULib.tsay( calling_ply, "Ultra ULX " .. ( ulx.VERSION_STR or "v2.69.1" ), true )
+	ULib.tsay( calling_ply, "ULX " .. ULib.pluginVersionStr("ULX") .. " (兼容层)", true )
 	ULib.tsay( calling_ply, "ULib " .. ULib.pluginVersionStr("ULib"), true )
-	ULib.tsay( calling_ply, "ULX " .. ULib.pluginVersionStr("ULX"), true )
 end
 local version = ulx.command( CATEGORY_NAME, "ulx version", ulx.versionCmd, "!version" )
 version:defaultAccess( ULib.ACCESS_ALL )
@@ -402,7 +403,7 @@ debuginfo:help( "导出调试信息到文件." )
 
 function ulx.resettodefaults( calling_ply, param )
 	if param ~= "FORCE" then
-		local str = "Are you SURE about this? It will remove ulx-created temporary bans, configs, groups, EVERYTHING!"
+		local str = "Are you SURE about this? It will remove all Ultra ULX config files and reset to defaults!"
 		local str2 = "如果确定，请输入 \"ulx resettodefaults FORCE\""
 		if calling_ply:IsValid() then
 			ULib.tsayError( calling_ply, str, true )
@@ -414,6 +415,7 @@ function ulx.resettodefaults( calling_ply, param )
 		return
 	end
 
+	-- 仅删除 Ultra ULX 自身配置文件，不碰共享的 data/ulib/（用户/组权限）
 	ULib.fileDelete( "data/ultra_ulx/adverts.txt" )
 	ULib.fileDelete( "data/ultra_ulx/banreasons.txt" )
 	ULib.fileDelete( "data/ultra_ulx/config.txt" )
@@ -421,32 +423,24 @@ function ulx.resettodefaults( calling_ply, param )
 	ULib.fileDelete( "data/ultra_ulx/gimps.txt" )
 	ULib.fileDelete( "data/ultra_ulx/sbox_limits.txt" )
 	ULib.fileDelete( "data/ultra_ulx/votemaps.txt" )
-	ULib.fileDelete( "data/ulib/bans.txt" )
-	ULib.fileDelete( "data/ulib/groups.txt" )
-	ULib.fileDelete( "data/ulib/misc_registered.txt" )
-	ULib.fileDelete( "data/ulib/users.txt" )
-	
-  	if sql.TableExists( "ulib_bans" ) then
-    		sql.Query( "DROP TABLE ulib_bans" )
-	end
-	
-  	if sql.TableExists( "ulib_users" ) then
-    		sql.Query( "DROP TABLE ulib_users" )
+
+	if sql.TableExists( "ulib_bans" ) then
+		sql.Query( "DROP TABLE ulib_bans" )
 	end
 
-	local str = "Please change levels to finish the reset"
+	local str = "请切换地图以完成重置。注意：data/ulib/ (用户/组权限) 未被删除，如需重置请手动操作。"
 	if calling_ply:IsValid() then
 		ULib.tsayError( calling_ply, str, true )
 	else
 		Msg( str .. "\n" )
 	end
 
-	ulx.fancyLogAdmin( calling_ply, "#A reset all ULX and ULib configuration" )
+	ulx.fancyLogAdmin( calling_ply, "#A 重置了 Ultra ULX 配置（保留 data/ulib/ 权限文件）" )
 end
 local resettodefaults = ulx.command( CATEGORY_NAME, "ulx resettodefaults", ulx.resettodefaults )
 resettodefaults:addParam{ type=ULib.cmds.StringArg, ULib.cmds.optional }
 resettodefaults:defaultAccess( ULib.ACCESS_SUPERADMIN )
-resettodefaults:help( "重置所有 ULX 和 ULib 的配置！" )
+resettodefaults:help( "重置 Ultra ULX 配置为默认值（仅 data/ultra_ulx/ 目录下的文件）。" )
 
 if SERVER then
 	local ulx_kickAfterNameChanges = 			ulx.convar( "kickAfterNameChanges", "0", "<number> - Players can only change their name x times every ulx_kickAfterNameChangesCooldown seconds. 0 to disable.", ULib.ACCESS_ADMIN )
