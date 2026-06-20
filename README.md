@@ -1,12 +1,12 @@
-# Ultra ULX v2.69.1
+# Ultra ULX v2.70.0
 
-[![GitHub release](https://img.shields.io/badge/version-2.69.1-blue)](https://github.com/ersan233-GiF/Ultra-ULX/releases)
+[![GitHub release](https://img.shields.io/badge/version-2.70.0-blue)](https://github.com/ersan233-GiF/Ultra-ULX/releases)
 [![GitHub stars](https://img.shields.io/github/stars/ersan233-GiF/Ultra-ULX?style=social)](https://github.com/ersan233-GiF/Ultra-ULX)
 [![GitHub license](https://img.shields.io/badge/license-MIT-green)](https://github.com/ersan233-GiF/Ultra-ULX/blob/main/LICENSE)
 [![ULX](https://img.shields.io/badge/ULX-3.81%20compatible-orange)](https://github.com/TeamUlysses/ulx)
 [![GMod](https://img.shields.io/badge/Garry's%20Mod-Addon-ff69b4)](https://gmod.facepunch.com/)
 
-> 基于 [Team Ulysses ULX v3.71](https://github.com/TeamUlysses/ulx) · 完全中文化 · 69+ 新命令
+> 基于 [Team Ulysses ULX v3.71](https://github.com/TeamUlysses/ulx) · 完全中文化 · 114+ 新命令 · 4 种语言
 
 **[GitHub 仓库](https://github.com/ersan233-GiF/Ultra-ULX)** · **[下载发布包](https://github.com/ersan233-GiF/Ultra-ULX/releases)** · **[提交 Issue](https://github.com/ersan233-GiF/Ultra-ULX/issues)**
 
@@ -14,21 +14,23 @@
 
 ## 模块简介
 
-[**Ultra ULX** ](https://github.com/ersan233-GiF/Ultra-ULX)是 Garry's Mod 服务端管理插件 [ULX](https://github.com/TeamUlysses/ulx) 的增强分支，在保留原版全部功能的基础上，新增 69+ 条管理命令，支持 4 种语言，并深度优化性能与稳定性。
+[Ultra ULX ](https://github.com/ersan233-GiF/Ultra-ULX)是 Garry's Mod 服务端管理插件 [ULX](https://github.com/TeamUlysses/ulx) 的增强分支，在保留原版全部功能的基础上，新增 114+ 条管理命令，支持 4 种语言，集成 SQLite 持久化惩罚系统，自动连跳，坐标 HUD 等。
 
 ### 核心功能
 
 | 功能 | 说明 |
 |:----|:-----|
-| **权限管理** | 多级用户组（superadmin/admin/operator/user）+ 细粒度权限控制 + SQLite 持久化 + 自动备份 |
-| **娱乐命令** | 25+ 种娱乐互动（slap/whip/slay/ignite/freeze/jail/ragdoll...），含社区扩展 30+ 命令 |
+| **权限管理** | 多级用户组 + 细粒度权限 + SQLite 持久化 + 自动备份 |
+| **管理扩展** | 限时禁言/禁聊、分级警告系统（3次→自动禁言，5次→自动封禁）、玩家举报、行动记录、IP封禁持久化、服务器维护模式 |
+| **娱乐命令** | 50+ 种娱乐互动，含社区扩展命令 |
 | **管理工具** | 封禁/踢出/禁言/传送/换图/清理/重置，覆盖服务器日常运维 |
-| **投票系统** | 玩家自主投票换图/踢人/封禁，支持否决和预设地图 |
+| **投票系统** | 玩家自主投票换图/踢人/封禁，支持 MapVote/GMVote |
 | **XGUI 面板** | 全功能图形管理界面，无需记忆命令即可完成所有操作 |
-| **多语言** | 4 种语言（简体中文 / English / Русский / 文言文），客户端自由切换 |
-| **BHOP 连跳** | CS:S 标准自动连跳系统，SetupMove 保活，零泄露退出 |
-| **道具生成** | 9 类 70+ 预设物品（武器/道具/载具/座椅），智能碰撞检测+挂墙 |
-| **坐标系统** | 屏幕 HUD + 头顶坐标，4 种可见模式，0.5s 刷新 |
+| **多语言** | 4 种语言，客户端自由切换 |
+| **BHOP 连跳** | CS:S 标准自动连跳系统含坡度补偿，SetupMove 保活 |
+| **道具生成** | 9 类 70+ 预设物品，智能碰撞检测 |
+| **坐标系统** | 屏幕 HUD + 头顶坐标，4 种可见模式 |
+| **蹲跳增强** | 可调跳跃倍率 + 蹲行速度 + 自动解锁 |
 | **安全共存** | 独立数据目录 + InitPostEntity 覆盖，删除即恢复原版 ULX |
 
 ---
@@ -40,7 +42,7 @@
 ```
 1. 下载发布包 → 解压 → 将 Ultra ULX 文件夹放入 garrysmod/addons/
 2. 重启服务器
-3. 控制台显示 // Ultra ULX v2.69.1 Loaded! // 即成功
+3. 控制台显示 // Ultra ULX v2.70.0 Loaded! // 即成功
 ```
 
 [⬇️ 下载最新发布包](https://github.com/ersan233-GiF/Ultra-ULX/releases)
@@ -215,15 +217,17 @@ ulx removeuser 玩家名                          ← 按名称移除
 
 | 指标 | 数值 |
 |:---:|:---:|
-| 总行数 (Lua) | **~26,100 行** |
-| Lua 源码大小 | **~1.07 MB** |
-| 文件数 (Lua) | **91 个** |
-| 语言包 | **4 种** (简体中文 / English / Русский / 文言文) |
-| 命令总数 | **~114 条** (原版 ~45 条 + 69+ 新增) |
+| 总行数 (Lua, 含注释) | **~31,400 行** |
+| 发布包行数 (去注释) | **~25,650 行** |
+| Lua 源码大小 | **~1,120 KB** |
+| 发布包大小 | **~1,023 KB** |
+| 文件数 (Lua) | **93 个** |
+| 语言包 | **4 种** (简体中文 1,180行 / English 1,222行 / Русский 1,246行 / 文言文 1,147行) |
+| 命令总数 | **~150 条** (原版 ~45 条 + 105+ 新增) |
 | 模块数 | **23 个** (sh 14 + cl 5 + sv 4) |
 | 道具分类 | **9 类** |
 | ULib 版本 | 2.72 |
-| Ultra ULX 版本 | **v2.69.1** |
+| Ultra ULX 版本 | **v2.70.0** |
 | ULX 兼容版本 | 3.81 |
 
 ---
@@ -327,11 +331,11 @@ addons/Ultra ULX/                          [~1.07 MB / ~26,100 行]
         │   ├── tools.lua ............ 408 B    [  8行]  3种工具枪
         │   └── weapons_admin.lua .... 294 B    [  5行]  2种管理员武器
         │
-        ├── language/ .............................. 176.5 KB [4,054行]
-        │   ├── zh-cn.lua ......... 36.6 KB [951行]   简体中文（完整翻译 + 文化适配）
-        │   ├── en.lua ............. 40.7 KB [1,068行]  English（完整原版 + 新增命令翻译）
-        │   ├── ru.lua ............. 54.0 KB [1,047行]  Русский（完整俄语翻译）
-        │   └── lzh.lua ............ 41.3 KB [988行]   文言文（古典风格翻译）
+        ├── language/ .............................. 196.7 KB [4,795行]
+        │   ├── zh-cn.lua ......... 51.4 KB [1,180行]   简体中文（完整翻译 + 文化适配）
+        │   ├── en.lua ............. 50.2 KB [1,222行]  English（完整原版 + 新增命令翻译）
+        │   ├── ru.lua ............. 65.5 KB [1,246行]  Русский（完整俄语翻译）
+        │   └── lzh.lua ............ 43.0 KB [1,147行]   文言文（古典风格翻译）
         │
         └── xgui/ .................................. 256.0 KB [5,634行]
             ├── root (7)
@@ -374,9 +378,9 @@ addons/Ultra ULX/                          [~1.07 MB / ~26,100 行]
 | `items/*` (9 文件) | 175 | 9.6 KB | 道具 | 道具注册表 API + 8 分类 |
 | `client.lua` (settings) | 265 | 14.8 KB | XGUI | 客户端设置 (语言/皮肤) |
 | `layout.lua` | 101 | 3.3 KB | XGUI | 统一布局引擎 |
-| `zh-cn.lua` | 951 | 36.6 KB | 语言 | 简体中文 100% |
-| `lzh.lua` | 988 | 41.3 KB | 语言 | 文言文 100% |
-| `ru.lua` | 1,047 | 54.0 KB | 语言 | Русский 100% |
+| `zh-cn.lua` | **1,180** | 51.4 KB | 语言 | 简体中文 100% |
+| `lzh.lua` | **1,147** | 43.0 KB | 语言 | 文言文 100% |
+| `ru.lua` | **1,246** | 65.5 KB | 语言 | Русский 100% |
 | `language.lua` | 109 | 2.9 KB | 共享 | 多语言框架 |
 | `rngfix/` (2 文件) | 58 | 1.1 KB | RNG | 斜坡修正独立包 |
 
@@ -388,7 +392,7 @@ addons/Ultra ULX/                          [~1.07 MB / ~26,100 行]
 | `ucl.lua` | ~1,300行 | **1,307行** | 备份30+恢复+DB管理+二次检测 |
 | `data.lua` | ~300行 | **467行** | 中文化模板+详细注释+独立数据目录 |
 | `fun.lua` | ~800行 | **918行** | unigniteall+playsound+sslay |
-| `en.lua` | ~900行 | **1,068行** | +200 翻译键 |
+| `en.lua` | ~900行 | **1,222行** | +322 翻译键 + 文言文新增键同步 |
 | `defines.lua` | ~400行 | **377行** | 7色主题(加深40%)+版号格式 |
 | `menus.lua` | ~100行 | **133行** | json+txt+gamemode三路扫描,无缓存 |
 
@@ -643,5 +647,18 @@ ulx.item.Register("my_category", {
 **[⬆ 返回顶部](#ultra-ulx-v2691)**
 
 ---
+
+## 更新日志
+
+### v2.70.0 (2026-06-20)
+
+- **性能优化**: coord.lua HUDPaint 钩子改为动态添加/移除，关闭后零开销
+- **硬编码迁移**: teleport.lua 全部错误提示和日志改用 `L.T()` 多语言系统
+- **新增语言键**: `tele_tp_help`、`tele_send_help`、`tele_tpto_help` 同步至 4 种语言
+- **移除冗余 net 消息**: community.lua 中的 `ulx_community_deafen/silence` net 消息已移除（NWBool 已自动同步）
+- **修复定时器负延迟**: sv_bans.lua 中已过期封禁立即执行解封，不再创建空定时器
+- **GLuaLS 兼容**: 添加 `---@diagnostic disable` 标记，消除 VS Code 中大量误报错误
+- **修复运算符优先级**: sv_bans.lua `\255` 拼接括号修正
+- **修复 `mousecode` 拼写错误**: xlib.lua 中 `mousecode` → `mcode`
 
 *Ultra ULX — 基于 [ULX](https://github.com/TeamUlysses/ulx) by Team Ulysses · [GitHub 仓库](https://github.com/ersan233-GiF/Ultra-ULX) · [提交 Issue](https://github.com/ersan233-GiF/Ultra-ULX/issues)*
