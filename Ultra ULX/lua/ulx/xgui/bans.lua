@@ -1,9 +1,5 @@
--- Bans management module v3 -- based on Stickly Man!'s original
--- 重构版：使用 xgui_core.lua 统一语言管理
-
 xgui.prepareDataType( "bans" )
 local xbans = xlib.makepanel{ parent=xgui.null }
-
 local function createBanlist()
 	local banlist = xlib.makelistview{ x=5, y=30, w=572, h=310, multiselect=false, parent=xbans }
 	banlist:AddColumn( xgui.T("bans_col_name") )
@@ -37,7 +33,6 @@ local function createBanlist()
 	return banlist
 end
 xbans.banlist = createBanlist()
-
 local searchFilter = ""
 xbans.searchbox = xlib.maketextbox{ x=5, y=6, w=175, text=xgui.T("bans_search"), selectall=true, parent=xbans }
 local txtCol = xbans.searchbox:GetTextColor() or Color( 0, 0, 0, 255 )
@@ -57,7 +52,6 @@ xbans.searchbox.OnLoseFocus = function( pnl )
 	xbans.retrieveBans()
 	hook.Call( "OnTextEntryLoseFocus", nil, pnl )
 end
-
 local sortMode = 0
 local sortAsc = false
 local sortOptions = { xgui.T("bans_sort_date"), xgui.T("bans_sort_name"), xgui.T("bans_sort_steamid"),
@@ -70,7 +64,6 @@ function xbans.sortbox:OnSelect( i, v )
 	xbans.setPage( 1 )
 	xbans.retrieveBans()
 end
-
 local hidePerma = 0
 local btnPermaFilter = xlib.makebutton{ x=355, y=6, w=95, label=xgui.T("bans_perma_show"), parent=xbans }
 btnPermaFilter.DoClick = function( self )
@@ -80,7 +73,6 @@ btnPermaFilter.DoClick = function( self )
 	xbans.setPage( 1 )
 	xbans.retrieveBans()
 end
-
 local hideIncomplete = 0
 local btnIncompleteFilter = xlib.makebutton{ x=455, y=6, w=95, label=xgui.T("bans_incomplete_show"), parent=xbans, tooltip="Filter ban records without metadata." }
 btnIncompleteFilter.DoClick = function( self )
@@ -90,7 +82,6 @@ btnIncompleteFilter.DoClick = function( self )
 	xbans.setPage( 1 )
 	xbans.retrieveBans()
 end
-
 local function banUserList( doFreeze )
 	local menu = DermaMenu()
 	menu:SetSkin( xgui.settings.skin )
@@ -106,12 +97,10 @@ local function banUserList( doFreeze )
 	end
 	menu:Open()
 end
-
 xbans.btnBan = xlib.makebutton{ x=5, y=340, w=70, label=xgui.T("bans_btn_ban"), parent=xbans }
 xbans.btnBan.DoClick = function() banUserList( false ) end
 xbans.btnFreezeBan = xlib.makebutton{ x=80, y=340, w=95, label=xgui.T("bans_btn_freeze_ban"), parent=xbans }
 xbans.btnFreezeBan.DoClick = function() banUserList( true ) end
-
 xbans.infoLabel = xlib.makelabel{ x=204, y=344, label=xgui.T("bans_right_click"), parent=xbans }
 xbans.resultCount = xlib.makelabel{ y=344, parent=xbans }
 function xbans.setResultCount( count )
@@ -121,7 +110,6 @@ function xbans.setResultCount( count )
 	xbans.resultCount:SetPos( 475 - width, xbans.resultCount:GetPos() )
 	xbans.infoLabel:SetPos( ( 130 - width ) / 2 + 175, xbans.infoLabel:GetPos() )
 end
-
 local numPages = 1
 local pageNumber = 1
 xbans.pgleft = xlib.makebutton{ x=480, y=340, w=20, icon="icon16/arrow_left.png", centericon=true, disabled=true, parent=xbans }
@@ -140,7 +128,6 @@ xbans.setPage = function( newPage )
 	xbans.pgright:SetDisabled( pageNumber >= numPages )
 	xbans.pageSelector.TextEntry:SetText( pageNumber )
 end
-
 function xbans.RemoveBan( ID, bandata )
 	local tempstr = bandata and bandata.name or xgui.T("bans_unknown")
 	Derma_Query( xgui.T("bans_confirm_unban") .. tempstr .. " - " .. ID .. "?",
@@ -148,12 +135,10 @@ function xbans.RemoveBan( ID, bandata )
 		xgui.T("bans_remove"), function() RunConsoleCommand( "ulx", "unban", ID ); xbans.RemoveBanDetailsWindow( ID ) end,
 		xgui.T("maps_btn_cancel"), function() end )
 end
-
 xbans.openWindows = {}
 function xbans.RemoveBanDetailsWindow( ID )
 	if xbans.openWindows[ID] then xbans.openWindows[ID]:Remove(); xbans.openWindows[ID] = nil end
 end
-
 function xbans.ShowBanDetailsWindow( bandata )
 	if not bandata then return end
 	local wx, wy
@@ -210,15 +195,10 @@ function xbans.ShowBanDetailsWindow( bandata )
 		panel.OnTimer()
 	end
 end
-
--- Request ban data from server
 function xbans.retrieveBans()
 	RunConsoleCommand( "_xgui", "getBans", pageNumber, searchFilter, sortMode, sortAsc and "1" or "0", hidePerma, hideIncomplete )
 end
-
--- 语言刷新：仅更新文本，不重建列表、不发送网络请求
 xgui.registerRefresh( "bans", function()
-	-- 列标题
 	for i = 1, 4 do
 		local col = xbans.banlist.Columns[i]
 		if col and col.Header then
@@ -226,16 +206,13 @@ xgui.registerRefresh( "bans", function()
 			col.Header:SetText( xgui.T(keys[i]) )
 		end
 	end
-	-- 搜索框占位文本
 	xbans.searchbox:SetText( xgui.T("bans_search") )
 	xbans.searchbox:SelectAll()
-	-- 排序下拉框：重建选项和当前文本
 	local newSortOpts = { xgui.T("bans_sort_date"), xgui.T("bans_sort_name"), xgui.T("bans_sort_steamid"),
 		xgui.T("bans_sort_admin"), xgui.T("bans_sort_reason"), xgui.T("bans_sort_unbandate"), xgui.T("bans_sort_length") }
 	xbans.sortbox:Clear()
 	for _, v in ipairs( newSortOpts ) do xbans.sortbox:AddChoice( v ) end
 	xbans.sortbox:SetText( xgui.T("bans_sort_label") .. newSortOpts[sortMode + 1] .. ( sortAsc and xgui.T("bans_sort_asc") or xgui.T("bans_sort_desc") ) )
-	-- 按钮和标签
 	xbans.btnBan:SetText( xgui.T("bans_btn_ban") )
 	xbans.infoLabel:SetText( xgui.T("bans_right_click") )
 	xbans.btnFreezeBan:SetText( xgui.T("bans_btn_freeze_ban") )
@@ -244,12 +221,9 @@ xgui.registerRefresh( "bans", function()
 	local incTexts = { xgui.T("bans_incomplete_show"), xgui.T("bans_incomplete_hide"), xgui.T("bans_incomplete_only") }
 	btnIncompleteFilter:SetText( incTexts[hideIncomplete + 1] or xgui.T("bans_incomplete_show") )
 end )
-
 xgui.addModule( "bans", xbans, "icon16/delete.png" )
-
 function xgui.ShowBanWindow( ply, ID, doFreeze, isUpdate, bandata )
 	if not LocalPlayer():query( "ulx ban" ) and not LocalPlayer():query( "ulx banid" ) then return end
-
 	local xgui_banwindow = xlib.makeframe{ label=( isUpdate and "编辑封禁" or "封禁玩家" ), w=285, h=180, skin=xgui.settings.skin }
 	xlib.makelabel{ x=37, y=33, label="玩家名称:", parent=xgui_banwindow }
 	xlib.makelabel{ x=23, y=58, label="SteamID:", parent=xgui_banwindow }
@@ -262,7 +236,6 @@ function xgui.ShowBanWindow( ply, ID, doFreeze, isUpdate, bandata )
 	banpanel.val:SetParent( xgui_banwindow )
 	banpanel.val:SetPos( 75, 125 )
 	banpanel.val:SetWidth( 200 )
-
 	local name
 	if not isUpdate then
 		name = xlib.makecombobox{ x=75, y=30, w=200, parent=xgui_banwindow, enableinput=true, selectall=true }
@@ -299,10 +272,8 @@ function xgui.ShowBanWindow( ply, ID, doFreeze, isUpdate, bandata )
 			end
 		end
 	end
-
 	local steamID = xlib.maketextbox{ x=75, y=55, w=200, selectall=true, disabled=( isUpdate or not LocalPlayer():query( "ulx banid" ) ), parent=xgui_banwindow }
 	name.steamIDbox = steamID
-
 	if doFreeze and ply then
 		if LocalPlayer():query( "ulx freeze" ) then
 			RunConsoleCommand( "ulx", "freeze", "$" .. ULib.getUniqueIDForPlayer( ply ) )
@@ -335,7 +306,6 @@ function xgui.ShowBanWindow( ply, ID, doFreeze, isUpdate, bandata )
 			end
 			return
 		end
-
 		if ULib.isValidSteamID( steamID:GetValue() ) then
 			local isOnline = false
 			for k, v in ipairs( player.GetAll() ) do
@@ -357,11 +327,9 @@ function xgui.ShowBanWindow( ply, ID, doFreeze, isUpdate, bandata )
 			Derma_Message( message )
 		end
 	end
-
 	if ply then name:SetText( ply:Nick() ) end
 	if ID then steamID:SetText( ID ) else steamID:SetText( "STEAM_0:" ) end
 end
-
 function xgui.ConvertTime( seconds )
 	local years = math.floor( seconds / 31536000 )
 	seconds = seconds - ( years * 31536000 )

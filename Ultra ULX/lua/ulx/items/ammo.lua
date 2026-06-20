@@ -1,4 +1,3 @@
--- 弹药
 ulx.registerItems({
 	{ class = "item_ammo_pistol",        name = "手枪弹药",     type = 2 },
 	{ class = "item_ammo_pistol_large",  name = "手枪弹药(大)", type = 2 },

@@ -1,8 +1,4 @@
---xgui_helpers -- by Stickly Man!
---A set of generic functions to help with various XGUI-related things.
-
 function xgui.load_helpers()
-	--These handle keyboard focus for textboxes within XGUI.
 	local function getKeyboardFocus( pnl )
 		if pnl:HasParent( xgui.base ) then
 			xgui.anchor:SetKeyboardInputEnabled( true )
@@ -12,27 +8,20 @@ function xgui.load_helpers()
 		end
 	end
 	hook.Add( "OnTextEntryGetFocus", "XGUI_GetKeyboardFocus", getKeyboardFocus )
-
 	local function loseKeyboardFocus( pnl )
 		if pnl:HasParent( xgui.base ) then
 			xgui.anchor:SetKeyboardInputEnabled( false )
 		end
 	end
 	hook.Add( "OnTextEntryLoseFocus", "XGUI_LoseKeyboardFocus", loseKeyboardFocus )
-
-
-	---------------------------------
-	--Code for creating the XGUI base
-	---------------------------------
 	function xgui.makeXGUIbase()
 		xgui.anchor = xlib.makeXpanel{ w=600, h=420, x=ScrW()/2-300, y=ScrH()/2-270 }
 		xgui.anchor:SetVisible( false )
 		xgui.anchor:SetKeyboardInputEnabled( false )
 		xgui.anchor.Paint = function( self, w, h ) hook.Call( "XLIBDoAnimation" ) end
 		xgui.anchor:SetAlpha( 0 )
-
 		xgui.base = xlib.makepropertysheet{ x=0, y=0, w=600, h=400, parent=xgui.anchor, offloadparent=xgui.null }
-		xgui.base.animOpen = function() --First 4 are fade animations, last (or invalid choice) is the default fade animation.
+		xgui.base.animOpen = function()
 			xgui.settings.animIntype = tonumber( xgui.settings.animIntype )
 			if xgui.settings.animIntype == 2 then
 				xlib.addToAnimQueue( function() xgui.anchor:SetAlpha(255) end )
@@ -72,29 +61,28 @@ function xgui.load_helpers()
 			end
 			xlib.animQueue_start()
 		end
-
-		function xgui.SetPos( pos, xoff, yoff, ignoreanim ) --Sets the position of XGUI based on "pos", and checks to make sure that with whatever offset and pos combination, XGUI does not go off the screen.
+		function xgui.SetPos( pos, xoff, yoff, ignoreanim )
 			pos = tonumber( pos )
 			xoff = tonumber( xoff )
 			yoff = tonumber( yoff )
 			if not xoff then xoff = 0 end
 			if not yoff then yoff = 0 end
 			if not pos then pos = 5 end
-			if pos == 1 or pos == 4 or pos == 7 then --Left side of the screen
+			if pos == 1 or pos == 4 or pos == 7 then
 				if xoff < -10 then
 					xoff = -10
 				elseif xoff > ScrW()-610 then
 					xoff = ScrW()-610
 				end
 				xgui.x = 10+xoff
-			elseif pos == 3 or pos == 6 or pos == 9 then --Right side of the screen
+			elseif pos == 3 or pos == 6 or pos == 9 then
 				if xoff < -ScrW()+610 then
 					xoff = -ScrW()+610
 				elseif xoff > 10 then
 					xoff = 10
 				end
 				xgui.x = ScrW()-610+xoff
-			else --Center
+			else
 				if xoff < -ScrW()/2+300 then
 					xoff = -ScrW()/2+300
 				elseif xoff > ScrW()/2-300 then
@@ -102,22 +90,21 @@ function xgui.load_helpers()
 				end
 				xgui.x = ScrW()/2-300+xoff
 			end
-
-			if pos == 1 or pos == 2 or pos == 3 then --Bottom of the screen
+			if pos == 1 or pos == 2 or pos == 3 then
 				if yoff < -ScrH()+430 then
 					yoff = -ScrH()+430
 				elseif yoff > 30 then
 					yoff = 30
 				end
 				xgui.y = ScrH()-430+yoff
-			elseif pos == 7 or pos == 8 or pos == 9 then --Top of the screen
+			elseif pos == 7 or pos == 8 or pos == 9 then
 				if yoff < -10 then
 					yoff = -10
 				elseif yoff > ScrH()-410 then
 					yoff = ScrH()-410
 				end
 				xgui.y = yoff+10
-			else --Center
+			else
 				if yoff < -ScrH()/2+210 then
 					yoff = -ScrH()/2+210
 				elseif yoff > ScrH()/2-190 then
@@ -134,14 +121,12 @@ function xgui.load_helpers()
 			end
 		end
 		xgui.SetPos( xgui.settings.xguipos.pos, xgui.settings.xguipos.xoff, xgui.settings.xguipos.yoff )
-
 		function xgui.base:SetActiveTab( active, ignoreAnim )
 			if ( self.m_pActiveTab == active ) then return end
 			if ( self.m_pActiveTab ) then
 				if not ignoreAnim then
 					xlib.addToAnimQueue( "pnlFade", { panelOut=self.m_pActiveTab:GetPanel(), panelIn=active:GetPanel() } )
 				else
-					--Run this when module permissions have changed.
 					xlib.addToAnimQueue( "pnlFade", { panelOut=nil, panelIn=active:GetPanel() }, 0 )
 				end
 				xlib.animQueue_start()
@@ -149,8 +134,6 @@ function xgui.load_helpers()
 			self.m_pActiveTab = active
 			self:InvalidateLayout()
 		end
-
-		--Progress bar
 		xgui.chunkbox = xlib.makeprogressbar{ x=420, w=180, h=20, visible=false, skin=xgui.settings.skin, parent=xgui.anchor }
 		function xgui.chunkbox:Progress( datatype )
 			self.value = self.value + 1
@@ -165,41 +148,31 @@ function xgui.load_helpers()
 			end
 		end
 	end
-
-	------------------------
-	--XGUI QueueFunctionCall
-	------------------------
-	--This is essentially a straight copy of Megiddo's queueFunctionCall; Since XGUI tends to use it quite a lot, I decided to seperate it to prevent delays in ULib's stuff
-	--I also now get to add a method of flushing the queue based on a tag in the event that new data needs to be updated.
 	local stack = {}
 	local function onThink()
-
 		local num = #stack
 		if num > 0 then
-			for i=1,3 do --Run 3 lines per frame
+			for i=1,3 do
 				if stack[1] ~= nil then
 					local b, e = pcall( stack[ 1 ].fn, unpack( stack[ 1 ], 1, stack[ 1 ].n ) )
 					if not b then
 						ErrorNoHalt( "XGUI queue error: " .. tostring( e ) .. "\n" )
 					end
 				end
-			table.remove( stack, 1 ) -- Remove the first inserted item. This is FIFO
+			table.remove( stack, 1 )
 			end
 		else
 			hook.Remove( "Think", "XGUIQueueThink" )
 		end
 	end
-
 	function xgui.queueFunctionCall( fn, tag, ... )
 		if type( fn ) ~= "function" then
 			error( "queueFunctionCall received a bad function", 2 )
 			return
 		end
-
 		table.insert( stack, { fn=fn, tag=tag, n=select( "#", ... ), ... } )
 		hook.Add( "Think", "XGUIQueueThink", onThink, HOOK_MONITOR_HIGH )
 	end
-
 	function xgui.flushQueue( tag )
 		local removeIndecies = {}
 		for i, fncall in ipairs( stack ) do
@@ -207,21 +180,13 @@ function xgui.load_helpers()
 				table.insert( removeIndecies, i )
 			end
 		end
-		for i=#removeIndecies,1,-1 do --Remove the queue functions backwards to prevent desynchronization of pairs
+		for i=#removeIndecies,1,-1 do
 			table.remove( stack, removeIndecies[i] )
 		end
 	end
-
-
-	-------------------
-	--ULIB XGUI helpers
-	-------------------
-	--Helper function to parse access tag for a particular argument
 	function ulx.getTagArgNum( tag, argnum )
 		return tag and ULib.splitArgs( tag, "<", ">" )[argnum]
 	end
-
-	-- Helper: translate a command argument hint through the language system
 	local function trHint( hint, default )
 		if not hint or hint == "" then return default or "" end
 		local key = "hint_" .. hint
@@ -229,26 +194,20 @@ function xgui.load_helpers()
 		if translated ~= key then return translated end
 		return hint
 	end
-
-	--Load control interpretations for ULib argument types
 	function ULib.cmds.BaseArg.x_getcontrol( arg, argnum, parent )
 		return xlib.makelabel{ label=ULib.ulx_lang.T("xgui_unsupported"), parent=parent }
 	end
-
 	function ULib.cmds.NumArg.x_getcontrol( arg, argnum, parent )
 		local access, tag = LocalPlayer():query( arg.cmd )
 		local restrictions = {}
 		ULib.cmds.NumArg.processRestrictions( restrictions, arg, ulx.getTagArgNum( tag, argnum ) )
-
 		if table.HasValue( arg, ULib.cmds.allowTimeString ) then
 			local min = restrictions.min or 0
-			local max = restrictions.max or 10 * 60 * 24 * 365 --default slider max 10 years
-
+			local max = restrictions.max or 10 * 60 * 24 * 365
 			local outPanel = xlib.makepanel{ h=40, parent=parent }
 			xlib.makelabel{ x=5, y=3, label=ULib.ulx_lang.T("sv_ban_duration"), parent=outPanel }
 			outPanel.interval = xlib.makecombobox{ x=90, w=75, parent=outPanel }
 			outPanel.val = xlib.makeslider{ w=165, y=20, label="<--->", min=min, max=max, value=min, decimal=0, parent=outPanel }
-
 			local divisor = {}
 			local sensiblemax = {}
 			local Tu = ULib.ulx_lang.T
@@ -258,7 +217,6 @@ function xgui.load_helpers()
 			if max >= ( 60*24 ) and min <= 60*24*120 then outPanel.interval:AddChoice( Tu("time_days") ) table.insert( divisor, 60*24 ) table.insert( sensiblemax, 120 ) end
 			if max >= ( 60*24*7 ) and min <= 60*24*7*52 then outPanel.interval:AddChoice( Tu("time_weeks") ) table.insert( divisor, 60*24*7 ) table.insert( sensiblemax, 52 ) end
 			if max >= ( 60*24*365 ) then outPanel.interval:AddChoice( Tu("time_years") ) table.insert( divisor, 60*24*365 ) table.insert( sensiblemax, 10 ) end
-
 			outPanel.interval.OnSelect = function( self, index, value, data )
 				outPanel.val:SetDisabled( value == Tu("time_permanent") )
 				outPanel.val.maxvalue = math.min( max / divisor[index], sensiblemax[index] )
@@ -267,7 +225,6 @@ function xgui.load_helpers()
 				outPanel.val:SetMin( outPanel.val.minvalue )
 				outPanel.val:SetValue( math.Clamp( tonumber( outPanel.val:GetValue() ), outPanel.val.minvalue, outPanel.val.maxvalue ) )
 			end
-
 			function outPanel.val:ValueChanged( val )
 				val = math.Clamp( tonumber( val ) or 0, self.minvalue or 0, self.maxvalue or 0 )
 				self.Slider:SetSlideX( self.Scratch:GetFraction( val ) )
@@ -276,11 +233,9 @@ function xgui.load_helpers()
 				end
 				self:OnValueChanged( val )
 			end
-
 			if #outPanel.interval.Choices ~= 0 then
 				outPanel.interval:ChooseOptionID( 1 )
 			end
-
 			outPanel.GetValue = function( self )
 				local val, char = self:GetRawValue()
 				return val .. char
@@ -303,8 +258,7 @@ function xgui.load_helpers()
 		else
 			local defvalue = arg.min
 			if table.HasValue( arg, ULib.cmds.optional ) then defvalue = arg.default end
-			if not defvalue then defvalue = 0 end --No default was set for this command, so we'll use 0.
-
+			if not defvalue then defvalue = 0 end
 			local maxvalue = restrictions.max
 			local minvalue = restrictions.min or 0
 			if maxvalue == nil then
@@ -314,7 +268,6 @@ function xgui.load_helpers()
 					maxvalue = 100
 				end
 			end
-
 			local decimal = 0
 			if not table.HasValue( arg, ULib.cmds.round ) then
 				local minMaxDelta = maxvalue - minvalue
@@ -324,7 +277,6 @@ function xgui.load_helpers()
 					decimal = 1
 				end
 			end
-
 			local outPanel = xlib.makepanel{ h=35, parent=parent }
 			outPanel.val = xlib.makeslider{ y=0, w=165, min=minvalue, max=maxvalue, value=defvalue, decimal=decimal, label="<--->", parent=outPanel }
 			xlib.makelabel{ y=20, label=trHint(arg.hint, "NumArg"), parent=outPanel }
@@ -333,14 +285,11 @@ function xgui.load_helpers()
 			return outPanel
 		end
 	end
-
 	function ULib.cmds.NumArg.getTime( arg )
 		if arg == nil or arg == "" then return nil, nil end
-
 		if arg == 0 or tonumber( arg ) == 0 then
 			return ULib.ulx_lang.T("time_permanent"), 0
 		end
-
 		local charPriority = { "y", "w", "d", "h" }
 		local charMap = { ULib.ulx_lang.T("time_years"), ULib.ulx_lang.T("time_weeks"), ULib.ulx_lang.T("time_days"), ULib.ulx_lang.T("time_hours") }
 		local divisor = { 60 * 24 * 365, 60 * 24 * 7, 60 * 24, 60 }
@@ -352,23 +301,17 @@ function xgui.load_helpers()
 				return charMap[ i ], val
 			end
 		end
-
 		return ULib.ulx_lang.T("time_minutes"), ULib.stringTimeToMinutes( arg )
 	end
-
-
 	function ULib.cmds.StringArg.x_getcontrol( arg, argnum, parent )
 		local access, tag = LocalPlayer():query( arg.cmd )
 		local restrictions = {}
 		ULib.cmds.StringArg.processRestrictions( restrictions, arg, ulx.getTagArgNum( tag, argnum ) )
-
-		local is_restricted_to_completes = table.HasValue( arg, ULib.cmds.restrictToCompletes ) -- Program-level restriction (IE, ulx map)
-			or restrictions.playerLevelRestriction -- The player's tag specifies only certain strings
-
+		local is_restricted_to_completes = table.HasValue( arg, ULib.cmds.restrictToCompletes )
+			or restrictions.playerLevelRestriction
 		if is_restricted_to_completes then
 			return xlib.makecombobox{ text=trHint(arg.hint, "StringArg"), choices=restrictions.restrictedCompletes, parent=parent }
 		elseif restrictions.restrictedCompletes and table.Count( restrictions.restrictedCompletes ) > 0 then
-			-- This is where there needs to be both a drop down AND an input box
 			local outPanel = xlib.makecombobox{ text=trHint(arg.hint), choices=restrictions.restrictedCompletes, enableinput=true, selectall=true, parent=parent }
 			outPanel.OnEnter = function( self )
 				self:GetParent():OnEnter()
@@ -378,35 +321,29 @@ function xgui.load_helpers()
 			return xlib.maketextbox{ text=trHint(arg.hint, "StringArg"), selectall=true, parent=parent }
 		end
 	end
-
 	function ULib.cmds.PlayerArg.x_getcontrol( arg, argnum, parent )
 		local access, tag = LocalPlayer():query( arg.cmd )
 		local restrictions = {}
 		ULib.cmds.PlayerArg.processRestrictions( restrictions, LocalPlayer(), arg, ulx.getTagArgNum( tag, argnum ) )
-
 		local outPanel = xlib.makecombobox{ text=trHint(arg.hint), parent=parent }
 		local targets = restrictions.restrictedTargets
-		if targets == false then -- No one allowed
+		if targets == false then
 			targets = {}
-		elseif targets == nil then -- Everyone allowed
+		elseif targets == nil then
 			targets = player.GetAll()
 		end
-
 		for _, ply in ipairs( targets ) do
 			outPanel:AddChoice( ply:Nick() )
 		end
 		return outPanel
 	end
-
 	function ULib.cmds.CallingPlayerArg.x_getcontrol( arg, argnum, parent )
 		return xlib.makelabel{ label=trHint(arg.hint, "CallingPlayer"), parent=parent }
 	end
-
 	function ULib.cmds.BoolArg.x_getcontrol( arg, argnum, parent )
 		local access, tag = LocalPlayer():query( arg.cmd )
 		local restrictions = {}
 		ULib.cmds.BoolArg.processRestrictions( restrictions, arg, ulx.getTagArgNum( tag, argnum ) )
-
 		local outPanel = xlib.makecheckbox{ label=trHint(arg.hint, "BoolArg"), value=restrictions.restrictedTo, parent=parent }
 		if restrictions.restrictedTo ~= nil then outPanel:SetDisabled( true ) end
 		outPanel.GetValue = function( self )
@@ -415,13 +352,10 @@ function xgui.load_helpers()
 		return outPanel
 	end
 end
-
--- 点击窗口外自动关闭菜单
 hook.Add( "VGUIMousePressed", "XGUI_ClickOutClose", function( pnl, mcode )
 	if not xgui.anchor then return end
 	if not xgui.anchor:IsVisible() then return end
 	if not xgui.settings.clickOutClose then return end
-
 	if pnl and pnl:IsValid() then
 		local parent = pnl
 		while parent do
@@ -429,12 +363,9 @@ hook.Add( "VGUIMousePressed", "XGUI_ClickOutClose", function( pnl, mcode )
 			parent = parent:GetParent()
 		end
 	end
-
 	local mx, my = gui.MousePos()
 	local x, y = xgui.anchor:GetPos()
 	local w, h = xgui.anchor:GetSize()
-
 	if mx >= x - 10 and mx <= x + w + 250 and my >= y - 10 and my <= y + h + 250 then return end
-
 	xgui.hide()
 end )

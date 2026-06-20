@@ -1,4 +1,3 @@
--- HL2 原版武器 (与 sv_items.lua persistent_items 同步)
 ulx.registerItems({
 	{ class = "weapon_fists",      name = "拳头",       type = 1 },
 	{ class = "weapon_bugbait",    name = "虫饵",       type = 1 },

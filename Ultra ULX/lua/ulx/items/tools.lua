@@ -1,4 +1,3 @@
--- 工具
 ulx.registerItems({
 	{ class = "weapon_physgun",    name = "物理枪", type = 4 },
 	{ class = "weapon_physcannon", name = "重力枪", type = 4 },

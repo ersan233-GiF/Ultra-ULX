@@ -1,11 +1,6 @@
--- 设置模块 v2 -- by Stickly Man!
--- 作为所有设置子模块的容器基础。
-
 local settings = xlib.makepanel{ parent=xgui.null }
-
 local autorefreshTab
 if xgui.settings_tabs ~= nil then autorefreshTab = xgui.settings_tabs:GetActiveTab() end
-
 xgui.settings_tabs = xlib.makepropertysheet{ x=-5, y=6, w=600, h=368, parent=settings, offloadparent=xgui.null }
 function xgui.settings_tabs:SetActiveTab( active, ignoreAnim )
 	if ( self.m_pActiveTab == active ) then return end
@@ -13,7 +8,6 @@ function xgui.settings_tabs:SetActiveTab( active, ignoreAnim )
 		if not ignoreAnim then
 			xlib.addToAnimQueue( "pnlFade", { panelOut=self.m_pActiveTab:GetPanel(), panelIn=active:GetPanel() } )
 		else
-			--Run this when module permissions have changed.
 			xlib.addToAnimQueue( "pnlFade", { panelOut=nil, panelIn=active:GetPanel() }, 0 )
 		end
 		xlib.animQueue_start()
@@ -21,7 +15,6 @@ function xgui.settings_tabs:SetActiveTab( active, ignoreAnim )
 	self.m_pActiveTab = active
 	self:InvalidateLayout()
 end
-
 local func = xgui.settings_tabs.PerformLayout
 xgui.settings_tabs.PerformLayout = function( self )
 	func( self )
@@ -30,9 +23,7 @@ xgui.settings_tabs.PerformLayout = function( self )
 		self.tabScroller:SetWide( 580 )
 	end
 end
-
 if autorefreshTab ~= nil then
 	xgui.settings_tabs:SetActiveTab( autorefreshTab, true )
 end
-
 xgui.addModule( "settings", settings, "icon16/wrench.png" )

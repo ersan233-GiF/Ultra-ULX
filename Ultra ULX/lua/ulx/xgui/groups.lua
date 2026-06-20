@@ -1,12 +1,8 @@
--- Groups management module v3 -- based on Stickly Man!'s original
--- 重构版：使用 xgui_core.lua 统一语言管理
-
 xgui.prepareDataType( "groups" )
 xgui.prepareDataType( "users" )
 xgui.prepareDataType( "teams" )
 xgui.prepareDataType( "accesses" )
 xgui.prepareDataType( "playermodels" )
-
 local groups = xlib.makepanel{ parent=xgui.null }
 groups.list = xlib.makecombobox{ x=5, y=5, w=175, parent=groups }
 function groups.list:GetGroupValue()
@@ -30,7 +26,6 @@ function groups.list:populate()
 	if groups.lastOpenGroup then
 		self:SetText( xgui.translateGroup( groups.lastOpenGroup ) )
 	elseif prevData then
-		-- 按数据值找到新的翻译后文本
 		local found = false
 		for id = 1, self:GetOptionsCount() do
 			local _, data = self:GetOptionData(id)
@@ -38,7 +33,6 @@ function groups.list:populate()
 		end
 		if not found then self:SetText( xgui.T("groups_select_group") ) end
 	elseif prevSelId then
-		-- 无数据值的特殊选项：按位置恢复
 		self:ChooseOptionID( prevSelId )
 	else
 		self:SetText( xgui.T("groups_select_group") )
@@ -64,20 +58,16 @@ groups.list.OnSelect = function( self, index, value, data )
 	end
 end
 groups.lastOpenGroup = nil
-
 groups.clippanela = xlib.makepanel{ x=5, y=30, w=580, h=335, parent=groups }
 groups.clippanela.Paint = function() end
 groups.clippanelb = xlib.makepanel{ x=175, y=30, w=410, h=335, visible=false, parent=groups }
 groups.clippanelb.Paint = function() end
 groups.clippanelc = xlib.makepanel{ x=380, y=30, w=210, h=335, visible=false, parent=groups }
 groups.clippanelc.Paint = function() end
-
--- Panel G1 - 用户/团队
 groups.pnlG1 = xlib.makepanel{ w=170, h=335, parent=groups.clippanela }
 groups.pnlG1:SetVisible( false )
 function groups.pnlG1:Open( group )
 	if self:IsVisible() then
-		-- 已可见：快速淡出→刷新→淡入，给操作反馈
 		xlib.addToAnimQueue( "pnlFade", { panelOut=self } )
 		xlib.addToAnimQueue( function()
 			groups.refreshPlayers( group )
@@ -98,28 +88,22 @@ function groups.pnlG1:Close()
 	if groups.pnlG4:IsVisible() then groups.pnlG4:Close() end
 	self:SetVisible( false )
 end
-
 groups.lblPlayersIn = xlib.makelabel{ x=5, y=5, label=xgui.T("groups_players_in"), parent=groups.pnlG1 }
-
 local function _createPlayersList()
 	local listview = xlib.makelistview{ x=5, y=20, w=160, h=190, parent=groups.pnlG1 }
 	listview:SetMultiSelect( false )
 	listview:AddColumn( xgui.T("ui_player_name") )
-
 	function listview:getCheckedPlayers()
 		local sel = self:GetSelected()
 		if #sel > 0 and sel[1].ply and sel[1].ply:IsValid() then return { sel[1].ply } end
 		return {}
 	end
-
 	listview.OnRowSelected = function( self, lineID, line )
 		groups.cplayer:SetDisabled( false )
 	end
-
 	return listview
 end
 groups.players = _createPlayersList()
-
 groups.aplayer = xlib.makebutton{ x=5, y=210, w=80, label=xgui.T("ui_add") .. "...", parent=groups.pnlG1 }
 groups.aplayer.DoClick = function()
 	local menu = DermaMenu()
@@ -141,7 +125,6 @@ groups.aplayer.DoClick = function()
 	menu:AddOption( xgui.T("groups_add_by_id"), function() groups.addBySteamID( groups.list:GetGroupValue() ) end )
 	menu:Open()
 end
-
 groups.cplayer = xlib.makebutton{ x=85, y=210, w=80, label=xgui.T("groups_change"), disabled=true, parent=groups.pnlG1 }
 groups.cplayer.DoClick = function()
 	local checked = groups.players:getCheckedPlayers()
@@ -160,14 +143,12 @@ groups.cplayer.DoClick = function()
 		menu:Open()
 	end
 end
-
 groups.lblTeam = xlib.makelabel{ x=5, y=240, label=xgui.T("groups_team"), parent=groups.pnlG1 }
 groups.teams = xlib.makecombobox{ x=5, y=255, w=160, disabled=not ulx.uteamEnabled(), parent=groups.pnlG1 }
 groups.teams.OnSelect = function( self, index, value, data )
 	if value == xgui.T("group_none") then value = "" end
 	RunConsoleCommand( "xgui", "changeGroupTeam", groups.list:GetGroupValue(), value )
 end
-
 groups.teambutton = xlib.makebutton{ x=5, y=275, w=160, label=xgui.T("groups_manage_teams"), disabled=not ulx.uteamEnabled(), parent=groups.pnlG1 }
 groups.teambutton.DoClick = function( self )
 	if not groups.pnlG3:IsVisible() then
@@ -178,7 +159,6 @@ groups.teambutton.DoClick = function( self )
 		groups.pnlG3:Close()
 	end
 end
-
 groups.accessbutton = xlib.makebutton{ x=5, y=305, w=160, label=xgui.T("groups_manage_perms"), parent=groups.pnlG1 }
 groups.accessbutton.DoClick = function( self )
 	if not groups.pnlG4:IsVisible() then
@@ -189,7 +169,6 @@ groups.accessbutton.DoClick = function( self )
 		groups.pnlG4:Close()
 	end
 end
-
 function groups.addBySteamID( group )
 	local frame = xlib.makeframe{ label=xgui.T("groups_add_to") .. " " .. group, w=190, h=60, skin=xgui.settings.skin }
 	xlib.maketextbox{ x=5, y=30, w=180, parent=frame, selectall=true, text=xgui.T("groups_enter_steamid") }.OnEnter = function( self )
@@ -201,7 +180,6 @@ function groups.addBySteamID( group )
 		end
 	end
 end
-
 function groups.changeUserGroup( ID, group )
 	if ID == "NULL" then ID = "BOT" end
 	if group == "user" then
@@ -210,16 +188,12 @@ function groups.changeUserGroup( ID, group )
 		RunConsoleCommand( "ulx", "adduserid", ID, group )
 	end
 end
-
 function groups.isOnline( steamID )
 	for _, v in ipairs( player.GetAll() ) do
 		if v:SteamID() == steamID then return true end
 	end
 	return false
 end
-
--- Panel G2 - 用户组管理
--- 获取排序后的用户组名列表（从 ULib.ucl.groups 提取）
 function groups.getSortedGroupList()
 	local sorted = {}
 	for gName, _ in pairs( ULib.ucl.groups ) do table.insert( sorted, gName ) end
@@ -231,7 +205,6 @@ function groups.getSortedGroupList()
 	end )
 	return sorted
 end
-
 groups.pnlG2 = xlib.makepanel{ w=350, h=200, parent=groups.clippanela }
 groups.pnlG2:SetVisible( false )
 function groups.pnlG2:Open()
@@ -241,7 +214,6 @@ end
 function groups.pnlG2:Close()
 	self:SetVisible( false )
 end
-
 groups.glist = xlib.makelistview{ x=5, y=5, h=170, w=130, headerheight=0, parent=groups.pnlG2 }
 groups.glist:AddColumn( xgui.T("ui_user_group") )
 groups.glist.populate = function( self )
@@ -289,7 +261,6 @@ groups.glist.OnRowSelected = function( self, LineID, Line )
 	groups.newgroup:SetDisabled( isGroupUser )
 	groups.gname:SetDisabled( isGroupUser )
 end
-
 groups.newgroup = xlib.makebutton{ x=245, y=175, w=100, label=xgui.T("groups_create"), parent=groups.pnlG2 }
 groups.newgroup.DoClick = function()
 	if not ULib.ucl.groups[groups.gname:GetValue()] then
@@ -301,7 +272,6 @@ groups.newgroup.DoClick = function()
 		Derma_Message( xgui.T("groups_exists"), xgui.T("maps_warning_title") )
 	end
 end
-
 groups.lblG2Name = xlib.makelabel{ x=145, y=8, label=xgui.T("groups_name_label"), parent=groups.pnlG2 }
 groups.lblG2Inherit = xlib.makelabel{ x=145, y=33, label=xgui.T("groups_inherit_label"), parent=groups.pnlG2 }
 groups.lblG2Target = xlib.makelabel{ x=145, y=58, label=xgui.T("groups_cantarget_label"), parent=groups.pnlG2 }
@@ -343,8 +313,6 @@ groups.gdelete.DoClick = function()
 		xgui.T("sv_remove"), function() RunConsoleCommand( "ulx", "removegroup", group ) end,
 		xgui.T("maps_btn_cancel"), function() end )
 end
-
--- ===== G3: 团队管理面板 =====
 groups.pnlG3 = xlib.makepanel{ w=200, h=335, parent=groups.clippanelc }
 groups.pnlG3:SetVisible( false )
 function groups.pnlG3:Open()
@@ -354,19 +322,16 @@ end
 function groups.pnlG3:Close()
 	self:SetVisible( false )
 end
-
 xlib.makelabel{ x=5, y=0, label=xgui.T("groups_manage_teams"), parent=groups.pnlG3 }
 groups.teamList = xlib.makelistview{ x=5, y=20, w=190, h=180, headerheight=0, parent=groups.pnlG3 }
 groups.teamList:AddColumn( xgui.T("groups_team") )
 groups.teamList.OnRowSelected = function( self, LineID, Line )
 	groups.teamDeleteBtn:SetDisabled( false )
-	-- 显示颜色预览
 	if Line.teamData and Line.teamData.color then
 		local c = Line.teamData.color
 		groups.teamColorPicker:SetColor( type(c)=="table" and Color(c.r,c.g,c.b) or c )
 	end
 end
-
 groups.teamColorPicker = xlib.makecolorpicker{ x=10, y=205, parent=groups.pnlG3 }
 groups.teamColorPicker.OnChangeImmediate = function( self, color )
 	local line = groups.teamList:GetSelectedLine()
@@ -377,7 +342,6 @@ groups.teamColorPicker.OnChangeImmediate = function( self, color )
 		end
 	end
 end
-
 groups.teamCreateBtn = xlib.makebutton{ x=5, y=310, w=90, label=xgui.T("groups_create") .. " " .. xgui.T("groups_team"), parent=groups.pnlG3 }
 groups.teamCreateBtn.DoClick = function()
 	local frame = xlib.makeframe{ label=xgui.T("groups_create") .. " " .. xgui.T("groups_team"), w=220, h=80, skin=xgui.settings.skin }
@@ -391,7 +355,6 @@ groups.teamCreateBtn.DoClick = function()
 		end
 	end
 end
-
 groups.teamDeleteBtn = xlib.makebutton{ x=100, y=310, w=95, label=xgui.T("sv_remove") .. " " .. xgui.T("groups_team"), disabled=true, parent=groups.pnlG3 }
 groups.teamDeleteBtn.DoClick = function()
 	local line = groups.teamList:GetSelectedLine()
@@ -405,7 +368,6 @@ groups.teamDeleteBtn.DoClick = function()
 		end
 	end
 end
-
 function groups.refreshTeamPanel()
 	if not groups.pnlG3:IsVisible() then return end
 	groups.teamList:Clear()
@@ -416,8 +378,6 @@ function groups.refreshTeamPanel()
 		l.teamData = team
 	end
 end
-
--- ===== G4: 权限管理面板 =====
 groups.pnlG4 = xlib.makepanel{ w=200, h=335, parent=groups.clippanelc }
 groups.pnlG4:SetVisible( false )
 function groups.pnlG4:Open()
@@ -427,9 +387,7 @@ end
 function groups.pnlG4:Close()
 	self:SetVisible( false )
 end
-
 xlib.makelabel{ x=5, y=0, label=xgui.T("groups_manage_perms"), parent=groups.pnlG4 }
-
 groups.accessTree = xlib.maketree{ x=5, y=20, w=190, h=260, parent=groups.pnlG4 }
 groups.accessTree.DoClick = function( self, node )
 	if node.accessName then
@@ -437,18 +395,15 @@ groups.accessTree.DoClick = function( self, node )
 		groups.accessRemoveBtn:SetDisabled( false )
 	end
 end
-
 groups.accessAddBtn = xlib.makebutton{ x=5, y=285, w=90, label=xgui.T("ui_add") .. " " .. xgui.T("groups_manage_perms"), disabled=true, parent=groups.pnlG4 }
 groups.accessAddBtn.DoClick = function()
 	local node = groups.accessTree:GetSelectedItem()
 	if not node or not node.accessName then return end
 	if groups.lastOpenGroup then
 		RunConsoleCommand( "ulx", "userallowid", groups.lastOpenGroup, node.accessName )
-		-- 暂不支持按 ID 操作，使用 groupallow
 		RunConsoleCommand( "ulx", "groupallow", groups.lastOpenGroup, node.accessName )
 	end
 end
-
 groups.accessRemoveBtn = xlib.makebutton{ x=100, y=285, w=95, label=xgui.T("sv_remove") .. " " .. xgui.T("groups_manage_perms"), disabled=true, parent=groups.pnlG4 }
 groups.accessRemoveBtn.DoClick = function()
 	local node = groups.accessTree:GetSelectedItem()
@@ -457,17 +412,14 @@ groups.accessRemoveBtn.DoClick = function()
 		RunConsoleCommand( "ulx", "groupdeny", groups.lastOpenGroup, node.accessName )
 	end
 end
-
 groups.accessRefreshBtn = xlib.makebutton{ x=5, y=308, w=190, label=xgui.T("ui_refresh_data"), parent=groups.pnlG4 }
 groups.accessRefreshBtn.DoClick = function() groups.refreshAccessPanel() end
-
 function groups.refreshAccessPanel()
 	if not groups.pnlG4:IsVisible() then return end
 	groups.accessTree:Clear()
 	groups.accessAddBtn:SetDisabled( true )
 	groups.accessRemoveBtn:SetDisabled( true )
 	if not xgui.data.accesses then return end
-	-- 按分类组织权限
 	local categories = {}
 	for accessName, accessData in pairs( xgui.data.accesses ) do
 		local cat = accessData.category or "Other"
@@ -483,7 +435,6 @@ function groups.refreshAccessPanel()
 		for _, accessName in ipairs( categories[cat] ) do
 			local node = folder:AddNode( accessName, "icon16/key.png" )
 			node.accessName = accessName
-			-- 检查当前用户组是否已有此权限
 			if groups.lastOpenGroup and ULib.ucl.groups[groups.lastOpenGroup] then
 				local gInfo = ULib.ucl.groups[groups.lastOpenGroup]
 				if table.HasValue( gInfo.allow, accessName ) then
@@ -493,8 +444,6 @@ function groups.refreshAccessPanel()
 		end
 	end
 end
-
--- ===== 数据刷新函数 =====
 function groups.refreshPlayers( groupName )
 	if not groupName then return end
 	groups.players:Clear()
@@ -512,7 +461,6 @@ function groups.refreshPlayers( groupName )
 	end
 	groups.cplayer:SetDisabled( true )
 end
-
 function groups.refreshTeamsCombo()
 	if not ulx.uteamEnabled() then
 		groups.teams:SetDisabled( true )
@@ -530,7 +478,6 @@ function groups.refreshTeamsCombo()
 	end
 	groups.teams:SetText( prev_val ~= "" and prev_val or noTeam )
 end
-
 function groups.updateTeamSelection( groupName )
 	if not groupName then
 		groups.teams:SetText( xgui.T("group_none") )
@@ -550,8 +497,6 @@ function groups.updateTeamSelection( groupName )
 	end
 	groups.teams:SetText( xgui.T("group_none") )
 end
-
--- 数据事件钩子：使用 onProcessModules (ULib.ucl.groups 已通过 UCL 同步)
 xgui.hookEvent( "onProcessModules", nil, function()
 	groups.list:populate()
 	groups.refreshTeamsCombo()
@@ -571,10 +516,7 @@ xgui.hookEvent( "teams", "process", function()
 	groups.refreshTeamsCombo()
 	groups.refreshTeamPanel()
 end, "teamsRefreshUI" )
-
--- 语言刷新：仅更新静态标签文本（不重建下拉框/列表数据）
 xgui.registerRefresh( "groups", function()
-	-- G1 标签
 	groups.lblPlayersIn:SetText( xgui.T("groups_players_in") )
 	groups.lblTeam:SetText( xgui.T("groups_team") )
 	if groups.players and groups.players.Columns then
@@ -584,26 +526,20 @@ xgui.registerRefresh( "groups", function()
 	groups.cplayer:SetText( xgui.T("groups_change") )
 	if groups.teambutton then groups.teambutton:SetText( xgui.T("groups_manage_teams") ) end
 	if groups.accessbutton then groups.accessbutton:SetText( xgui.T("groups_manage_perms") ) end
-	-- 重建用户组选择框选项（保留选中值）
 	if groups.list then groups.list:populate() end
-	-- G2 标签
 	groups.lblG2Name:SetText( xgui.T("groups_name_label") )
 	groups.lblG2Inherit:SetText( xgui.T("groups_inherit_label") )
 	groups.lblG2Target:SetText( xgui.T("groups_cantarget_label") )
 	groups.newgroup:SetText( xgui.T("groups_create") )
 	groups.gupdate:SetText( xgui.T("sv_update") )
 	groups.gdelete:SetText( xgui.T("sv_remove") )
-	-- G3 标签 (团队管理)
 	if groups.teamCreateBtn then groups.teamCreateBtn:SetText( xgui.T("groups_create") .. " " .. xgui.T("groups_team") ) end
 	if groups.teamDeleteBtn then groups.teamDeleteBtn:SetText( xgui.T("sv_remove") .. " " .. xgui.T("groups_team") ) end
-	-- G4 标签 (权限管理)
 	if groups.accessAddBtn then groups.accessAddBtn:SetText( xgui.T("ui_add") .. " " .. xgui.T("groups_manage_perms") ) end
 	if groups.accessRemoveBtn then groups.accessRemoveBtn:SetText( xgui.T("sv_remove") .. " " .. xgui.T("groups_manage_perms") ) end
 	if groups.accessRefreshBtn then groups.accessRefreshBtn:SetText( xgui.T("ui_refresh_data") ) end
-	-- 语言切换时实时刷新玩家列表中的用户组名称
 	if groups.lastOpenGroup and groups.pnlG1:IsVisible() then
 		groups.refreshPlayers( groups.lastOpenGroup )
 	end
 end )
-
 xgui.addModule( "groups", groups, "icon16/group.png", "xgui_managegroups" )

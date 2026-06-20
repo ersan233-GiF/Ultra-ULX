@@ -1,9 +1,5 @@
--- 客户端设置模块 v3 — 基于 Stickly Man! 原版布局，使用 xgui_core.lua 语言管理
-
 local client = xlib.makepanel{ parent=xgui.null }
-
 client.panel = xlib.makepanel{ x=160, y=5, w=425, h=322, parent=client }
-
 client.catList = xlib.makelistview{ x=5, y=5, w=150, h=302, parent=client }
 client.catList:AddColumn( xgui.T("set_client_settings") )
 client.catList.Columns[1].DoClick = function() end
@@ -26,10 +22,8 @@ client.catList.OnRowSelected = function( self, LineID, Line )
 	end
 	if nPanel.onOpen then nPanel.onOpen() end
 end
-
 local btnSaveClient = xlib.makebutton{ x=5, y=307, w=150, label=xgui.T("set_save_client"), parent=client }
 btnSaveClient.DoClick = function() xgui.saveClientSettings() end
-
 function xgui.openClientModule( name )
 	name = string.lower( name )
 	for i = 1, #xgui.modules.submodule do
@@ -48,7 +42,6 @@ function xgui.openClientModule( name )
 		end
 	end
 end
-
 function client.processModules()
 	client.catList.Columns[1].Header:SetText( xgui.T("set_client_settings") )
 	btnSaveClient:SetText( xgui.T("set_save_client") )
@@ -67,7 +60,6 @@ function client.processModules()
 	client.catList:SortByColumn( 1, false )
 end
 client.processModules()
-
 xgui.hookEvent( "onProcessModules", nil, client.processModules, "xguiProcessModules" )
 xgui.registerRefresh( "client_settings", function()
 	client.catList.Columns[1].Header:SetText( xgui.T("set_client_settings") )
@@ -80,15 +72,10 @@ xgui.registerRefresh( "client_settings", function()
 	end
 end )
 xgui.addSettingModule( "client", client, "icon16/layout_content.png" )
-
-
--- ==================== 通用客户端模块 ====================
 local genpnl = xlib.makepanel{ parent=xgui.null }
-
 genpnl.pickupplayers = xlib.makecheckbox{ x=10, y=10, w=150, label=xgui.T("ui_physgun_pickup"), convar="cl_pickupplayers", parent=genpnl }
 local ckClickOut = xlib.makecheckbox{ x=10, y=30, w=150, label=xgui.T("ui_click_out_close"), value=xgui.settings.clickOutClose, parent=genpnl }
 ckClickOut.OnChange = function( self, bVal ) xgui.settings.clickOutClose = bVal end
-
 local L = ULib.ulx_lang
 local lblLang = xlib.makelabel{ x=10, y=55, label=L.T("set_language_desc") .. ":", parent=genpnl }
 local langCombo = xlib.makecombobox{ x=10, y=70, w=150, parent=genpnl, choices={} }
@@ -98,7 +85,6 @@ langCombo.OnSelect = function( self, index, value, data )
 	ULib.ulx_lang.switch( data ); ULib.ulx_lang.saveClientLang( data )
 	chat.AddText( Color( 100, 255, 100 ), "[Ultra ULX] Language: " .. L.names[data] )
 end
-
 function genpnl.processModules()
 	genpnl.pickupplayers:SetDisabled( not LocalPlayer():query( "ulx physgunplayer" ) )
 	genpnl.pickupplayers:SetText( xgui.T("ui_physgun_pickup") )
@@ -113,9 +99,6 @@ xgui.registerRefresh( "client_general", function()
 	if langCombo then langCombo:SetText( L.names[L.current] or L.names["zh-cn"] ) end
 end )
 xgui.addSubModule( "general", genpnl, nil, "client" )
-
-
--- ==================== XGUI 客户端设置模块（原版布局） ====================
 local xguipnl = xlib.makepanel{ parent=xgui.null }
 local btnRefreshXGUI = xlib.makebutton{ x=10, y=10, w=150, label=xgui.T("ui_refresh_xgui"), parent=xguipnl }
 btnRefreshXGUI.DoClick = function() xgui.processModules() end
@@ -139,8 +122,6 @@ local lblInfoColor = xlib.makelabel{ x=10, y=120, label=xgui.T("ui_info_color"),
 xlib.makecolorpicker{ x=10, y=135, color=xgui.settings.infoColor, addalpha=true, alphamodetwo=true, parent=xguipnl }.OnChangeImmediate = function( self, color )
 	xgui.settings.infoColor = color
 end
-
--- 标签页排序（原版布局）
 xguipnl.mainorder = xlib.makelistview{ x=175, y=10, w=115, h=110, parent=xguipnl }
 xguipnl.mainorder:AddColumn( xgui.T("ui_main_modules") )
 xguipnl.mainorder.OnRowSelected = function( self, LineID, Line )
@@ -176,7 +157,6 @@ xguipnl.downbtnM.DoClick = function( self )
 	table.insert( xgui.settings.moduleOrder, i + 2, xgui.settings.moduleOrder[i] )
 	table.remove( xgui.settings.moduleOrder, i ); xgui.processModules()
 end
-
 xguipnl.settingorder = xlib.makelistview{ x=300, y=10, w=115, h=110, parent=xguipnl }
 xguipnl.settingorder:AddColumn( xgui.T("ui_settings_modules") )
 xguipnl.settingorder.OnRowSelected = function( self, LineID, Line )
@@ -212,8 +192,6 @@ xguipnl.downbtnS.DoClick = function( self )
 	table.insert( xgui.settings.settingOrder, i + 2, xgui.settings.settingOrder[i] )
 	table.remove( xgui.settings.settingOrder, i ); xgui.processModules()
 end
-
--- XGUI 位置设置（原版 3x3 网格 + NumberWang）
 xlib.makelabel{ x=175, y=145, label=xgui.T("ui_xgui_position"), parent=xguipnl }
 local pos = tonumber( xgui.settings.xguipos.pos )
 xguipnl.b7 = xlib.makebutton{ x=175, y=160, w=20, disabled=pos==7, parent=xguipnl }; xguipnl.b7.DoClick = function() xguipnl.updatePos( 7 ) end
@@ -233,8 +211,6 @@ xguipnl.updatePos = function( newpos, xoffset, yoffset, ignoreanim )
 	xguipnl.b4:SetDisabled( newpos==4 ); xguipnl.b5:SetDisabled( newpos==5 ); xguipnl.b6:SetDisabled( newpos==6 )
 	xguipnl.b7:SetDisabled( newpos==7 ); xguipnl.b8:SetDisabled( newpos==8 ); xguipnl.b9:SetDisabled( newpos==9 )
 end
-
--- X/Y 偏移 NumberWang（原版）
 xguipnl.xwang = xlib.makenumberwang{ x=245, y=167, w=50, min=-1000, max=1000, value=xgui.settings.xguipos.xoff, decimal=0, parent=xguipnl }
 xguipnl.xwang.OnValueChanged = function( self, val ) xguipnl.updatePos( xgui.settings.xguipos.pos, tonumber( val ), xgui.settings.xguipos.yoff, true ) end
 xguipnl.xwang.OnEnter = function( self )
@@ -243,7 +219,6 @@ xguipnl.xwang.OnEnter = function( self )
 end
 xguipnl.xwang.OnLoseFocus = function( self ) hook.Call( "OnTextEntryLoseFocus", nil, self ); self:OnEnter() end
 xlib.makelabel{ x=300, y=169, label=xgui.T("ui_x_offset"), parent=xguipnl }
-
 xguipnl.ywang = xlib.makenumberwang{ x=245, y=193, w=50, min=-1000, max=1000, value=xgui.settings.xguipos.yoff, decimal=0, parent=xguipnl }
 xguipnl.ywang.OnValueChanged = function( self, val ) xguipnl.updatePos( xgui.settings.xguipos.pos, xgui.settings.xguipos.xoff, tonumber( val ), true ) end
 xguipnl.ywang.OnEnter = function( self )
@@ -252,8 +227,6 @@ xguipnl.ywang.OnEnter = function( self )
 end
 xguipnl.ywang.OnLoseFocus = function( self ) hook.Call( "OnTextEntryLoseFocus", nil, self ); self:OnEnter() end
 xlib.makelabel{ x=300, y=195, label=xgui.T("ui_y_offset"), parent=xguipnl }
-
--- 动画设置（原版布局）
 xlib.makelabel{ x=175, y=229, label=xgui.T("ui_xgui_anim"), parent=xguipnl }
 xlib.makelabel{ x=175, y=247, label=xgui.T("ui_anim_open"), parent=xguipnl }
 xguipnl.cmbIn = xlib.makecombobox{ x=225, y=245, w=150, choices={ xgui.T("ui_anim_fade_in"), xgui.T("ui_anim_slide_top"), xgui.T("ui_anim_slide_left"), xgui.T("ui_anim_slide_bottom"), xgui.T("ui_anim_slide_right") }, enableinput=false, parent=xguipnl }
@@ -263,7 +236,6 @@ xlib.makelabel{ x=175, y=272, label=xgui.T("ui_anim_close"), parent=xguipnl }
 xguipnl.cmbOut = xlib.makecombobox{ x=225, y=270, w=150, choices={ xgui.T("ui_anim_fade_out"), xgui.T("ui_anim_slide_top_out"), xgui.T("ui_anim_slide_left_out"), xgui.T("ui_anim_slide_bottom_out"), xgui.T("ui_anim_slide_right_out") }, enableinput=false, parent=xguipnl }
 xguipnl.cmbOut:ChooseOptionID( tonumber( xgui.settings.animOuttype ) or 1 )
 function xguipnl.cmbOut:OnSelect( i, v, d ) xgui.settings.animOuttype = i end
-
 xgui.registerRefresh( "client_xgui", function()
 	xguipnl.mainorder.Columns[1].Header:SetText( xgui.T("ui_main_modules") )
 	xguipnl.settingorder.Columns[1].Header:SetText( xgui.T("ui_settings_modules") )

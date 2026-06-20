@@ -1,13 +1,7 @@
---服务器设置模块 -- by Stickly Man!
---用于修改服务器和ULX相关设置的模块。也包含加载服务器设置子模块的框架代码。
-
 local server = xlib.makepanel{ parent=xgui.null }
-
---------------------------游戏模式设置--------------------------
 local T = ULib.ulx_lang.T
 local sidepanel = xlib.makescrollpanel{ x=5, y=5, w=140, h=322, spacing=4, parent=server }
-server.sideLabels = {}  -- 存储所有需要语言刷新的标签面板
-
+server.sideLabels = {}
 local function addSideLabel( textKey )
 	local lbl = xlib.makelabel{ dock=TOP, dockmargin={0,0,0,0}, label=T(textKey), parent=sidepanel }
 	table.insert( server.sideLabels, { panel=lbl, key=textKey } )
@@ -23,13 +17,10 @@ local function addSideCheckbox( textKey, convar, repconvar, marginTop )
 	table.insert( server.sideLabels, { panel=cb, key=textKey } )
 	return cb
 end
-
 addSideLabel("sv_alltalk")
 server.alltalkCombo = xlib.makecombobox{ dock=TOP, dockmargin={0,2,0,0}, w=140, repconvar="rep_sv_alltalk", isNumberConvar=true, choices={ T("sv_alltalk_local"), T("sv_alltalk_team"), T("sv_alltalk_near"), T("sv_alltalk_all") }, parent=sidepanel }
--- 服务器语言选择
 addSideLabelM("sv_server_language", 20)
 server.langCombo = xlib.makecombobox{ dock=TOP, dockmargin={0,2,0,0}, w=140, repconvar="ulx_language", choices={ "简体中文", "English", "Русский", "文言文" }, parent=sidepanel }
-
 addSideCheckbox("sv_voice", xlib.ifListenHost("sv_voiceenable"), xlib.ifNotListenHost("rep_sv_voiceenable"))
 addSideCheckbox("sv_ai_disable", xlib.ifListenHost("ai_disabled"), xlib.ifNotListenHost("rep_ai_disabled"), 20)
 addSideCheckbox("sv_ai_ignore", xlib.ifListenHost("ai_ignoreplayers"), xlib.ifNotListenHost("rep_ai_ignoreplayers"))
@@ -54,11 +45,8 @@ addSideLabelM("sv_phys_iter")
 xlib.makeslider{ dock=TOP, dockmargin={0,2,5,0}, label="<--->", w=125, min=0, max=10, convar=xlib.ifListenHost("gmod_physiterations"), repconvar=xlib.ifNotListenHost("rep_gmod_physiterations"), parent=sidepanel, fixclip=true }
 addSideLabelM("sv_timeout")
 xlib.makeslider{ dock=TOP, dockmargin={0,2,5,0}, label="<--->", w=125, min=60, max=300, convar=xlib.ifListenHost("sv_timeout"), repconvar=xlib.ifNotListenHost("rep_sv_timeout"), parent=sidepanel, fixclip=true }
-
-------------------------ULX 分类菜单------------------------
 server.mask = xlib.makepanel{ x=300, y=5, w=285, h=322, parent=server }
 server.panel = xlib.makepanel{ x=5, w=285, h=322, parent=server.mask }
-
 server.catList = xlib.makelistview{ x=150, y=5, w=150, h=322, parent=server }
 server.catList:AddColumn( T("set_server_settings") )
 server.catList.Columns[1].DoClick = function() end
@@ -67,17 +55,14 @@ server.catList.OnRowSelected = function( self, LineID, Line )
 	if nPanel ~= server.curPanel then
 		if server.curPanel then
 			local temppanel = server.curPanel
-			--Close before opening new one
 			xlib.addToAnimQueue( "pnlSlide", { panel=server.panel, startx=5, starty=0, endx=-285, endy=0, setvisible=false } )
 			xlib.addToAnimQueue( function()	temppanel:SetVisible( false ) end )
 		end
-		--Open
 		server.curPanel = nPanel
 		xlib.addToAnimQueue( function() nPanel:SetVisible( true ) end )
-		if nPanel.onOpen then xlib.addToAnimQueue( nPanel.onOpen ) end --If the panel has it, call a function when it's opened
+		if nPanel.onOpen then xlib.addToAnimQueue( nPanel.onOpen ) end
 		xlib.addToAnimQueue( "pnlSlide", { panel=server.panel, startx=-285, starty=0, endx=5, endy=0, setvisible=true } )
 	else
-		--Close
 		server.curPanel = nil
 		self:ClearSelection()
 		xlib.addToAnimQueue( "pnlSlide", { panel=server.panel, startx=5, starty=0, endx=-285, endy=0, setvisible=false } )
@@ -85,7 +70,6 @@ server.catList.OnRowSelected = function( self, LineID, Line )
 	end
 	xlib.animQueue_start()
 end
-
 function xgui.openServerModule( name )
 	name = string.lower( name )
 	for i = 1, #xgui.modules.submodule do
@@ -105,8 +89,6 @@ function xgui.openServerModule( name )
 		end
 	end
 end
-
---Process modular settings
 function server.processModules()
 	local TL = ULib.ulx_lang.T
 	server.catList.Columns[1].Header:SetText( TL("set_server_settings") )
@@ -115,13 +97,11 @@ function server.processModules()
 		if module.mtype == "server" and ( not module.access or LocalPlayer():query( module.access ) ) then
 			local w,h = module.panel:GetSize()
 			if w == h and h == 0 then module.panel:SetSize( 275, 322 ) end
-
 			if module.panel.scroll then
 				module.panel.scroll.panel = module.panel
 				module.panel = module.panel.scroll
 			end
 			module.panel:SetParent( server.panel )
-
 			local line = server.catList:AddLine( module.displayName, i )
 			if ( module.panel == server.curPanel ) then
 				server.curPanel = nil
@@ -134,12 +114,9 @@ function server.processModules()
 	server.catList:SortByColumn( 1, false )
 end
 server.processModules()
-
 xgui.hookEvent( "onProcessModules", nil, server.processModules, "serverSettingsProcessModules" )
--- 语言刷新：纯文本更新（不重建 UI，避免增生和卡顿）
 xgui.registerRefresh( "server_settings", function()
 	xgui.refreshLabels( server.sideLabels )
-	-- 服务器语言下拉框：按序号重建选项
 	if server.langCombo then
 		local prevId = server.langCombo:GetSelectedID()
 		server.langCombo:Clear()
@@ -147,7 +124,6 @@ xgui.registerRefresh( "server_settings", function()
 		for _, v in ipairs( langChoices ) do server.langCombo:AddChoice( v ) end
 		if prevId and prevId <= #langChoices then server.langCombo:ChooseOptionID( prevId ) end
 	end
-	-- 全员麦克风模式下拉框：按序号重建选项
 	if server.alltalkCombo then
 		local prevId = server.alltalkCombo:GetSelectedID()
 		server.alltalkCombo:Clear()
@@ -164,13 +140,6 @@ xgui.registerRefresh( "server_settings", function()
 	end
 end )
 xgui.addSettingModule( "server", server, "icon16/server.png", "xgui_svsettings" )
-
-
----------------------------
---Server Settings Modules--
----------------------------
-
--------------------------Admin Votemaps--------------------------
 local Tsv = ULib.ulx_lang.T
 local plist = xlib.makelistlayout{ w=275, h=322, parent=xgui.null, enablescroll=false }
 plist:Add( xlib.makelabel{ label=Tsv("sv_admin_votemap") } )
@@ -179,8 +148,6 @@ plist:Add( xlib.makeslider{ label="<--->", min=0, max=1, decimal=2, repconvar="u
 plist:Add( xlib.makelabel{ label=Tsv("sv_votemap_min_votes") } )
 plist:Add( xlib.makeslider{ label="<--->", min=0, max=10, repconvar="ulx_votemap2Minvotes" } )
 xgui.addSubModule( "adminvotemap", plist, nil, "server" )
-
------------------------------Adverts-----------------------------
 xgui.prepareDataType( "adverts" )
 local adverts = xlib.makepanel{ parent=xgui.null }
 adverts.tree = xlib.maketree{ w=120, h=296, parent=adverts }
@@ -331,9 +298,9 @@ function adverts.removeAdvert( node )
 	if node then
 		Derma_Query( Tsv("sv_confirm_delete") .. ( node.data and Tsv("sv_advert_single") or Tsv("sv_advert_group") ), Tsv("maps_warning_title"),
 		Tsv("sv_delete"), function()
-			if node.data then --Remove a single advert
+			if node.data then
 				RunConsoleCommand( "xgui", "removeAdvert", node.group, node.number, type( node.group ) )
-			else --Remove an advert group
+			else
 				RunConsoleCommand( "xgui", "removeAdvertGroup", node.group, type( node.group ) )
 			end
 			adverts.tree:SetSelectedItem( nil )
@@ -356,7 +323,6 @@ function adverts.updateAdverts()
 	adverts.nodeup:SetDisabled( true )
 	adverts.nodedown:SetDisabled( true )
 	adverts.removebutton:SetDisabled( true )
-	--Store the currently selected node, if any
 	local lastNode = adverts.tree:GetSelectedItem()
 	if adverts.selnewgroup then
 		lastNode.group = adverts.selnewgroup
@@ -364,7 +330,6 @@ function adverts.updateAdverts()
 		adverts.selnewgroup = nil
 		adverts.seloffset = 0
 	end
-	--Check for any previously expanded group nodes
 	local groupStates = {}
 	if adverts.tree.RootNode.ChildNodes then
 		for _, node in ipairs( adverts.tree.RootNode.ChildNodes:GetChildren() ) do
@@ -378,11 +343,10 @@ function adverts.updateAdverts()
 	adverts.group:Clear()
 	adverts.group:AddChoice( Tsv("sv_no_group") )
 	adverts.group:ChooseOptionID( 1 )
-
 	local sortGroups = {}
 	local sortSingle = {}
 	for group, advertgroup in pairs( xgui.data.adverts ) do
-		if type( group ) == "string" then --Check if it's a group or a single advert
+		if type( group ) == "string" then
 			table.insert( sortGroups, group )
 		else
 			table.insert( sortSingle, { group=group, message=advertgroup[1].message } )
@@ -399,7 +363,6 @@ function adverts.updateAdverts()
 		local foldernode = adverts.tree:AddNode( group, "icon16/folder.png" )
 		adverts.group:AddChoice( group )
 		foldernode.group = group
-		--Check if folder was previously selected
 		if lastNode and not lastNode.data and lastNode:GetValue() == group then
 			adverts.tree:SetSelectedItem( foldernode )
 			adverts.removebutton:SetDisabled( false )
@@ -407,10 +370,8 @@ function adverts.updateAdverts()
 		for advert, data in ipairs( advertgroup ) do
 			adverts.createNode( foldernode, data, group, advert, data.message, lastNode )
 		end
-		--Expand folder if it was expanded previously
 		if groupStates[group] then foldernode:SetExpanded( true, true ) end
 	end
-
 	adverts.tree:InvalidateLayout()
 	local node = adverts.tree:GetSelectedItem()
 	if node then
@@ -435,7 +396,6 @@ function adverts.createNode( parent, data, group, number, message, lastNode )
 	node.number = number
 	node:SetTooltip( xlib.wordWrap( message, 250, "Default" ) )
 	if lastNode and lastNode.data then
-		--Check if node was previously selected
 		if lastNode.group == group and lastNode.number == number then
 			adverts.tree:SetSelectedItem( node )
 			adverts.group:SetText( type(node.group) ~= "number" and node.group or Tsv("sv_no_group") )
@@ -449,11 +409,9 @@ end
 function adverts.onOpen()
 	ULib.queueFunctionCall( adverts.tree.InvalidateLayout, adverts.tree )
 end
-adverts.updateAdverts() -- For autorefresh
+adverts.updateAdverts()
 xgui.hookEvent( "adverts", "process", adverts.updateAdverts, "serverUpdateAdverts" )
 xgui.addSubModule( "adverts", adverts, nil, "server" )
-
----------------------------Ban Message---------------------------
 xgui.prepareDataType( "banmessage" )
 local plist = xlib.makelistlayout{ w=275, h=322, parent=xgui.null, enablescroll=false }
 plist:Add( xlib.makelabel{ label=Tsv("sv_ban_message_label"), zpos=1 } )
@@ -462,7 +420,6 @@ plist:Add( plist.txtBanMessage )
 plist:Add( xlib.makelabel{ label=Tsv("sv_insert_var"), zpos=3 } )
 plist.variablePicker = xlib.makecombobox{ choices={ Tsv("sv_ban_var_admin"), Tsv("sv_ban_var_time"), Tsv("sv_ban_var_reason"), Tsv("sv_ban_var_left"), Tsv("sv_ban_var_steamid"), Tsv("sv_ban_var_steamid64") }, zpos=4 }
 plist:Add( plist.variablePicker )
-
 plist.btnPreview = xlib.makebutton{ label=Tsv("sv_preview_ban_msg"), zpos=4 }
 plist.btnPreview.DoClick = function()
 	net.Start( "XGUI.PreviewBanMessage" )
@@ -487,7 +444,6 @@ plist.btnSave.DoClick = function()
 	net.SendToServer()
 end
 plist:Add( plist.btnSave )
-
 plist.variablePicker.OnSelect = function( self, index, value, data )
 	self:SetValue( "" )
 	local newVariable = ""
@@ -506,23 +462,18 @@ plist.variablePicker.OnSelect = function( self, index, value, data )
 	end
 	plist.txtBanMessage:SetText( plist.txtBanMessage:GetText() .. newVariable )
 end
-
 plist.updateBanMessage = function()
 	plist.txtBanMessage:SetText( xgui.data.banmessage.message or "" )
 end
 plist.updateBanMessage()
 xgui.hookEvent( "banmessage", "process", plist.updateBanMessage, "serverUpdateBanMessage" )
-
 xgui.addSubModule( "banmessage", plist, nil, "server" )
-
-------------------------------Echo-------------------------------
 local plist = xlib.makelistlayout{ w=275, h=322, parent=xgui.null }
 plist:Add( xlib.makelabel{ label=Tsv("sv_echo_settings") } )
 plist:Add( xlib.makecheckbox{ label=Tsv("sv_echo_vote"), repconvar="ulx_voteEcho" } )
 plist:Add( xlib.makecombobox{ repconvar="ulx_logEcho", isNumberConvar=true, choices={ Tsv("sv_echo_none"), Tsv("sv_echo_anon"), Tsv("sv_echo_id") } } )
 plist:Add( xlib.makecombobox{ repconvar="ulx_logSpawnsEcho", isNumberConvar=true, choices={ Tsv("sv_echo_spawn_none"), Tsv("sv_echo_spawn_admin"), Tsv("sv_echo_spawn_all") } } )
 plist:Add( xlib.makecheckbox{ label=Tsv("sv_echo_colors"), repconvar="ulx_logEchoColors" } )
-
 plist:Add( xlib.makelabel{ label=Tsv("sv_echo_color_default") } )
 plist:Add( xlib.makecolorpicker{ repconvar="ulx_logEchoColorDefault", noalphamodetwo=true } )
 plist:Add( xlib.makelabel{ label=Tsv("sv_echo_color_console") } )
@@ -537,8 +488,6 @@ plist:Add( xlib.makecolorpicker{ repconvar="ulx_logEchoColorPlayer", noalphamode
 plist:Add( xlib.makelabel{ label=Tsv("sv_echo_color_misc") } )
 plist:Add( xlib.makecolorpicker{ repconvar="ulx_logEchoColorMisc", noalphamodetwo=true } )
 xgui.addSubModule( "echo", plist, nil, "server" )
-
-------------------------General Settings-------------------------
 local plist = xlib.makelistlayout{ w=275, h=322, parent=xgui.null, enablescroll=false }
 plist:Add( xlib.makelabel{ label=Tsv("sv_general_ulx") } )
 plist:Add( xlib.makeslider{ label=Tsv("sv_chattime"), min=0, max=5, decimal=1, repconvar="ulx_chattime" } )
@@ -552,10 +501,7 @@ plist:Add( xlib.makelabel{ label=Tsv("sv_rename_kick_count") } )
 plist:Add( xlib.makeslider{ label="<--->", min=0, max=10, decimal=0, repconvar="ulx_kickAfterNameChanges" } )
 plist:Add( xlib.makeslider{ label=Tsv("sv_cooldown_seconds"), min=0, max=600, decimal=0, repconvar="ulx_kickAfterNameChangesCooldown" } )
 plist:Add( xlib.makecheckbox{ label=Tsv("sv_warn_rename"), repconvar="ulx_kickAfterNameChangesWarning" } )
-
 xgui.addSubModule( "ulxsettings", plist, nil, "server" )
-
-------------------------------Gimps------------------------------
 xgui.prepareDataType( "gimps" )
 local gimps = xlib.makepanel{ parent=xgui.null }
 gimps.textbox = xlib.maketextbox{ w=225, h=20, parent=gimps, selectall=true }
@@ -592,8 +538,6 @@ end
 gimps.updateGimps()
 xgui.hookEvent( "gimps", "process", gimps.updateGimps, "serverUpdateGimps" )
 xgui.addSubModule( "gimps", gimps, nil, "server" )
-
-------------------------Kick/Ban Reasons-------------------------
 xgui.prepareDataType( "banreasons", ulx.common_kick_reasons )
 local panel = xlib.makepanel{ parent=xgui.null }
 panel.textbox = xlib.maketextbox{ w=225, h=20, parent=panel, selectall=true }
@@ -630,8 +574,6 @@ end
 panel.updateBanReasons()
 xgui.hookEvent( "banreasons", "process", panel.updateBanReasons, "serverUpdateBanReasons" )
 xgui.addSubModule( "banreasons", panel, "xgui_managebans", "server" )
-
---------------------------Log Settings---------------------------
 local plist = xlib.makelistlayout{ w=275, h=322, parent=xgui.null, enablescroll=false }
 plist:Add( xlib.makelabel{ label=Tsv("sv_log_settings") } )
 plist:Add( xlib.makecheckbox{ label=Tsv("sv_log_file"), repconvar="ulx_logFile" } )
@@ -642,7 +584,6 @@ plist:Add( xlib.makelabel{ label=Tsv("sv_log_dir") } )
 local logdirbutton = xlib.makebutton{}
 xlib.checkRepCvarCreated( "ulx_logdir" )
 logdirbutton:SetText( "data/" .. GetConVar( "ulx_logDir" ):GetString() )
-
 function logdirbutton.ConVarUpdated( sv_cvar, cl_cvar, ply, old_val, new_val )
 	if cl_cvar == "ulx_logdir" then
 		logdirbutton:SetText( "data/" .. new_val )
@@ -651,16 +592,11 @@ end
 hook.Add( "ULibReplicatedCvarChanged", "XGUI_ulx_logDir", logdirbutton.ConVarUpdated )
 plist:Add( logdirbutton )
 xgui.addSubModule( "logs", plist, nil, "server" )
-
-------------------------------Motd-------------------------------
 xgui.prepareDataType( "motdsettings" )
 local motdpnl = xlib.makepanel{ w=275, h=322, parent=xgui.null }
 local plist = xlib.makelistlayout{ w=275, h=298, parent=motdpnl }
-
 local fontWeights = { "normal", "bold", "100", "200", "300", "400", "500", "600", "700", "800", "900", "lighter", "bolder" }
 local commonFonts = { "Arial", "Arial Black", "Calibri", "Candara", "Cambria", "Consolas", "Courier New", "Fraklin Gothic Medium", "Futura", "Georgia", "Helvetica", "Impact", "Lucida Console", "Segoe UI", "Tahoma", "Times New Roman", "Trebuchet MS", "Verdana" }
-
-
 plist:Add( xlib.makelabel{ label=Tsv("sv_motd_mode"), zpos=0 } )
 plist:Add( xlib.makecombobox{ repconvar="ulx_showmotd", isNumberConvar=true, choices={ Tsv("sv_motd_off"), Tsv("sv_motd_file"), Tsv("sv_motd_generator"), Tsv("sv_motd_url") }, zpos=1 } )
 plist.txtMotdFile = xlib.maketextbox{ repconvar="ulx_motdfile", zpos=2 }
@@ -669,41 +605,30 @@ plist.txtMotdURL = xlib.maketextbox{ repconvar="ulx_motdurl", zpos=3 }
 plist:Add( plist.txtMotdURL )
 plist.lblDescription = xlib.makelabel{ zpos=4 }
 plist:Add( plist.lblDescription )
-
-
------ MOTD Generator helper methods
 local function unitToNumber(value)
 	return tonumber( string.gsub(value, "[^%d]", "" ), _ )
 end
-
 local function hexToColor(value)
 	value = string.gsub(value, "#","")
 	return Color(tonumber("0x"..value:sub(1,2)), tonumber("0x"..value:sub(3,4)), tonumber("0x"..value:sub(5,6)))
 end
-
 local function colorToHex(color)
 	return string.format("#%02x%02x%02x", color.r, color.g, color.b )
 end
-
 local didPressEnter = false
 local selectedPanelTag = nil
 local function registerMOTDChangeEventsTextbox( textbox, setting, sendTable )
 	textbox.hasChanged = false
-
 	textbox.OnEnter = function( self )
 		didPressEnter = true
 	end
-
 	textbox.OnLoseFocus = function( self )
 		selectedPanelTag = nil
 		hook.Call( "OnTextEntryLoseFocus", nil, self )
-
-		-- OnLoseFocus gets called twice when pressing enter. This will hackishly take care of one of them.
 		if didPressEnter then
 			didPressEnter = false
 			return
 		end
-
 		if self:GetValue() and textbox.hasChanged then
 			textbox.hasChanged = false
 			if sendTable then
@@ -719,14 +644,10 @@ local function registerMOTDChangeEventsTextbox( textbox, setting, sendTable )
 			end
 		end
 	end
-
-	-- Don't submit the data if the text hasn't changed.
 	textbox:SetUpdateOnType( true )
 	textbox.OnValueChange = function( self, strValue )
 		textbox.hasChanged = true
 	end
-
-	-- Store focused setting so we can re-set the focused element when the panels are recreated.
 	textbox.OnGetFocus = function( self )
 		hook.Run( "OnTextEntryGetFocus", self )
 		selectedPanelTag = setting
@@ -734,12 +655,9 @@ local function registerMOTDChangeEventsTextbox( textbox, setting, sendTable )
 	if selectedPanelTag == setting then
 		timer.Simple( 0, function() textbox:RequestFocus() end )
 	end
-
 end
-
 local function registerMOTDChangeEventsCombobox( combobox, setting )
 	registerMOTDChangeEventsTextbox( combobox.TextEntry, setting )
-
 	combobox.OnSelect = function( self )
 		net.Start( "XGUI.UpdateMotdData" )
 			net.WriteString( setting )
@@ -747,10 +665,8 @@ local function registerMOTDChangeEventsCombobox( combobox, setting )
 		net.SendToServer()
 	end
 end
-
 local function registerMOTDChangeEventsSlider( slider, setting )
 	registerMOTDChangeEventsTextbox( slider.TextArea, setting )
-
 	local tmpfunc = slider.Slider.SetDragging
 	slider.Slider.SetDragging = function( self, bval )
 		tmpfunc( self, bval )
@@ -761,7 +677,6 @@ local function registerMOTDChangeEventsSlider( slider, setting )
 			net.SendToServer()
 		end
 	end
-
 	local tmpfunc2 = slider.Scratch.OnMouseReleased
 	slider.Scratch.OnMouseReleased = function( self, mousecode )
 		tmpfunc2( self, mousecode )
@@ -771,7 +686,6 @@ local function registerMOTDChangeEventsSlider( slider, setting )
 		net.SendToServer()
 	end
 end
-
 local function registerMOTDChangeEventsColor( colorpicker, setting )
 	colorpicker.OnChange = function( self, color )
 		net.Start( "XGUI.UpdateMotdData" )
@@ -780,31 +694,22 @@ local function registerMOTDChangeEventsColor( colorpicker, setting )
 		net.SendToServer()
 	end
 end
-
 local function performMOTDInfoUpdate( data, setting )
 	net.Start( "XGUI.SetMotdData" )
 		net.WriteString( setting )
 		net.WriteTable( data )
 	net.SendToServer()
 end
-
-
--- MOTD Generator UI
 plist.generator = xlib.makelistlayout{ w=255, h=250, zpos=6, enablescroll=false }
 plist:Add( plist.generator )
 plist.generator:SetVisible( false )
-
 plist.generator:Add( xlib.makelabel{ label=Tsv("sv_motd_generator_title"), zpos=-2 } )
-
 local txtServerDescription = xlib.maketextbox{ zpos=-1 }
 plist.generator:Add( txtServerDescription )
-
 plist.generator:Add( xlib.makelabel{ label=Tsv("sv_motd_generator_info") } )
 local pnlInfo = xlib.makelistlayout{ w=271, enablescroll=false }
 plist.generator:Add( pnlInfo )
-
 plist.generator:Add( xlib.makelabel{} )
-
 local btnAddSection = xlib.makebutton{ label=Tsv("sv_add_section") }
 btnAddSection.DoClick = function()
 	local menu = DermaMenu()
@@ -856,9 +761,7 @@ btnAddSection.DoClick = function()
 	menu:Open()
 end
 plist.generator:Add( btnAddSection )
-
 plist.generator:Add( xlib.makelabel{ label=Tsv("sv_motd_fonts") } )
-
 plist.generator:Add( xlib.makelabel{ label=Tsv("sv_motd_server_name") } )
 local pnlFontServerName = xlib.makepanel{h=80, parent=xgui.null }
 xlib.makelabel{ x=5, y=8, label=Tsv("sv_font_name"), parent=pnlFontServerName }
@@ -867,7 +770,6 @@ pnlFontServerName.size = xlib.makeslider{ x=5, y=30, w=250, label=Tsv("sv_font_s
 xlib.makelabel{ x=5, y=58, label=Tsv("sv_font_weight"), parent=pnlFontServerName }
 pnlFontServerName.weight = xlib.makecombobox{ x=72, y=55, w=183, enableinput=true, selectall=true, choices=fontWeights, parent=pnlFontServerName }
 plist.generator:Add( pnlFontServerName )
-
 plist.generator:Add( xlib.makelabel{ label=Tsv("sv_motd_subtitle") } )
 local pnlFontSubtitle = xlib.makepanel{h=80, parent=xgui.null }
 xlib.makelabel{ x=5, y=8, label=Tsv("sv_font_name"), parent=pnlFontSubtitle }
@@ -876,7 +778,6 @@ pnlFontSubtitle.size = xlib.makeslider{ x=5, y=30, w=250, label=Tsv("sv_font_siz
 xlib.makelabel{ x=5, y=58, label=Tsv("sv_font_weight"), parent=pnlFontSubtitle }
 pnlFontSubtitle.weight = xlib.makecombobox{ x=72, y=55, w=183, enableinput=true, selectall=true, choices=fontWeights, parent=pnlFontSubtitle }
 plist.generator:Add( pnlFontSubtitle )
-
 plist.generator:Add( xlib.makelabel{ label=Tsv("sv_motd_section_title") } )
 local pnlFontSection = xlib.makepanel{h=80, parent=xgui.null }
 xlib.makelabel{ x=5, y=8, label=Tsv("sv_font_name"), parent=pnlFontSection }
@@ -885,7 +786,6 @@ pnlFontSection.size = xlib.makeslider{ x=5, y=30, w=250, label=Tsv("sv_font_size
 xlib.makelabel{ x=5, y=58, label=Tsv("sv_font_weight"), parent=pnlFontSection }
 pnlFontSection.weight = xlib.makecombobox{ x=72, y=55, w=183, enableinput=true, selectall=true, choices=fontWeights, parent=pnlFontSection }
 plist.generator:Add( pnlFontSection )
-
 plist.generator:Add( xlib.makelabel{ label=Tsv("sv_motd_regular_text") } )
 local pnlFontRegular = xlib.makepanel{h=80, parent=xgui.null }
 xlib.makelabel{ x=5, y=8, label=Tsv("sv_font_name"), parent=pnlFontRegular }
@@ -894,10 +794,7 @@ pnlFontRegular.size = xlib.makeslider{ x=5, y=30, w=250, label=Tsv("sv_font_size
 xlib.makelabel{ x=5, y=58, label=Tsv("sv_font_weight"), parent=pnlFontRegular }
 pnlFontRegular.weight = xlib.makecombobox{ x=72, y=55, w=183, enableinput=true, selectall=true, choices=fontWeights, parent=pnlFontRegular }
 plist.generator:Add( pnlFontRegular )
-
-
 plist.generator:Add( xlib.makelabel{ label=Tsv("sv_motd_colors") } )
-
 plist.generator:Add( xlib.makelabel{ label=Tsv("sv_bg_color") } )
 local pnlColorBackground = xlib.makecolorpicker{ noalphamodetwo=true }
 plist.generator:Add( pnlColorBackground )
@@ -913,17 +810,13 @@ plist.generator:Add( pnlColorSection )
 plist.generator:Add( xlib.makelabel{ label=Tsv("sv_default_text_color") } )
 local pnlColorText = xlib.makecolorpicker{ noalphamodetwo=true }
 plist.generator:Add( pnlColorText )
-
 plist.generator:Add( xlib.makelabel{ label=Tsv("sv_motd_border") } )
-
 local pnlBorderThickness = xlib.makeslider{ label=Tsv("sv_border_thickness"), w=200, value=1, min=0, max=32 }
 plist.generator:Add( pnlBorderThickness )
 plist.generator:Add( xlib.makelabel{ label=Tsv("sv_border_color") } )
 local pnlBorderColor = xlib.makecolorpicker{ noalphamodetwo=true }
 plist.generator:Add( pnlBorderColor )
-
 registerMOTDChangeEventsTextbox( txtServerDescription, "info.description" )
-
 registerMOTDChangeEventsCombobox( pnlFontServerName.name, "style.fonts.server_name.family" )
 registerMOTDChangeEventsSlider( pnlFontServerName.size, "style.fonts.server_name.size" )
 registerMOTDChangeEventsCombobox( pnlFontServerName.weight, "style.fonts.server_name.weight" )
@@ -936,92 +829,67 @@ registerMOTDChangeEventsCombobox( pnlFontSection.weight, "style.fonts.section_ti
 registerMOTDChangeEventsCombobox( pnlFontRegular.name, "style.fonts.regular.family" )
 registerMOTDChangeEventsSlider( pnlFontRegular.size, "style.fonts.regular.size" )
 registerMOTDChangeEventsCombobox( pnlFontRegular.weight, "style.fonts.regular.weight" )
-
 registerMOTDChangeEventsColor( pnlColorBackground, "style.colors.background_color" )
 registerMOTDChangeEventsColor( pnlColorHeaderBackground, "style.colors.header_color" )
 registerMOTDChangeEventsColor( pnlColorHeader, "style.colors.header_text_color" )
 registerMOTDChangeEventsColor( pnlColorSection, "style.colors.section_text_color" )
 registerMOTDChangeEventsColor( pnlColorText, "style.colors.text_color" )
-
 registerMOTDChangeEventsColor( pnlBorderColor, "style.borders.border_color" )
 registerMOTDChangeEventsSlider( pnlBorderThickness, "style.borders.border_thickness" )
-
-
-
--- MOTD Cvar and data handling
 plist.updateGeneratorSettings = function( data )
 	if not data then data = xgui.data.motdsettings end
 	if not data or not data.style or not data.info then return end
 	if not plist.generator:IsVisible() then return end
-
 	local borders = data.style.borders
 	local colors = data.style.colors
 	local fonts = data.style.fonts
-
-	-- Description
 	txtServerDescription:SetText( data.info.description )
-
-	-- Section panels
 	pnlInfo:Clear()
 	for i=1, #data.info do
 		local section = data.info[i]
 		local sectionPanel = xlib.makelistlayout{ w=270, enablescroll=false }
-
 		if section.type == "text" then
 			sectionPanel:Add( xlib.makelabel{ label="\n"..i..": 文本内容", zpos=0 } )
-
 			local sectionTitle = xlib.maketextbox{ zpos=1 }
 			registerMOTDChangeEventsTextbox( sectionTitle, "info["..i.."].title" )
 			sectionTitle:SetText( section.title )
 			sectionPanel:Add( sectionTitle )
-
 			local sectionText = xlib.maketextbox{ h=100, multiline=true, zpos=2 }
 			registerMOTDChangeEventsTextbox( sectionText, "info["..i.."].contents", true )
 			sectionText:SetText( table.concat( section.contents, "\n" ) )
 			sectionPanel:Add( sectionText )
-
 		elseif section.type == "ordered_list" then
 			sectionPanel:Add( xlib.makelabel{ label="\n"..i..": 有序列表" } )
-
 			local sectionTitle = xlib.maketextbox{ zpos=1 }
 			registerMOTDChangeEventsTextbox( sectionTitle, "info["..i.."].title" )
 			sectionTitle:SetText( section.title )
 			sectionPanel:Add( sectionTitle )
-
 			local sectionOrderedList = xlib.maketextbox{ h=110, multiline=true, zpos=2 }
 			registerMOTDChangeEventsTextbox( sectionOrderedList, "info["..i.."].contents", true )
 			sectionOrderedList:SetText( table.concat( section.contents, "\n" ) )
 			sectionPanel:Add( sectionOrderedList )
-
 		elseif section.type == "list" then
 			sectionPanel:Add( xlib.makelabel{ label="\n"..i..": 无序列表" } )
-
 			local sectionTitle = xlib.maketextbox{ zpos=1 }
 			registerMOTDChangeEventsTextbox( sectionTitle, "info["..i.."].title" )
 			sectionTitle:SetText( section.title )
 			sectionPanel:Add( sectionTitle )
-
 			local sectionList = xlib.maketextbox{ h=100, multiline=true, zpos=2 }
 			registerMOTDChangeEventsTextbox( sectionList, "info["..i.."].contents", true )
 			sectionList:SetText( table.concat( section.contents, "\n" ) )
 			sectionPanel:Add( sectionList )
-
 		elseif section.type == "mods" then
 			sectionPanel:Add( xlib.makelabel{ label="\n"..i..": 已安装的插件" } )
-
 			local modsTitle = xlib.maketextbox{ zpos=1 }
 			registerMOTDChangeEventsTextbox( modsTitle, "info["..i.."].title" )
 			modsTitle:SetText( section.title )
 			sectionPanel:Add( modsTitle )
-
 		elseif section.type == "admins" then
 			sectionPanel:Add( xlib.makelabel{ label="\n"..i..": 列出用户组中的用户" } )
-
 			local adminsTitle = xlib.maketextbox{ zpos=1 }
 			registerMOTDChangeEventsTextbox( adminsTitle, "info["..i.."].title" )
 			adminsTitle:SetText( section.title )
 			sectionPanel:Add( adminsTitle )
-
 			for j=1, #section.contents do
 				local group = section.contents[j]
 				local adminPnl = xlib.makepanel{ h=20, w=270, zpos=i+j }
@@ -1033,7 +901,6 @@ plist.updateGeneratorSettings = function( data )
 				end
 				sectionPanel:Add( adminPnl )
 			end
-
 			local adminAddPnl = xlib.makepanel{ h=20, w=270, zpos=99 }
 			local adminBtn = xlib.makebutton{ w=100, label=Tsv("sv_add_group"), parent=adminAddPnl }
 			adminBtn.DoClick = function()
@@ -1051,9 +918,7 @@ plist.updateGeneratorSettings = function( data )
 				menu:Open()
 			end
 			sectionPanel:Add( adminAddPnl )
-
 		end
-
 		local actionPnl = xlib.makepanel{ w=270, h=20, zpos=100 }
 		local btnRemove = xlib.makebutton{ w=100, label=Tsv("sv_remove_section"), parent=actionPnl }
 		btnRemove.DoClick = function()
@@ -1079,11 +944,8 @@ plist.updateGeneratorSettings = function( data )
 			performMOTDInfoUpdate( data.info, "info" )
 		end
 		sectionPanel:Add( actionPnl )
-
 		pnlInfo:Add( sectionPanel )
 	end
-
-	-- Fonts
 	pnlFontServerName.name:SetText( fonts.server_name.family )
 	pnlFontServerName.size:SetValue( unitToNumber( fonts.server_name.size ) )
 	pnlFontServerName.weight:SetText( fonts.server_name.weight )
@@ -1096,33 +958,26 @@ plist.updateGeneratorSettings = function( data )
 	pnlFontRegular.name:SetText( fonts.regular.family )
 	pnlFontRegular.size:SetValue( unitToNumber( fonts.regular.size ) )
 	pnlFontRegular.weight:SetText( fonts.regular.weight )
-
-	-- Colors
 	pnlColorBackground:SetColor( hexToColor( colors.background_color ) )
 	pnlColorHeaderBackground:SetColor( hexToColor( colors.header_color ) )
 	pnlColorHeader:SetColor( hexToColor( colors.header_text_color ) )
 	pnlColorSection:SetColor( hexToColor( colors.section_text_color ) )
 	pnlColorText:SetColor( hexToColor( colors.text_color ) )
-
-	-- Borders
 	pnlBorderThickness:SetValue( unitToNumber( borders.border_thickness ) )
 	pnlBorderColor:SetColor( hexToColor( borders.border_color ) )
 end
 xgui.hookEvent( "motdsettings", "process", plist.updateGeneratorSettings, "serverUpdateGeneratorSettings" )
 plist.updateGeneratorSettings()
-
 plist.btnPreview = xlib.makebutton{ label=Tsv("sv_preview_motd"), w=275, y=302, parent=motdpnl }
 plist.btnPreview.DoClick = function()
 	RunConsoleCommand( "ulx", "motd" )
 end
-
 function plist.ConVarUpdated( sv_cvar, cl_cvar, ply, old_val, new_val )
 	if string.lower( cl_cvar ) == "ulx_showmotd" then
 		local previewDisabled = false
 		local showMotdFile = false
 		local showGenerator = false
 		local showURL = false
-
 		if new_val == "0" then
 			previewDisabled = true
 			plist.lblDescription:SetText( "MOTD is completely disabled.\n" )
@@ -1136,25 +991,19 @@ function plist.ConVarUpdated( sv_cvar, cl_cvar, ply, old_val, new_val )
 			showURL = true
 			plist.lblDescription:SetText( "MOTD is the given URL.\nYou can use %curmap% and %steamid%\n(eg, server.com/?map=%curmap%&id=%steamid%)\n" )
 		end
-
 		plist.btnPreview:SetDisabled( previewDisabled )
 		plist.txtMotdFile:SetVisible( showMotdFile )
 		plist.generator:SetVisible( showGenerator )
 		plist.txtMotdURL:SetVisible( showURL )
 		plist.lblDescription:SizeToContents()
 		plist.updateGeneratorSettings()
-
 		plist.scroll:InvalidateChildren()
 	end
 end
 hook.Add( "ULibReplicatedCvarChanged", "XGUI_ulx_showMotd", plist.ConVarUpdated )
-
 xlib.checkRepCvarCreated( "ulx_showMotd" )
 plist.ConVarUpdated( nil, "ulx_showMotd", nil, nil, GetConVar( "ulx_showMotd" ):GetString() )
-
 xgui.addSubModule( "motd", motdpnl, "ulx showmotd", "server" )
-
------------------------玩家投票地图列表-----------------------
 xgui.prepareDataType( "votemaps", ulx.votemaps )
 local panel = xlib.makepanel{ w=285, h=322, parent=xgui.null }
 xlib.makelabel{ label=Tsv("sv_allowed_votemaps"), x=5, y=3, parent=panel }
@@ -1214,8 +1063,6 @@ end
 panel.updateList()
 xgui.hookEvent( "votemaps", "process", panel.updateList, "serverUpdateVotemapList" )
 xgui.addSubModule( "votemaplist", panel, nil, "server" )
-
----------------------玩家投票地图设置---------------------
 local plist = xlib.makelistlayout{ w=275, h=322, parent=xgui.null, enablescroll=false }
 plist:Add( xlib.makelabel{ label=Tsv("sv_player_votemap") } )
 plist:Add( xlib.makecheckbox{ label=Tsv("sv_votemap_enabled"), repconvar="ulx_votemapEnabled" } )
@@ -1230,8 +1077,6 @@ plist:Add( xlib.makeslider{ label="<--->", min=0, max=10, repconvar="ulx_votemap
 plist:Add( xlib.makelabel{ label=Tsv("sv_votemap_veto_window") } )
 plist:Add( xlib.makeslider{ label="<--->", min=0, max=300, repconvar="ulx_votemapVetotime" } )
 xgui.addSubModule( "votemapsettings", plist, nil, "server" )
-
--------------------------预留槽位--------------------------
 local plist = xlib.makelistlayout{ w=275, h=322, parent=xgui.null, enablescroll=false }
 plist:Add( xlib.makelabel{ label=Tsv("sv_slots_settings") } )
 plist:Add( xlib.makecombobox{ repconvar="ulx_rslotsMode", isNumberConvar=true, choices={ Tsv("sv_slots_mode0"), Tsv("sv_slots_mode1"), Tsv("sv_slots_mode2"), Tsv("sv_slots_mode3") } } )
@@ -1239,8 +1084,6 @@ plist:Add( xlib.makeslider{ label=Tsv("sv_slots_count"), min=0, max=game.MaxPlay
 plist:Add( xlib.makecheckbox{ label=Tsv("sv_slots_visible"), repconvar="ulx_rslotsVisible" } )
 plist:Add( xlib.makelabel{ w=265, wordwrap=true, label=Tsv("sv_slots_desc") } )
 xgui.addSubModule( "reservedslots", plist, nil, "server" )
-
-------------------------投票踢出/投票封禁-------------------------
 local plist = xlib.makelistlayout{ w=275, h=322, parent=xgui.null, enablescroll=false }
 plist:Add( xlib.makelabel{ label=Tsv("sv_votekick_settings") } )
 plist:Add( xlib.makelabel{ label=Tsv("sv_votekick_ratio") } )

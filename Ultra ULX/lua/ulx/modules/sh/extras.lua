@@ -1,8 +1,4 @@
--- 实用扩展命令模块 (基于 ULib API 构建)
--- cleanup / respawn / setmodel / setteam / giveweapon / scale / gravity
 local CATEGORY_NAME = "工具"
-
------------------------------- Cleanup ------------------------------
 if SERVER then
 	function ulx.cleanup( calling_ply )
 		game.CleanUpMap( false, { "player", "prop_vehicle*" } )
@@ -12,8 +8,6 @@ end
 local cleanupCmd = ulx.command( CATEGORY_NAME, "ulx cleanup", ulx.cleanup, "!cleanup" )
 cleanupCmd:defaultAccess( ULib.ACCESS_ADMIN )
 cleanupCmd:help( "清理地图上所有道具、布娃娃、NPC 和武器" )
-
------------------------------- Respawn ------------------------------
 if SERVER then
 	function ulx.respawn( calling_ply, target_plys )
 		local affected = {}
@@ -50,8 +44,6 @@ local respawnCmd = ulx.command( CATEGORY_NAME, "ulx respawn", ulx.respawn, "!res
 respawnCmd:addParam{ type=ULib.cmds.PlayersArg }
 respawnCmd:defaultAccess( ULib.ACCESS_ADMIN )
 respawnCmd:help( "复活目标玩家" )
-
------------------------------- SetModel ------------------------------
 if SERVER then
 	function ulx.setmodel( calling_ply, target_plys, model_path )
 		model_path = ulx.standardizeModel( model_path )
@@ -70,8 +62,6 @@ setmodelCmd:addParam{ type=ULib.cmds.PlayersArg }
 setmodelCmd:addParam{ type=ULib.cmds.StringArg, hint="模型路径", ULib.cmds.takeRestOfLine }
 setmodelCmd:defaultAccess( ULib.ACCESS_ADMIN )
 setmodelCmd:help( "设置目标的模型" )
-
------------------------------- SetTeam ------------------------------
 if SERVER then
 	function ulx.setteam( calling_ply, target_plys, team_id )
 		team_id = tonumber( team_id )
@@ -96,8 +86,6 @@ setteamCmd:addParam{ type=ULib.cmds.PlayersArg }
 setteamCmd:addParam{ type=ULib.cmds.NumArg, min=1, max=32, hint="队伍编号", ULib.cmds.round }
 setteamCmd:defaultAccess( ULib.ACCESS_ADMIN )
 setteamCmd:help( "强制切换目标的队伍" )
-
------------------------------- GiveWeapon ------------------------------
 if SERVER then
 	function ulx.giveweapon( calling_ply, target_plys, weapon_class )
 		weapon_class = weapon_class:lower()
@@ -126,16 +114,12 @@ giveweaponCmd:addParam{ type=ULib.cmds.PlayersArg }
 giveweaponCmd:addParam{ type=ULib.cmds.StringArg, hint="武器类名", ULib.cmds.takeRestOfLine }
 giveweaponCmd:defaultAccess( ULib.ACCESS_ADMIN )
 giveweaponCmd:help( "给予目标指定武器" )
-
------------------------------- Scale ------------------------------
 if SERVER then
 	util.AddNetworkString( "ulx_scale_sync" )
 	ulx_playerscales = ulx_playerscales or {}; hook.Add("PlayerDisconnected", "ULXScaleCleanup", function(p) ulx_playerscales[p:SteamID64()] = nil end)
-
 	local function applyScale( ply, scale_val )
 		scale_val = math.Clamp( scale_val, 0.1, 10 )
 		ply:SetModelScale( scale_val, 0 )
-		-- 视角始终等比同步
 		ply:SetViewOffset( Vector( 0, 0, 64 * scale_val ) )
 		ply:SetViewOffsetDucked( Vector( 0, 0, 28 * scale_val ) )
 		if scale_val > 1 then
@@ -153,7 +137,6 @@ if SERVER then
 		net.WriteFloat( scale_val )
 		net.Send( ply )
 	end
-
 	function ulx.scale( calling_ply, target_plys, scale_val )
 		scale_val = math.Clamp( scale_val, 0.1, 10 )
 		for _, ply in ipairs( target_plys ) do
@@ -162,8 +145,6 @@ if SERVER then
 		end
 		ulx.fancyLogAdmin( calling_ply, "#A 将 #T 的体型缩放设为 #i", target_plys, scale_val )
 	end
-
-	-- 死亡复活后恢复缩放属性 (仅已缩放过)
 	hook.Add( "PlayerSpawn", "ULXScaleRespawn", function( ply )
 		local scale = ulx_playerscales[ ply:SteamID64() ]
 		if scale and scale ~= 1 then
@@ -171,15 +152,12 @@ if SERVER then
 				if ply:IsValid() then applyScale( ply, scale ) end
 			end )
 		end
-		-- 未缩放的玩家不做任何修改, 保持游戏模式原始速度
 	end )
-
-	-- 等比提升摔落伤害生效距离，并消除低于阈值的落地抖动
 	hook.Add( "GetFallDamage", "ULXScaleFall", function( ply, speed )
 		local scale = ulx_playerscales[ ply:SteamID64() ]
 		if scale and scale > 1 then
-			local s = speed / scale  -- 相对速度
-			local safeSpeed = 350    -- 基准安全速度
+			local s = speed / scale
+			local safeSpeed = 350
 			if s < safeSpeed then return 0 end
 			return ( s - safeSpeed ) * ( 100 / 350 )
 		end
@@ -187,7 +165,7 @@ if SERVER then
 	hook.Add( "OnPlayerHitGround", "ULXScaleHitGround", function( ply, inWater, onFloater, speed )
 		local scale = ulx_playerscales[ ply:SteamID64() ]
 		if scale and scale > 1 and speed / scale < 350 then
-			return true -- 抑制落地音效和屏幕抖动
+			return true
 		end
 	end )
 end
@@ -196,8 +174,6 @@ scaleCmd:addParam{ type=ULib.cmds.PlayersArg }
 scaleCmd:addParam{ type=ULib.cmds.NumArg, min=0.1, max=10, default=1, hint="缩放倍率" }
 scaleCmd:defaultAccess( ULib.ACCESS_ADMIN )
 scaleCmd:help( "调整目标的体型大小 0.1~10" )
-
------------------------------- Gravity ------------------------------
 if SERVER then
 	function ulx.setgravity( calling_ply, target_plys, grav )
 		grav = math.Clamp( grav, 0, 6 )
@@ -212,10 +188,7 @@ gravityCmd:addParam{ type=ULib.cmds.PlayersArg }
 gravityCmd:addParam{ type=ULib.cmds.NumArg, min=0, max=6, default=1, hint="重力倍率" }
 gravityCmd:defaultAccess( ULib.ACCESS_ADMIN )
 gravityCmd:help( "设置目标的重力倍率 0~6，1 为正常" )
-
 if not UltraULX_SilentReRegister then Msg( "[ULX] 扩展命令模块已加载 (cleanup/respawn/setmodel/setteam/giveweapon/scale/gravity)\n" ) end
-
--- 客户端：接收体型缩放值
 if CLIENT then
 	ulx_playerscale = ulx_playerscale or 1
 	net.Receive( "ulx_scale_sync", function()

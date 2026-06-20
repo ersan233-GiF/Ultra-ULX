@@ -1,14 +1,9 @@
--- Maps management module v3 -- based on Stickly Man!'s original
--- 重构版：使用 xgui_core.lua 统一语言管理
-
 ulx.votemaps = ulx.votemaps or {}
 xgui.prepareDataType( "votemaps", ulx.votemaps )
 local maps = xlib.makepanel{ parent=xgui.null }
-
 maps.maplabel = xlib.makelabel{ x=10, y=13, label=xgui.T("maps_title"), parent=maps }
 maps.gamemodeLabel = xlib.makelabel{ x=10, y=343, label=xgui.T("maps_gamemode"), parent=maps }
 maps.curmap = xlib.makelabel{ x=187, y=223, w=192, label=xgui.T("maps_noselect"), parent=maps }
-
 maps.list = xlib.makelistview{ x=5, y=30, w=175, h=310, multiselect=true, parent=maps, headerheight=0 }
 maps.list:AddColumn( xgui.T("maps_col_name") )
 maps.list.OnRowSelected = function( self, LineID, Line )
@@ -20,21 +15,17 @@ maps.list.OnRowSelected = function( self, LineID, Line )
 	maps.curmap:SetText( Line:GetColumnText(1) )
 	maps.updateButtonStates()
 end
-
 maps.disp = vgui.Create( "DImage", maps )
 maps.disp:SetPos( 185, 30 )
 maps.disp:SetMaterial( Material( "maps/thumb/noicon.png" ) )
 maps.disp:SetSize( 192, 192 )
-
 maps.gamemode = xlib.makecombobox{ x=70, y=340, w=110, h=20, text=xgui.T("maps_default_gm"), parent=maps }
-
 maps.vote = xlib.makebutton{ x=185, y=245, w=192, h=20, label=xgui.T("maps_vote"), parent=maps }
 maps.vote.DoClick = function()
 	if maps.curmap:GetValue() ~= xgui.T("maps_noselect") then
 		RunConsoleCommand( "ulx", "votemap", maps.curmap:GetValue() )
 	end
 end
-
 maps.svote = xlib.makebutton{ x=185, y=270, w=192, h=20, label=xgui.T("maps_svote"), parent=maps }
 maps.svote.DoClick = function()
 	if maps.curmap:GetValue() ~= xgui.T("maps_noselect") then
@@ -45,7 +36,6 @@ maps.svote.DoClick = function()
 		RunConsoleCommand( "ulx", "votemap2", unpack( votemaps ) )
 	end
 end
-
 maps.changemap = xlib.makebutton{ x=185, y=295, w=192, h=20, disabled=true, label=xgui.T("maps_change"), parent=maps }
 maps.changemap.DoClick = function()
 	if maps.curmap:GetValue() ~= xgui.T("maps_noselect") then
@@ -58,13 +48,10 @@ maps.changemap.DoClick = function()
 			xgui.T("maps_btn_cancel"), function() end )
 	end
 end
-
 maps.vetomap = xlib.makebutton{ x=185, y=320, w=192, label=xgui.T("maps_veto"), parent=maps }
 maps.vetomap.DoClick = function() RunConsoleCommand( "ulx", "veto" ) end
-
 maps.nextLevelLabel = xlib.makelabel{ x=382, y=13, label=xgui.T("maps_nextlevel"), parent=maps }
 maps.nextlevel = xlib.makecombobox{ x=382, y=30, w=180, h=20, repconvar="rep_nextlevel", convarblanklabel=xgui.T("maps_unspecified"), parent=maps }
-
 function maps.addMaptoList( mapname, lastselected )
 	local line = maps.list:AddLine( mapname )
 	if table.HasValue( lastselected, mapname ) then maps.list:SelectItem( line ) end
@@ -74,7 +61,6 @@ function maps.addMaptoList( mapname, lastselected )
 		line.isNotVotemap = true
 	end
 end
-
 function maps.updateVoteMaps()
 	local lastselected = {}
 	for k, Line in pairs( maps.list.Lines ) do
@@ -109,7 +95,6 @@ function maps.updateVoteMaps()
 	maps.updateButtonStates()
 	ULib.cmds.translatedCmds["ulx votemap"].args[2].completes = xgui.data.votemaps
 end
-
 function maps.updateGamemodes()
 	local lastselected = maps.gamemode:GetValue()
 	maps.gamemode:Clear()
@@ -124,7 +109,6 @@ function maps.updateGamemodes()
 		maps.gamemode:AddChoice( name, v )
 	end
 end
-
 function maps.updatePermissions()
 	maps.vetomap:SetDisabled( true )
 	RunConsoleCommand( "xgui", "getVetoState" )
@@ -135,11 +119,9 @@ function maps.updatePermissions()
 	maps.updateVoteMaps()
 	maps.updateButtonStates()
 end
-
 function xgui.updateVetoButton( value )
 	maps.vetomap:SetDisabled( not value )
 end
-
 function maps.updateButtonStates()
 	maps.gamemode:SetDisabled( not maps.accessMap )
 	maps.list:SetMultiSelect( maps.accessVotemap2 )
@@ -155,9 +137,6 @@ function maps.updateButtonStates()
 		maps.disp:SetMaterial( Material( "maps/thumb/noicon.png" ) )
 	end
 end
-
--- 初始化由 votemaps.process 钩子触发，避免在认证前调用 query 导致错误
-
 function maps.ConVarUpdated( sv_cvar, cl_cvar, ply, old_val, new_val )
 	if cl_cvar == "ulx_votemapenabled" then
 		maps.accessVotemap = ( tonumber( new_val ) == 1 )
@@ -165,11 +144,8 @@ function maps.ConVarUpdated( sv_cvar, cl_cvar, ply, old_val, new_val )
 	end
 end
 hook.Add( "ULibReplicatedCvarChanged", "XGUI_mapsUpdateVotemapEnabled", maps.ConVarUpdated )
-
 xgui.hookEvent( "onProcessModules", nil, maps.updatePermissions, "mapsUpdatePermissions" )
 xgui.hookEvent( "votemaps", "process", maps.updateVoteMaps, "mapsUpdateVotemaps" )
-
--- 语言刷新：更新静态标签 + 游戏模式选择框
 xgui.registerRefresh( "maps", function()
 	maps.maplabel:SetText( xgui.T("maps_title") )
 	local col = maps.list.Columns[1]; if col and col.Header then col.Header:SetText( xgui.T("maps_col_name") ) end
@@ -183,7 +159,6 @@ xgui.registerRefresh( "maps", function()
 	if maps.curmap:GetValue() == noselectStr or maps.curmap:GetValue() == "未选择地图" or maps.curmap:GetValue() == "No Map Selected" then
 		maps.curmap:SetText( noselectStr )
 	end
-	-- 重建游戏模式选择框选项（按数据值保留选中）
 	if maps.gamemode then
 		local prevId = maps.gamemode:GetSelectedID()
 		local prevData = prevId and select(2, maps.gamemode:GetOptionData(prevId))
@@ -197,7 +172,6 @@ xgui.registerRefresh( "maps", function()
 			if name == "gm_" .. v then name = v end
 			maps.gamemode:AddChoice( name, v )
 		end
-		-- 按数据值恢复选中
 		if prevData then
 			for id = 1, maps.gamemode:GetOptionsCount() do
 				local _, data = maps.gamemode:GetOptionData(id)
@@ -208,5 +182,4 @@ xgui.registerRefresh( "maps", function()
 		end
 	end
 end )
-
 xgui.addModule( "maps", maps, "icon16/map.png" )

@@ -2,29 +2,25 @@ local next_team_index
 local starting_team_index = 21
 ulx.teams = ulx.teams or {}
 local team_by_name = {}
-
 local function sortTeams( team_a, team_b )
 	if team_a.order then
 		if team_a.order ~= team_b.order then
 			return not team_b.order or team_a.order < team_b.order
 		end
 	elseif team_b.order then
-		return false -- Ordered always comes before non-ordered
+		return false
 	end
-
 	return team_a.name < team_b.name
 end
-
 local function sendDataTo( ply )
 	ULib.clientRPC( ply, "ulx.populateClTeams", ulx.teams )
 end
-
 local function assignTeam( ply )
 	local team = ULib.ucl.groups[ ply:GetUserGroup() ].team
 	if team then
 		local team_data = team_by_name[ team.name ]
 		ULib.queueFunctionCall( function()
-			if not ply:IsValid() then return end -- In case they drop quickly
+			if not ply:IsValid() then return end
 			ply:SetTeam( team_data.index )
 			if team_data.model then
 				ply:SetModel( team_data.model )
@@ -37,19 +33,16 @@ local function assignTeam( ply )
 			end
 		end )
 	elseif ply:Team() >= starting_team_index and ply:Team() < next_team_index then
-		ULib.queueFunctionCall( ply.SetTeam, ply, 1001 ) -- Unassigned
+		ULib.queueFunctionCall( ply.SetTeam, ply, 1001 )
 	end
 end
-
 function ulx.saveTeams()
-	-- First clear the teams
 	for group_name, group_data in pairs( ULib.ucl.groups ) do
 		group_data.team = nil
 	end
-
 	local to_remove = {}
 	for i=1, #ulx.teams do
-		local teamdata = table.Copy( ulx.teams[ i ] ) -- Copy since we'll be removing data as we go
+		local teamdata = table.Copy( ulx.teams[ i ] )
 		if not teamdata.groups or #teamdata.groups == 0 then
 			table.insert( to_remove, 1, i )
 		else
@@ -72,23 +65,18 @@ function ulx.saveTeams()
 			end
 		end
 	end
-
 	for i=1, #to_remove do
 		table.remove( ulx.teams, to_remove[ i ] )
 	end
-
 	ULib.ucl.saveGroups()
 end
-
 function ulx.refreshTeams()
 	if not ulx.uteamEnabled() then
 		return
 	end
-
 	next_team_index = starting_team_index
 	ulx.teams = {}
 	team_by_name = {}
-
 	for group_name, group_data in pairs( ULib.ucl.groups ) do
 		if group_data.team then
 			local team_name = group_data.team.name or ("Team" .. tostring( next_team_index ))
@@ -118,7 +106,6 @@ function ulx.refreshTeams()
 				table.insert( team_by_name[ team_name ].groups, group_name )
 				table.Merge( team_by_name[ team_name ], new_team )
 			else
-				-- Make sure there's a color
 				new_team.color = new_team.color or Color( 255, 255, 255, 255 )
 				new_team.groups = { group_name }
 				table.insert( ulx.teams, new_team )
@@ -126,7 +113,6 @@ function ulx.refreshTeams()
 			end
 		end
 	end
-
 	table.sort( ulx.teams, sortTeams )
 	for i=1, #ulx.teams do
 		local team_data = ulx.teams[ i ]
@@ -134,14 +120,12 @@ function ulx.refreshTeams()
 		team_data.index = next_team_index
 		next_team_index = next_team_index + 1
 	end
-
 	local plys = player.GetAll()
 	for i=1, #plys do
 		local ply = plys[ i ]
 		sendDataTo( ply )
 		assignTeam( ply )
 	end
-
 	hook.Add( "PlayerInitialSpawn", "UTeamInitialSpawn", sendDataTo, HOOK_MONITOR_HIGH )
 	hook.Add( "PlayerSpawn", "UTeamSpawnAuth", assignTeam, HOOK_MONITOR_HIGH )
 	hook.Add( "UCLAuthed", "UTeamAuth", assignTeam, HOOK_MONITOR_HIGH )

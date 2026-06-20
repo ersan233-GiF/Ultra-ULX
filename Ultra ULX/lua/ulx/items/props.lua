@@ -1,4 +1,3 @@
--- 道具 / 实体 (与 sv_items.lua persistent_items 同步)
 ulx.registerItems({
 	{ class = "prop_ragdoll",            name = "布娃娃",       type = 5 },
 	{ class = "item_healthkit",          name = "医疗包(道具)", type = 2 },

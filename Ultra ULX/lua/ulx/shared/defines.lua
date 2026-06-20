@@ -1,477 +1,292 @@
---[[
 	Title: Defines
-
 	Holds some defines used on both client and server.
 ]]
-
 ULib = ULib or {}
-
-ULib.RELEASE = false -- Don't access these two directly, use ULib.pluginVersionStr("ULib")
+ULib.RELEASE = false
 ULib.VERSION = 2.72
 ULib.AUTOMATIC_UPDATE_CHECKS = true
-
 ULib.ACCESS_ALL = "user"
 ULib.ACCESS_OPERATOR = "operator"
 ULib.ACCESS_ADMIN = "admin"
 ULib.ACCESS_SUPERADMIN = "superadmin"
-
 ULib.DEFAULT_ACCESS = ULib.ACCESS_ALL
-
--- ===== Ultra ULX 加深颜色主题 =====
--- 原版 ULX 颜色太浅，统一加深 20-40%
-ULib.COLOR_ACCENT   = Color( 60,  160, 240 )  -- 主色调: 深蓝 (原版 151,211,255 太淡)
-ULib.COLOR_SUCCESS  = Color( 40,  200, 80  )  -- 成功: 深绿
-ULib.COLOR_WARN     = Color( 220, 140, 0   )  -- 警告: 深金
-ULib.COLOR_ERROR    = Color( 220, 80,  30  )  -- 错误: 深红
-ULib.COLOR_INFO     = Color( 0,   170, 220 )  -- 信息: 深青
-ULib.COLOR_MUTED    = Color( 160, 160, 170 )  -- 弱化: 深灰
-ULib.COLOR_HIGHLIGHT = Color( 255, 180, 0  ) -- 高亮: 深黄
-
+ULib.COLOR_ACCENT   = Color( 60,  160, 240 )
+ULib.COLOR_SUCCESS  = Color( 40,  200, 80  )
+ULib.COLOR_WARN     = Color( 220, 140, 0   )
+ULib.COLOR_ERROR    = Color( 220, 80,  30  )
+ULib.COLOR_INFO     = Color( 0,   170, 220 )
+ULib.COLOR_MUTED    = Color( 160, 160, 170 )
+ULib.COLOR_HIGHLIGHT = Color( 255, 180, 0  )
 ULib.DEFAULT_TSAY_COLOR = ULib.COLOR_ACCENT
-
-
---[[
 	Section: Hooks
-
 	These are the hooks that ULib has created that other modders are free to make use of.
 ]]
-
---[[
 	Hook: UCLAuthed
-
 	Called *on both server and client* when a player has been (re)authenticated by UCL. Called for ALL players, regardless of access.
-
 	Parameters passed to callback:
-
 		ply - The player that got (re)authenticated.
-
 	Revisions:
-
 		v2.40 - Initial
 ]]
 ULib.HOOK_UCLAUTH = "UCLAuthed"
-
---[[
 	Hook: UCLChanged
-
 	Called *on both server and client* when anything in ULib.ucl.users, ULib.ucl.authed, or ULib.ucl.groups changes. No parameters are passed to callbacks.
-
 	Revisions:
-
 		v2.40 - Initial
 ]]
 ULib.HOOK_UCLCHANGED = "UCLChanged"
-
---[[
 	Hook: UCLAccessRegistered
-
 	Called *on both server and client* when one or more unrecognized accesses are registered. No parameters are passed to callbacks.
-
 	Revisions:
-
 		v2.70 - Initial
 ]]
 ULib.HOOK_ACCESS_REGISTERED = "UCLAccessRegistered"
-
---[[
 	Hook: ULibReplicatedCvarChanged
-
 	Called *on both client and server* when a replicated cvar changes or is created.
-
 	Parameters passed to callback:
-
 		sv_cvar - The name of the server-side cvar.
 		cl_cvar - The name of the client-side cvar.
 		ply - The player changing the cvar or nil on initial value.
 		old_value - The previous value of the cvar, nil if this call is to set the initial value.
 		new_value - The new value of the cvar.
-
 	Revisions:
-
 		v2.40 - Initial
 		v2.50 - Removed nil on client side restriction.
 ]]
 ULib.HOOK_REPCVARCHANGED = "ULibReplicatedCvarChanged"
-
---[[
 	Hook: ULibLocalPlayerReady
-
 	Called *on both client and server* when a player entity is created. (can now run commands). Only works for local
 	player on the client side.
-
 	Parameters passed to callback:
-
 		ply - The player that's ready (local player on client side).
-
 	Revisions:
-
 		v2.40 - Initial
 ]]
 ULib.HOOK_LOCALPLAYERREADY = "ULibLocalPlayerReady"
-
---[[
 	Hook: ULibCommandCalled
-
 	Called *on server* whenever a ULib command is run, return false to override and not allow, true to stop executing callbacks and allow.
-
 	Parameters passed to callback:
-
 		ply - The player attempting to execute the command.
 		commandName - The command that's being executed.
 		args - The table of args for the command.
-
 	Revisions:
-
 		v2.40 - Initial
 ]]
 ULib.HOOK_COMMAND_CALLED = "ULibCommandCalled"
-
---[[
 	Hook: ULibPlayerTarget
-
 	Called whenever one player is about to target another player. Called *BEFORE* any other validation
 	takes place. Return false and error message to disallow target completely, return true to
 	override any other validation logic and allow the target to take place, return a player to force
 	the target to be the specified player.
-
 	Parameters passed to callback:
-
 		ply - The player attempting to execute the command.
 		commandName - The command that's being executed.
 		target - The proposed target of the command before any other validation logic takes place.
-
 	Revisions:
-
 		v2.40 - Initial
 ]]
 ULib.HOOK_PLAYER_TARGET = "ULibPlayerTarget"
-
---[[
 	Hook: ULibPlayerTargets
-
 	Called whenever one player is about to target another set of players. Called *BEFORE* any other validation
 	takes place. Return false and error message to disallow target completely, return true to
 	override any other validation logic and allow the target to take place, return a table of players to force
 	the targets to be the specified players.
-
 	Parameters passed to callback:
-
 		ply - The player attempting to execute the command.
 		commandName - The command that's being executed.
 		targets - The proposed targets of the command before any other validation logic takes place.
-
 	Revisions:
-
 		v2.40 - Initial
 ]]
-ULib.HOOK_PLAYER_TARGETS = "ULibPlayerTargets" -- Exactly the same as the above but used when the player is using a command that can target multiple players.
-
---[[
+ULib.HOOK_PLAYER_TARGETS = "ULibPlayerTargets"
 	Hook: ULibPostTranslatedCommand
-
 	*Server hook*. Called after a translated command (ULib.cmds.TranslatedCommand) has been successfully
 	verified. This hook directly follows the callback for the command itself.
-
 	Parameters passed to callback:
-
 		ply - The player that executed the command.
 		commandName - The command that's being executed.
 		translated_args - A table of the translated arguments, as passed into the callback function itself.
 		callResult - The return value of the command function.
-
 	Revisions:
-
 		v2.40 - Initial
 		v2.72 - Add the callResult parameter
 ]]
 ULib.HOOK_POST_TRANSLATED_COMMAND = "ULibPostTranslatedCommand"
-
---[[
 	Hook: ULibPlayerNameChanged
-
 	Called within one second of a player changing their name.
-
 	Parameters passed to callback:
-
 		ply - The player that changed names.
 		oldName - The player's old name, before the change.
 		newName - The player's new name, after the change.
-
 	Revisions:
-
 		v2.40 - Initial
 ]]
 ULib.HOOK_PLAYER_NAME_CHANGED = "ULibPlayerNameChanged"
-
---[[
 	Hook: ULibGetUsersCustomKeyword
-
 	Called during ULib.getUsers when considering a target string for keywords.
 	This could be used to create a new, custom keyword for targeting users who
 	have been connected for less than five minutes, for example.
 	Return nil or a table of player objects to add to the target list.
-
 	Parameters passed to callback:
-
 		target - A string chunk of a possibly larger target list to operate on.
 		ply - The player doing the targeting, not always specified (can be nil).
-
 	Revisions:
-
 		v2.60 - Initial
 ]]
 ULib.HOOK_GETUSERS_CUSTOM_KEYWORD = "ULibGetUsersCustomKeyword"
-
---[[
 	Hook: ULibGetUserCustomKeyword
-
 	Called during ULib.getUser when considering a target string for keywords.
 	This could be used to create a new, custom keyword for always targeting a
 	specific connected steamid, for example. Or, to target the shortest connected
 	player.
 	Return nil or a player object.
-
 	Parameters passed to callback:
-
 		target - A string target.
 		ply - The player doing the targeting, not always specified (can be nil).
-
 	Revisions:
-
 		v2.60 - Initial
 ]]
 ULib.HOOK_GETUSER_CUSTOM_KEYWORD = "ULibGetUserCustomKeyword"
-
---[[
 	Hook: ULibPlayerKicked
-
 	Called during ULib.kick.
 	This alerts you to the player being kicked.
-
 	Parameters passed to callback:
-
 		steamid - String of SteamID of the kicked player.
 		reason - String of kick reason or nil.
 		caller - Player object of whomever did the kick or nil.
-
 	Revisions:
-
 		v2.62 - Initial
 ]]
 ULib.HOOK_USER_KICKED = "ULibPlayerKicked"
-
---[[
 	Hook: ULibPlayerBanned
-
 	Called during ULib.addBan.
 	This alerts you to the player being banned.
-
 	Parameters passed to callback:
-
 		steamid - String of SteamID of the banned player.
 		ban_data - The table data about the ban, exactly like it would be stored in ULib.bans.
-
 	Revisions:
-
 		v2.62 - Initial
 ]]
 ULib.HOOK_USER_BANNED = "ULibPlayerBanned"
-
---[[
 	Hook: ULibPlayerUnBanned
-
 	Called during ULib.unban.
 	This alerts you to the player being banned.
-
 	Parameters passed to callback:
-
 		steamid - String of SteamID for the unbanned player.
 		admin - The unbaning player object or nil.
-
 	Revisions:
-
 		v2.62 - Initial
 ]]
 ULib.HOOK_USER_UNBANNED = "ULibPlayerUnBanned"
-
---[[
 	Hook: ULibGroupCreated
-
 	Called during ULib.ucl.addGroup.
 	This alerts you to the group being created.
-
 	Parameters passed to callback:
-
 		group_name - String of Group Name
 		group_data - Group table as it is stored in ULib.ucl.groups[ name ].
-
 	Revisions:
-
 		v2.62 - Initial
 ]]
 ULib.HOOK_GROUP_CREATED = "ULibGroupCreated"
-
---[[
 	Hook: ULibGroupRemoved
-
 	Called during ULib.ucl.removeGroup.
 	This alerts you to the group being removed.
-
 	Parameters passed to callback:
-
 		group_name - String of Group Name
 		group_data - Group table as it is stored in ULib.ucl.groups[ name ].
-
 	Revisions:
-
 		v2.62 - Initial
 ]]
 ULib.HOOK_GROUP_REMOVED = "ULibGroupRemoved"
-
---[[
 	Hook: ULibGroupAccessChanged
-
 	Called during ULib.ucl.groupAllow.
 	This alerts you to the group access being changed.
-
 	Parameters passed to callback:
-
 		group_name - String of Group Name
 		access - String of access being changed
 		revoke - Boolean, Are we adding(false/nil) or revoking(true)
-
 	Revisions:
-
 		v2.62 - Initial
 ]]
 ULib.HOOK_GROUP_ACCESS_CHANGE = "ULibGroupAccessChanged"
-
---[[
 	Hook: ULibGroupRenamed
-
 	Called during ULib.ucl.renameGroup.
 	This alerts you to the group being renamed.
-
 	Parameters passed to callback:
-
 		old_name - String of Old Group Name
 		new_name - String of New Group Name
-
 	Revisions:
-
 		v2.62 - Initial
 ]]
 ULib.HOOK_GROUP_RENAMED = "ULibGroupRenamed"
-
---[[
 	Hook: ULibGroupInheritanceChanged
-
 	Called during ULib.ucl.setGroupInheritance.
 	This alerts you to the group Inheritance being changed.
-
 	Parameters passed to callback:
-
 		group_name - String of Group Name
 		new_inherit - String of New Inheritance
 		old_inherit - String of Old Inheritance
-
 	Revisions:
-
 		v2.62 - Initial
 ]]
 ULib.HOOK_GROUP_INHERIT_CHANGE = "ULibGroupInheritanceChanged"
-
---[[
 	Hook: ULibGroupCanTargetChanged
-
 	Called during ULib.ucl.setGroupCanTarget.
 	This alerts you to the group CanTarget being changed.
-
 	Parameters passed to callback:
-
 		group_name - String of Group Name
 		new_target - String of New CanTarget
 		old_target - String of Old CanTarget
-
 	Revisions:
-
 		v2.62 - Initial
 ]]
 ULib.HOOK_GROUP_CANTARGET_CHANGE = "ULibGroupCanTargetChanged"
-
---[[
 	Hook: ULibUserGroupChange
-
 	Called during ULib.ucl.addUser.
 	This alerts you to the user's group being changed.
-
 	Parameters passed to callback:
-
 		id - String steamid of the user.
 		allows - Allows Table
 		denies - Denies Table
 		new_group - String of New Group
 		old_group - String of Old Group
-
 	Revisions:
-
 		v2.62 - Initial
 ]]
 ULib.HOOK_USER_GROUP_CHANGE = "ULibUserGroupChange"
-
---[[
 	Hook: ULibUserAccessChange
-
 	Called during ULib.ucl.userAllow.
 	This alerts you to the user's access being changed.
-
 	Parameters passed to callback:
-
 	id - The string steamid of the user.
 	access - The string of access being changed
 	revoke - Boolean, are we adding(false/nil) or revoking(true)
 	deny - Boolean, are we denying(true) or allowing(false/nil)
-
 	Revisions:
-
 		v2.62 - Initial
 ]]
 ULib.HOOK_USER_ACCESS_CHANGE = "ULibUserAccessChange"
-
---[[
 	Hook: ULibUserRemoved
-
 	Called during ULib.ucl.removeUser.
 	This alerts you to the user's group being removed.
-
 	Parameters passed to callback:
-
 	id - The string steamid of the user.
 	user_info - Table of old user info (group, allows, denys, etc) as stored in ULib.ucl.users[id] before the change.
-
 	Revisions:
-
 		v2.62 - Initial
 ]]
 ULib.HOOK_USER_REMOVED = "ULibUserRemoved"
-
---[[
 	Section: UCL Helpers
-
 	These defines are server-only, to help with UCL.
 ]]
 if SERVER then
-ULib.UCL_LOAD_DEFAULT = true -- Set this to false to ignore the SetUserGroup() call.
+ULib.UCL_LOAD_DEFAULT = true
 ULib.UCL_USERS = "data/ulib/users.txt"
 ULib.UCL_GROUPS = "data/ulib/groups.txt"
-ULib.UCL_REGISTERED = "data/ulib/misc_registered.txt" -- Holds access strings that ULib has already registered
-
+ULib.UCL_REGISTERED = "data/ulib/misc_registered.txt"
 ULib.DEFAULT_GRANT_ACCESS = { allow={}, deny={}, guest=true }
 end
-
---[[
 	Section: Net pooled strings
-
 	These defines are server-only, to help with the networking library.
 ]]
 if SERVER then
@@ -484,33 +299,22 @@ if SERVER then
 	util.AddNetworkString( "ulx_version_check" )
 	util.AddNetworkString( "ulx_file_sync_manifest" )
 end
-
--- Ultra ULX 独立版本号（与原版 ULX 版本无关）
--- v2 = 第二代管理工具 · 69 = 净新增 69 条指令 · 1 = 首版发布
-ulx.VERSION = "2.69.1"
-ulx.VERSION_STR = "v2.69.1"
-
--- ===== 哈希版本同步：核心文件清单 =====
--- 仅包含需同步的核心功能文件，排除语言/配置/服务端专用文件
+ulx.VERSION = "2.71.0"
+ulx.VERSION_STR = "v2.71.0"
 if SERVER then
 	ulx.SYNC_FILES = ulx.SYNC_FILES or {
-		-- 共享核心
 		"ulx/shared/defines.lua", "ulx/shared/misc.lua", "ulx/shared/util.lua",
 		"ulx/shared/hook.lua", "ulx/shared/tables.lua", "ulx/shared/player.lua",
 		"ulx/shared/messages.lua", "ulx/shared/commands.lua", "ulx/shared/sh_ucl.lua",
 		"ulx/shared/plugin.lua", "ulx/shared/cami_global.lua", "ulx/shared/cami_ulib.lua",
 		"ulx/shared/ulx_defines.lua", "ulx/shared/ulx_base.lua",
-		-- 语言系统（客户端展示用）
 		"ulx/shared/language.lua",
-		-- 客户端核心
 		"ulx/cl_init.lua",
 		"ulx/client/cl_commands.lua", "ulx/client/cl_util.lua",
 		"ulx/client/draw.lua", "ulx/client/ulx_cl_lib.lua",
-		-- 客户端模块
 		"ulx/modules/cl/motdmenu.lua", "ulx/modules/cl/uteam.lua",
 		"ulx/modules/cl/xgui_client.lua", "ulx/modules/cl/xgui_helpers.lua",
 		"ulx/modules/cl/xlib.lua",
-		-- 共享模块
 		"ulx/modules/sh/chat.lua", "ulx/modules/sh/community.lua",
 		"ulx/modules/sh/extras.lua", "ulx/modules/sh/fun.lua",
 		"ulx/modules/sh/menus.lua", "ulx/modules/sh/rcon.lua",
@@ -518,17 +322,14 @@ if SERVER then
 		"ulx/modules/sh/userhelp.lua", "ulx/modules/sh/util.lua",
 		"ulx/modules/sh/vote.lua", "ulx/modules/sh/bhop.lua",
 		"ulx/modules/sh/crouchjump.lua", "ulx/modules/sh/coord.lua",
-		-- 道具系统
 		"ulx/items/init.lua", "ulx/items/weapons_hl2.lua", "ulx/items/weapons_css.lua",
 		"ulx/items/weapons_admin.lua", "ulx/items/tools.lua", "ulx/items/ammo.lua",
 		"ulx/items/props.lua", "ulx/items/seats.lua", "ulx/items/vehicles.lua",
-		-- XGUI
 		"ulx/xgui/bans.lua", "ulx/xgui/commands.lua", "ulx/xgui/groups.lua",
 		"ulx/xgui/items.lua", "ulx/xgui/maps.lua", "ulx/xgui/settings.lua",
 		"ulx/xgui/xgui_core.lua", "ulx/xgui/framework/init.lua", "ulx/xgui/framework/layout.lua",
 		"ulx/xgui/gamemodes/sandbox.lua",
 		"ulx/xgui/settings/client.lua", "ulx/xgui/settings/server.lua",
 	}
-	-- 缓存文件 CRC，避免每连接重复计算
 	ulx._sync_cache = ulx._sync_cache or {}
 end

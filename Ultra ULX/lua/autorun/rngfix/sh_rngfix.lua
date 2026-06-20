@@ -1,11 +1,5 @@
--- RNG Fix: Prevents broken spawns and NAN damage from faulty randomization
--- Original by justa, adapted for Ultra ULX
-
 AddCSLuaFile()
-
--- Hook into InitPostEntity and apply fixes
 local function rngfix_Apply()
-	-- Fix Convars that cause NaN issues
 	local fixCvars = {
 		"sv_massreport", "sv_minrate", "sv_minupdaterate",
 		"sv_mincmdrate", "phys_pushscale"

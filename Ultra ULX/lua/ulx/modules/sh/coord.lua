@@ -1,12 +1,8 @@
--- 坐标系统 — Ultra ULX (coordhud + coord)
 local CAT = "工具"
-
 if SERVER then
 	util.AddNetworkString("ulx_coordhud")
 	util.AddNetworkString("ulx_coord_req")
 	util.AddNetworkString("ulx_coord_data")
-
-	-- ====== coordhud ======
 	local hudEnabled = {}
 	function ulx.coordhud(calling_ply, target_plys, active)
 		for _, p in ipairs(target_plys) do
@@ -26,8 +22,6 @@ if SERVER then
 		end
 	end)
 	hook.Add("PlayerDisconnected", "ULXCHUDClean", function(p) hudEnabled[p:SteamID64()] = nil end)
-
-	-- ====== coord (头顶名字+坐标) ======
 	local coordData = {}
 	local function getData(ply)
 		if not IsValid(ply) then return nil end
@@ -72,14 +66,12 @@ if SERVER then
 		local a = net.ReadBool(); local m = net.ReadUInt(4); local ts = net.ReadString()
 		for _, p in ipairs(tg) do local d = getData(p); d.enabled = a; d.mode = m; d.targetSid = ts; broadcast(p) end
 	end)
-	-- 缓存上次位置以减少不必要的网络广播
 	local lastPosCache = {}
 	timer.Create("ULXCoordBC", 0.5, 0, function()
 		for _, p in ipairs(player.GetAll()) do
 			if getData(p).enabled then
 				local pos = p:GetPos()
 				local cache = lastPosCache[p:SteamID64()]
-				-- 仅当玩家移动超过 1 单位或缓存不存在时才广播
 				if not cache or cache:DistToSqr(pos) > 1 then
 					lastPosCache[p:SteamID64()] = pos
 					broadcast(p)
@@ -89,23 +81,24 @@ if SERVER then
 	end)
 	hook.Add("PlayerDisconnected", "ULXCClean", function(p) coordData[p:SteamID64()] = nil end)
 end
-
 if CLIENT then
-	-- ====== coordhud ======
 	local hudActive = false
-	net.Receive("ulx_coordhud", function() hudActive = net.ReadBool() end)
-	hook.Add("HUDPaint", "ULXCoordHUD", function()
-		if not hudActive then return end
-		local p = LocalPlayer(); if not IsValid(p) then return end
-		local pos = p:GetPos()
-		local text = string.format("%.0f    %.0f    %.0f", pos.x, pos.y, pos.z)
-		surface.SetFont("DermaLarge"); local tw, th = surface.GetTextSize(text)
-		local x, y = (ScrW() - tw) / 2, ScrH() * 0.03
-		draw.RoundedBox(8, x - 20, y - 6, tw + 40, th + 16, Color(0, 0, 0, 160))
-		surface.SetTextPos(x, y); surface.SetTextColor(100, 200, 255, 240); surface.DrawText(text)
+	net.Receive("ulx_coordhud", function()
+		hudActive = net.ReadBool()
+		if hudActive then
+			hook.Add("HUDPaint", "ULXCoordHUD", function()
+				local p = LocalPlayer(); if not IsValid(p) then return end
+				local pos = p:GetPos()
+				local text = string.format("%.0f    %.0f    %.0f", pos.x, pos.y, pos.z)
+				surface.SetFont("DermaLarge"); local tw, th = surface.GetTextSize(text)
+				local x, y = (ScrW() - tw) / 2, ScrH() * 0.03
+				draw.RoundedBox(8, x - 20, y - 6, tw + 40, th + 16, Color(0, 0, 0, 160))
+				surface.SetTextPos(x, y); surface.SetTextColor(100, 200, 255, 240); surface.DrawText(text)
+			end)
+		else
+			hook.Remove("HUDPaint", "ULXCoordHUD")
+		end
 	end)
-
-	-- ====== coord (头顶名字+坐标) ======
 	local headTargets = {}
 	net.Receive("ulx_coord_data", function()
 		local ent = net.ReadEntity()
@@ -140,24 +133,19 @@ if CLIENT then
 		end
 	end)
 end
-
--- ====== 命令 ======
--- 命令函数已在上面定义，无需重复占位
-
 local hudCmd = ulx.command(CAT, "ulx coordhud", ulx.coordhud, "!coordhud")
 hudCmd:addParam{ type = ULib.cmds.PlayersArg, ULib.cmds.optional }
-hudCmd:addParam{ type = ULib.cmds.BoolArg, invisible = true, default = true, ULib.cmds.optional }
+hudCmd:addParam{ type = ULib.cmds.BoolArg, invisible = true, ULib.cmds.optional }
 hudCmd:defaultAccess(ULib.ACCESS_ALL)
 hudCmd:help("屏幕上方半透明实时坐标 HUD，!uncoordhud 关闭")
-hudCmd:setOpposite("ulx uncoordhud", {_, _, false}, "!uncoordhud")
-
+hudCmd:setOpposite("ulx uncoordhud", {}, "!uncoordhud")
 local coordCmd = ulx.command(CAT, "ulx coord", ulx.coord, "!coord")
 coordCmd:addParam{ type = ULib.cmds.PlayersArg }
-coordCmd:addParam{ type = ULib.cmds.BoolArg, invisible = true, default = true, ULib.cmds.optional }
+coordCmd:addParam{ type = ULib.cmds.BoolArg, invisible = true, ULib.cmds.optional }
 coordCmd:addParam{ type = ULib.cmds.NumArg, min = 1, max = 4, default = 1, hint = "1=仅自己 2=管理员 3=公开 4=指定", ULib.cmds.optional, ULib.cmds.round }
 coordCmd:addParam{ type = ULib.cmds.StringArg, hint = "指定SteamID(模式4)", ULib.cmds.optional }
 coordCmd:defaultAccess(ULib.ACCESS_ADMIN)
 coordCmd:help("目标头顶显示名字和实时坐标，!uncoord 关闭")
+coordCmd:setOpposite("ulx uncoord", {}, "!uncoord")
 coordCmd:setOpposite("ulx uncoord", {_, _, false}, "!uncoord")
-
 if not UltraULX_SilentReRegister then Msg("[ULX] 坐标系统已加载 (coordhud + coord)\n") end

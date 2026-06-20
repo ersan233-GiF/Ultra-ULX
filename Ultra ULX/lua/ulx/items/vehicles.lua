@@ -1,4 +1,3 @@
--- 载具
 ulx.registerItems({
 	{ class = "prop_vehicle_airboat",      name = "汽艇",     type = 5, vkey = "Airboat" },
 	{ class = "prop_vehicle_jeep",         name = "老爷车",   type = 5, vkey = "Jalopy" },

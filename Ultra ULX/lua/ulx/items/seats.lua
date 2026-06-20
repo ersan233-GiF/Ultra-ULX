@@ -1,4 +1,3 @@
--- 座椅
 ulx.registerItems({
 	{ class = "prop_vehicle_prisoner_pod", name = "办公室座椅", type = 5, model = "models/props_c17/FurnitureChair001a.mdl", vkey = "Chair_Office1" },
 	{ class = "prop_vehicle_prisoner_pod", name = "真皮办公椅", type = 5, model = "models/props_c17/FurnitureChair002a.mdl", vkey = "Chair_Office2" },

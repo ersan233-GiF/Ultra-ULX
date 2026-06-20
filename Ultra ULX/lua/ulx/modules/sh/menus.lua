@@ -1,85 +1,65 @@
--- 菜单功能模块
 local CATEGORY_NAME = "菜单"
-
 if ULib.fileExists( "lua/ulx/modules/cl/motdmenu.lua" ) or ulx.motdmenu_exists then
 	local function sendMotd( ply, showMotd )
-		
-		if showMotd == "1" then -- Assume it's a file
-			if not ULib.fileExists( GetConVarString( "ulx_motdfile" ) ) then return end -- Invalid
+		if showMotd == "1" then
+			if not ULib.fileExists( GetConVarString( "ulx_motdfile" ) ) then return end
 			local f = ULib.fileRead( GetConVarString( "ulx_motdfile" ) )
-
 			ULib.clientRPC( ply, "ulx.rcvMotd", showMotd, f )
-
 		elseif showMotd == "2" then
-			ulx.populateMotdData() -- 每次发送前刷新
+			ulx.populateMotdData()
 			ULib.clientRPC( ply, "ulx.rcvMotd", showMotd, ulx.motdSettings )
-
-		else -- Assume URL
+		else
 			ULib.clientRPC( ply, "ulx.rcvMotd", showMotd, GetConVarString( "ulx_motdurl" ) )
 		end
 	end
-
 	local function showMotd( ply )
 		local showMotd = GetConVarString( "ulx_showMotd" )
 		if showMotd == "0" then return end
-		if not ply:IsValid() then return end -- They left, doh!
-
+		if not ply:IsValid() then return end
 		sendMotd( ply, showMotd )
-		ULib.clientRPC( ply, "ulx.showMotdMenu", ply:SteamID() ) -- Passing it because they may get it before LocalPlayer() is valid
+		ULib.clientRPC( ply, "ulx.showMotdMenu", ply:SteamID() )
 	end
 	hook.Add( "PlayerInitialSpawn", "showMotd", showMotd )
-
 	function ulx.motdUpdated()
 		for i=1, #player.GetAll() do
 			player.GetAll()[i].ulxHasMotd = false
 		end
 	end
-
 	local function conVarUpdated( sv_cvar, cl_cvar, ply, old_val, new_val )
 		if string.lower( cl_cvar ) == "ulx_showmotd" or string.lower( cl_cvar ) == "ulx_motdfile" or string.lower( cl_cvar ) == "ulx_motdurl" then
 			ulx.motdUpdated()
 		end
 	end
 	hook.Add( "ULibReplicatedCvarChanged", "ulx.clearMotdCache", conVarUpdated )
-
 	function ulx.motd( calling_ply )
 		if not calling_ply:IsValid() then
 			Msg( "无法从控制台查看 MOTD。\n" )
 			return
 		end
-
 		if GetConVarString( "ulx_showMotd" ) == "0" then
 			if GetConVarString( "ulx_motdDisabledMessage" ) == "1" then
 				ULib.tsay( calling_ply, "此服务器已禁用 MOTD。" )
 			end
 			return
 		end
-
 		if GetConVarString( "ulx_showMotd" ) == "1" and not ULib.fileExists( GetConVarString( "ulx_motdfile" ) ) then
 			ULib.tsay( calling_ply, "找不到 MOTD 文件。" )
 			return
 		end
-
 		showMotd( calling_ply )
 	end
 	local motdmenu = ulx.command( CATEGORY_NAME, "ulx motd", ulx.motd, "!motd" )
 	motdmenu:defaultAccess( ULib.ACCESS_ALL )
 	motdmenu:help( "显示每日欢迎消息." )
-
 	if SERVER then
 		ulx.convar( "showMotd", "2", " <0/1/2/3> - MOTD mode. 0 is off.", ULib.ACCESS_ADMIN )
 		ulx.convar( "motdfile", "ulx_motd.txt", "MOTD filepath from gmod root to use if ulx showMotd is 1.", ULib.ACCESS_ADMIN )
 		ulx.convar( "motdurl", "ulyssesmod.net", "MOTD URL to use if ulx showMotd is 3.", ULib.ACCESS_ADMIN )
 		ulx.convar( "motdDisabledMessage", "1", "<0/1> - Show disabled message when MOTD command is run if MOTD is disabled by the server. 0 is off.", ULib.ACCESS_ADMIN )
-
 		function ulx.populateMotdData()
 			if ulx.motdSettings == nil or ulx.motdSettings.info == nil then return end
-
 			ulx.motdSettings.admins = {}
-
 			local getAddonInfo = false
-
-			-- Gather addon/admin information to display
 			for i=1, #ulx.motdSettings.info do
 				local sectionInfo = ulx.motdSettings.info[i]
 				if sectionInfo.type == "mods" then
@@ -90,10 +70,8 @@ if ULib.fileExists( "lua/ulx/modules/cl/motdmenu.lua" ) or ulx.motdmenu_exists t
 					end
 				end
 			end
-
 			if getAddonInfo then
 				ulx.motdSettings.addons = {}
-				-- 方法1: 已挂载的 Workshop 插件
 				local addons = engine.GetAddons()
 				for i=1, #addons do
 					local addon = addons[i]
@@ -101,8 +79,6 @@ if ULib.fileExists( "lua/ulx/modules/cl/motdmenu.lua" ) or ulx.motdmenu_exists t
 						table.insert( ulx.motdSettings.addons, { title=addon.title, workshop_id=addon.file:gsub("%D", "") } )
 					end
 				end
-
-				-- 方法2: 本地 addons 目录 (addon.json 或 addon.txt)
 				local _, possibleaddons = file.Find( "addons/*", "GAME" )
 				for _, addon in ipairs( possibleaddons ) do
 					local name, author = nil, nil
@@ -121,8 +97,6 @@ if ULib.fileExists( "lua/ulx/modules/cl/motdmenu.lua" ) or ulx.motdmenu_exists t
 						table.insert( ulx.motdSettings.addons, { title=name, author=author } )
 					end
 				end
-
-				-- 方法3: gamemodes 目录 (TTT2/Murder 等以 gamemode 形式安装的插件)
 				local _, gamemodes = file.Find( "gamemodes/*", "GAME" )
 				for _, gm in ipairs( gamemodes ) do
 					local gmPath = "gamemodes/" .. gm
@@ -130,17 +104,14 @@ if ULib.fileExists( "lua/ulx/modules/cl/motdmenu.lua" ) or ulx.motdmenu_exists t
 						local t = ULib.parseKeyValues( ULib.stripComments( ULib.fileRead( gmPath .. "/addon.txt" ), "//" ) )
 						if t and t.AddonInfo then
 							local name = t.AddonInfo.name or gm
-							-- 排除 GMod 自带的基础 gamemode
 							if gm ~= "base" and gm ~= "sandbox" and gm ~= "terrortown" then
 								table.insert( ulx.motdSettings.addons, { title=name, author=t.AddonInfo.author_name } )
 							end
 						end
 					end
 				end
-
 				table.sort( ulx.motdSettings.addons, function(a,b) return string.lower(a.title) < string.lower(b.title) end )
 			end
-
 			for group, _ in pairs( ulx.motdSettings.admins ) do
 				ulx.motdSettings.admins[group] = {}
 				for steamID, data in pairs( ULib.ucl.users ) do
@@ -152,5 +123,4 @@ if ULib.fileExists( "lua/ulx/modules/cl/motdmenu.lua" ) or ulx.motdmenu_exists t
 		end
 		hook.Add( ULib.HOOK_UCLCHANGED, "ulx.updateMotd.adminsChanged", ulx.populateMotdData )
 	end
-
 end

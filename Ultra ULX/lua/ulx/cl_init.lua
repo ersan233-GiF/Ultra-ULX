@@ -1,11 +1,7 @@
--- Ultra ULX - Client initialization
--- 如果 Ultra ULX 已加载则跳过
 if ulx and ulx._ultra then return end
 ULib = ULib or {}
 ulx = ulx or {}
 ulx._ultra = true
-
--- ULib shared library
 include("ulx/shared/defines.lua")
 include("ulx/shared/misc.lua")
 include("ulx/shared/util.lua")
@@ -22,19 +18,13 @@ include("ulx/shared/plugin.lua")
 include("ulx/shared/cami_global.lua")
 include("ulx/shared/cami_ulib.lua")
 include("ulx/shared/language.lua")
-
--- ULX core
 include("ulx/shared/ulx_defines.lua")
 include("ulx/client/ulx_cl_lib.lua")
 include("ulx/shared/ulx_base.lua")
-
--- 道具注册表系统 (shared)
 include("ulx/items/init.lua")
 for _, f in ipairs( ulx.ITEM_FILES ) do
 	include( "ulx/items/" .. f )
 end
-
--- 硬编码模块清单，避免 file.Find 跨 addon 加载原版英文模块
 local function safeInclude(dir, file)
 	local ok, err = pcall(include, "ulx/modules/" .. dir .. "/" .. file)
 	if not ok then ErrorNoHalt("[ULX] Client module load failed: " .. file .. " - " .. tostring(err) .. "\n") end
@@ -47,8 +37,6 @@ local sh_modules = {
 }
 for _, f in ipairs(cl_modules) do safeInclude("cl", f) end
 for _, f in ipairs(sh_modules) do safeInclude("sh", f) end
-
--- Player auth system
 local needs_auth = {}
 hook.Add("OnEntityCreated", "ULibPlayerAuthCheck", function(ent)
 	if ent:IsPlayer() and needs_auth[ent:UserID()] then
@@ -56,14 +44,12 @@ hook.Add("OnEntityCreated", "ULibPlayerAuthCheck", function(ent)
 		needs_auth[ent:UserID()] = nil
 	end
 end, HOOK_MONITOR_HIGH)
-
 hook.Add("InitPostEntity", "ULibLocalPlayerReady", function()
 	if LocalPlayer():IsValid() then
 		hook.Call(ULib.HOOK_LOCALPLAYERREADY, _, LocalPlayer())
 		RunConsoleCommand("ulib_cl_ready")
 	end
 end, HOOK_MONITOR_HIGH)
-
 function authPlayerIfReady(ply, userid)
 	if ply and ply:IsValid() then
 		hook.Call(ULib.HOOK_UCLAUTH, _, ply)
@@ -71,22 +57,14 @@ function authPlayerIfReady(ply, userid)
 		needs_auth[userid] = true
 	end
 end
-
--- ===== 客户端文件同步：智能删除差异文件 + 重连下载 =====
--- GMod 中 file.Write 只能写 data/ 目录，无法修改 addons/ 下的挂载文件。
--- 因此正确方案是：仅删除哈希不匹配的核心文件，然后 retry 让 GMod 下载系统自动补齐。
 local syncState = { done = false, retryScheduled = false }
-
 net.Receive("ulx_file_sync_manifest", function()
 	if syncState.done then return end
 	if syncState.retryScheduled then return end
-
 	local serverVer = net.ReadString()
 	local fileCount = net.ReadUInt(16)
 	local deleteList = {}
-
 	local addonBase = "addons/Ultra ULX"
-
 	for _ = 1, fileCount do
 		local relPath = net.ReadString()
 		local serverCRC = net.ReadString()
@@ -96,14 +74,11 @@ net.Receive("ulx_file_sync_manifest", function()
 			deleteList[#deleteList + 1] = relPath
 		end
 	end
-
 	if #deleteList == 0 then
 		syncState.done = true
 		Msg("[ULX] 所有核心文件哈希一致，无需同步\n")
 		return
 	end
-
-	-- 只删除哈希不匹配的文件，保留其他文件
 	local deletedCount = 0
 	for _, relPath in ipairs(deleteList) do
 		local fullPath = addonBase .. "/" .. relPath
@@ -114,13 +89,10 @@ net.Receive("ulx_file_sync_manifest", function()
 			end
 		end)
 	end
-
-	-- 同时清理这些文件的编译缓存
 	pcall(function()
 		local cacheDir = "cache/lua"
 		if file.IsDir(cacheDir, "MOD") then
 			for _, f in ipairs(file.Find(cacheDir .. "/*", "MOD") or {}) do
-				-- 匹配缓存文件名中的 relPath 片段
 				for _, relPath in ipairs(deleteList) do
 					local cacheKey = relPath:gsub("/", "_"):gsub("%.lua$", "")
 					if f:find(cacheKey) then
@@ -131,13 +103,10 @@ net.Receive("ulx_file_sync_manifest", function()
 			end
 		end
 	end)
-
 	syncState.retryScheduled = true
 	Msg("[ULX] 删除了 " .. deletedCount .. " 个旧文件，重连下载新版本…\n")
 	timer.Simple(0.1, function() RunConsoleCommand("retry") end)
 end)
-
--- 接收版本号，触发文件同步检测
 local versionSynced = false
 net.Receive("ulx_version_check", function()
 	if versionSynced then return end
@@ -152,10 +121,3 @@ net.Receive("ulx_version_check", function()
 	net.Start("ulx_file_sync_manifest")
 	net.SendToServer()
 end)
-
-
--- ============================================
--- Ultra ULX - 旧数据导入客户端通知
--- 接收服务端的导入提示，自动弹框
--- ============================================
-

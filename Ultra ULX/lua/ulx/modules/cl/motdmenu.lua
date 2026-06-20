@@ -1,15 +1,12 @@
 ulx.motdmenu_exists = true
-
 local mode
 local url
-
 function ulx.showMotdMenu( steamid )
 	if mode == nil then
-		return -- No data provided
+		return
 	end
-
 	local window = vgui.Create( "DFrame" )
-	if ScrW() > 640 then -- Make it larger if we can.
+	if ScrW() > 640 then
 		window:SetSize( ScrW()*0.9, ScrH()*0.9 )
 	else
 		window:SetSize( 640, 480 )
@@ -18,36 +15,31 @@ function ulx.showMotdMenu( steamid )
 	window:SetTitle( ULib.ulx_lang.T("xgui_motd_title") )
 	window:SetVisible( true )
 	window:MakePopup()
-
 	local html = vgui.Create( "DHTML", window )
-	--html:SetAllowLua( true ) -- Too much of a security risk for us to enable. Feel free to uncomment if you know what you're doing.
-
 	local button = vgui.Create( "DButton", window )
 	button:SetText( ULib.ulx_lang.T("ui_close") )
 	button.DoClick = function() window:Close() end
 	button:SetSize( 100, 40 )
 	button:SetPos( (window:GetWide() - button:GetWide()) / 2, window:GetTall() - button:GetTall() - 10 )
-
 	html:SetSize( window:GetWide() - 20, window:GetTall() - button:GetTall() - 50 )
 	html:SetPos( 10, 30 )
-	if mode == "1" then -- file
+	if mode == "1" then
 		html:SetHTML( ULib.fileRead( "data/ultra_ulx/motd.txt" ) or "" )
-	elseif mode == "2" then -- generator
+	elseif mode == "2" then
 		html:SetHTML( ulx.generateMotdHTML() or "" )
-	else -- URL
+	else
 		url = string.gsub( url, "%%curmap%%", game.GetMap() )
 		url = string.gsub( url, "%%steamid%%", steamid )
 		html:OpenURL( url )
 	end
 end
-
 function ulx.rcvMotd( mode_, data )
 	mode = mode_
-	if mode == "1" then -- file
+	if mode == "1" then
 		ULib.fileWrite( "data/ultra_ulx/motd.txt", data )
-	elseif mode == "2" then -- generator
+	elseif mode == "2" then
 		ulx.motdSettings = data
-	else -- URL
+	else
 		if data:find( "://", 1, true ) then
 			url = data
 		else
@@ -55,7 +47,6 @@ function ulx.rcvMotd( mode_, data )
 		end
 	end
 end
-
 local template_header = [[
 <html>
 	<head>
@@ -132,48 +123,39 @@ local template_header = [[
 			</div>
 			<div class="page">
 ]]
-
 local template_section = [[
 				<div class="section">
 					<h2>%title%</h2>
 					%content%
 				</div>
 ]]
-
 local template_section_p = [[
 					<p>
 						%items%
 					</p>
 ]]
-
 local template_section_ol = [[
 					<ol>
 						%items%
 					</ol>
 ]]
-
 local template_section_ul = [[
 					<ul>
 						%items%
 					</ul>
 ]]
-
 local template_item_li = [[
 						<li>%content%</li>
 ]]
-
 local template_item_br = [[
 						%content%</br>
 ]]
-
 local template_item_addon = [[
 						<li><b>%title%</b> by %author%</li>
 ]]
-
 local template_item_workshop = [[
 						<li><b>%title%</b> - <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=%workshop_id%">在创意工坊查看</a></li>
 ]]
-
 local template_footer = [[
 			</div>
 			<div class="footer">
@@ -183,7 +165,6 @@ local template_footer = [[
 	</body>
 </html>
 ]]
-
 local template_error = [[
 <html>
 	<head>
@@ -195,11 +176,9 @@ local template_error = [[
 	</body>
 </html>
 ]]
-
 local function escape(str)
-	return (str:gsub("<", "&lt;"):gsub(">", "&gt;")) -- Wrapped in parenthesis so we ignore other return vals
+	return (str:gsub("<", "&lt;"):gsub(">", "&gt;"))
 end
-
 local function renderItemTemplate(items, template)
 	local output = ""
 	for i=1, #items do
@@ -207,7 +186,6 @@ local function renderItemTemplate(items, template)
 	end
 	return output
 end
-
 local function renderMods()
 	local output = ""
 	for a=1, #ulx.motdSettings.addons do
@@ -220,37 +198,27 @@ local function renderMods()
 			output = output .. string.gsub( item, "%%author%%", escape(addon.author or "") )
 		end
 	end
-
 	return output
 end
-
 function ulx.generateMotdHTML()
 	if ulx.motdSettings == nil or ulx.motdSettings.info == nil then return template_error end
-
 	local header = string.gsub( template_header, "%%hostname%%", escape(GetConVarString( "hostname" ) or "") )
 	header = string.gsub( header, "{{(.-)}}", function(a)
 		local success, value = ULib.findVar(a, ulx.motdSettings)
 		return escape( value or "")
 	end )
-
 	local body = ""
-
 	for i=1, #ulx.motdSettings.info do
 		local data = ulx.motdSettings.info[i]
 		local content = ""
-
 		if data.type == "text" then
 			content = string.gsub( template_section_p, "%%items%%", renderItemTemplate(data.contents, template_item_br) )
-
 		elseif data.type == "ordered_list" then
 			content = string.gsub( template_section_ol, "%%items%%", renderItemTemplate(data.contents, template_item_li) )
-
 		elseif data.type == "list" then
 			content = string.gsub( template_section_ul, "%%items%%", renderItemTemplate(data.contents, template_item_li) )
-
 		elseif data.type == "mods" then
 			content = string.gsub( template_section_ul, "%%items%%", renderMods() )
-
 		elseif data.type == "admins" then
 			local users = {}
 			for g=1, #data.contents do
@@ -264,10 +232,8 @@ function ulx.generateMotdHTML()
 			table.sort( users )
 			content = string.gsub( template_section_ul, "%%items%%", renderItemTemplate(users, template_item_li) )
 		end
-
 		local section = string.gsub( template_section, "%%title%%", escape(data.title or "") )
 		body = body .. string.gsub( section, "%%content%%", content )
 	end
-
 	return string.format( "%s%s%s", header, body, template_footer )
 end

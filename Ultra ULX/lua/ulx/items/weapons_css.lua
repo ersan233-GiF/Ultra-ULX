@@ -1,7 +1,4 @@
--- CSS 武器 — 显式启用后才注册 (lua_run ulx._enableCSS = true)
--- 确保 CSS Dedicated Server 内容已通过 SteamCMD 下载并正确挂载 VPK
 if not ulx._enableCSS then return end
-
 ulx.registerItems({
 	{ class = "weapon_hegrenade",   name = "手雷(CS)",   type = 2 },
 		{ class = "weapon_flashbang",   name = "闪光弹",     type = 2 },
@@ -30,4 +27,3 @@ ulx.registerItems({
 		{ class = "weapon_sg550",       name = "SG550",       type = 3 },
 		{ class = "weapon_m249",        name = "M249",        type = 3 },
 	}, "CSS武器")
-

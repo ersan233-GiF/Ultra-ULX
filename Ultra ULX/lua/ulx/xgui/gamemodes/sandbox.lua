@@ -1,13 +1,8 @@
--- Sandbox 设置模块 -- by Stickly Man!
--- 定义沙盒 cvar 限制和沙盒模式专属设置
 local Tsb = ULib.ulx_lang.T
-
 xgui.prepareDataType( "sboxlimits" )
 local sbox_settings = xlib.makepanel{ parent=xgui.null }
-
 local sidepanel = xlib.makescrollpanel{ x=5, y=5, w=160, h=322, spacing=4, parent=sbox_settings }
 sbox_settings.sideLabels = {}
-
 local function addSbCheckbox( key, convar, repconvar, marginTop )
 	local cb = xlib.makecheckbox{ dock=TOP, dockmargin={0,marginTop or 0,0,0}, label=Tsb(key), convar=convar, repconvar=repconvar, parent=sidepanel }
 	table.insert( sbox_settings.sideLabels, { panel=cb, key=key } )
@@ -19,7 +14,6 @@ local function addSbLabel( key, marginTop, opts )
 	table.insert( sbox_settings.sideLabels, { panel=lbl, key=key } )
 	return lbl
 end
-
 addSbCheckbox("sb_weapons_spawn", xlib.ifListenHost("sbox_weapons"), xlib.ifNotListenHost("rep_sbox_weapons"))
 addSbCheckbox("sb_godmode", xlib.ifListenHost("sbox_godmode"), xlib.ifNotListenHost("rep_sbox_godmode"), 5)
 addSbCheckbox("sb_pvp", xlib.ifListenHost("sbox_playershurtplayers"), xlib.ifNotListenHost("rep_sbox_playershurtplayers"), 20)
@@ -43,9 +37,7 @@ xlib.makeslider{ dock=TOP, dockmargin={0,2,5,0}, label="<--->", w=125, min=0, ma
 addSbLabel("sb_persist_file", 20, { w=138 })
 xlib.maketextbox{ h=25, dock=TOP, dockmargin={0,5,5,0}, label=Tsb("sb_persist_props"), convar=xlib.ifListenHost("sbox_persist"), repconvar=xlib.ifNotListenHost("rep_sbox_persist"), parent=sidepanel }
 addSbLabel("sb_note", 20, { w=138, wordwrap=true })
-
 sbox_settings.plist = xlib.makelistlayout{ x=170, y=5, h=322, w=410, spacing=1, padding=2, parent=sbox_settings }
-
 function sbox_settings.processLimits()
 	sbox_settings.plist:Clear()
 	for g, limits in ipairs( xgui.data.sboxlimits ) do
@@ -53,7 +45,7 @@ function sbox_settings.processLimits()
 			local panel = xlib.makepanel{ dockpadding={ 0,0,0,5 } }
 			local i=0
 			for _, cvar in ipairs( limits ) do
-				local cvardata = cvar:Explode( " " ) -- 分割cvar名称和最大限制值
+				local cvardata = cvar:Explode( " " )
 				xgui.queueFunctionCall( xlib.makelabel, "sboxlimits", { x=10+(i%2*195), y=5+math.floor(i/2)*40, w=185, label="最大 " .. cvardata[1]:sub(9), parent=panel } )
 				xgui.queueFunctionCall( xlib.makeslider, "sboxlimits", { x=10+(i%2*195), y=20+math.floor(i/2)*40, w=185, label="<--->", min=0, max=cvardata[2], convar=xlib.ifListenHost(cvardata[1]), repconvar=xlib.ifNotListenHost("rep_"..cvardata[1]), parent=panel, fixclip=true } )
 				i = i + 1
@@ -63,9 +55,7 @@ function sbox_settings.processLimits()
 	end
 end
 sbox_settings.processLimits()
-
 xgui.hookEvent( "sboxlimits", "process", sbox_settings.processLimits, "sandboxProcessLimits" )
--- 语言刷新：更新沙盒侧面板标签
 xgui.registerRefresh( "sandbox", function()
 	xgui.refreshLabels( sbox_settings.sideLabels )
 end )

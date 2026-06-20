@@ -1,7 +1,4 @@
--- This file populates the data folder. We can't just ship these files, because Steam Workshop disallows that.
-
 local files = {}
-
 files["adverts.txt"] =
 [[; Here's where you put advertisements
 ;
@@ -26,7 +23,6 @@ files["adverts.txt"] =
 ;         "time" "300"
 ;     }
 ; }
-
 {
 	"text" "您正在 %host% 上游玩，祝您愉快！"
 	"red" "100"
@@ -40,7 +36,6 @@ files["adverts.txt"] =
 	"time" "635"
 }
 ]]
-
 files["banmessage.txt"] = [[
 ; Possible variables here are as follows:
 ; {{BANNED_BY}} - The person (and steamid) who initiated the ban
@@ -50,16 +45,9 @@ files["banmessage.txt"] = [[
 ; {{STEAMID}} - The banned player's Steam ID (excluding non-number characters)
 ; {{STEAMID64}} - The banned player's 64-bit Steam ID
 ; The two steam ID variables are useful for constructing URLs for appealing bans
--------===== [ BANNED ] =====-------
-
----= Reason =---
 {{REASON}}
-
----= Time Left =---
 {{TIME_LEFT}}
 ]]
-
-
 files["banreasons.txt"] =
 [[; This file is used to store default reasons for kicking and banning users.
 ; These reasons show up in console autocomplete and in XGUI dropdowns.
@@ -70,7 +58,6 @@ Griefer
 Foul language
 Disobeying the rules
 ]]
-
 files["config.txt"] =
 [[;Any of the settings in here can be added to the per-map or per-gamemode configs.
 ;To add per-map and per-gamemode configs, create data/ultra_ulx/maps/<mapname>/config.txt
@@ -79,7 +66,6 @@ files["config.txt"] =
 ;All configurations add to each other except gimps and votemaps, which takes the most
 ;specific config only.
 ;Any line starting with a ';' is a comment!
-
 ulx showMotd 2 ; MOTD mode
 ; MOTD modes:
 ; 0 - OFF No MOTD shown
@@ -89,17 +75,11 @@ ulx showMotd 2 ; MOTD mode
 ; In a URL, you can use %curmap% and %steamid% in the URL to have it automagically parsed for you (eg, server.com/?map=%curmap%&id=%steamid%).
 ulx motdfile ulx_motd.txt ; The MOTD to show, if using a file. Put this file in the root of the garry's mod directory.
 ulx motdurl ulyssesmod.net ; The MOTD to show, if using a URL.
-
-
 ulx chattime 0 ; Players can only chat every x seconds (anti-spam). 0 to disable
 ulx meChatEnabled 1 ; Allow players to use '/me' in chat. 0 = Disabled, 1 = Sandbox only (Default), 2 = Enabled
-
-
 ; This is what the players will see when they join, set it to "" to disable.
 ; You can use %host% and %curmap% in your text and have it automagically parsed for you
 ulx welcomemessage "欢迎来到 %host%！我们正在玩 %curmap%。"
-
-
 ulx logFile 1 ; Log to file (Can still echo if off). This is a global setting, nothing will be logged to file with this off.
 ulx logEvents 1 ; Log events (player connect, disconnect, death)
 ulx logChat 1 ; Log player chat
@@ -112,7 +92,6 @@ ulx logEcho 1 ; Echo mode
 ; 0 - OFF No output to any players when an admin command is used
 ; 1 - ANONYMOUS Output to players without access to see who used the command (admins by default) similar to "(Someone) slapped Bob with 0 damage"
 ; 2 - FULL Output to players similar to "Foo slapped Bob with 0 damage"
-
 ulx logEchoColors 1 ; Whether or not echoed commands in chat are colored
 ulx logEchoColorDefault "60 160 240" ; The default text color (RGB)
 ulx logEchoColorConsole "0 0 0" ; The color that Console gets when using actions
@@ -121,7 +100,6 @@ ulx logEchoColorEveryone "0 128 128" ; The color to use when everyone is targete
 ulx logEchoColorPlayerAsGroup 1 ; Whether or not to use group colors for players. If false, it uses the color below.
 ulx logEchoColorPlayer "255 255 0" ; The color to use for players when ulx logEchoColorPlayerAsGroup is set to 0.
 ulx logEchoColorMisc "0 255 0" ; The color for anything else in echoes
-
 ulx rslotsMode 0
 ulx rslots 2
 ulx rslotsVisible 1 ; When this is 0, sv_visiblemaxplayers will be set to maxplayers - slots_currently_reserved
@@ -130,26 +108,22 @@ ulx rslotsVisible 1 ; When this is 0, sv_visiblemaxplayers will be set to maxpla
 ;1 - Keep # of slots reserved for admins, admins fill slots.
 ;2 - Keep # of slots reserved for admins, admins don't fill slots, they'll be freed when a player leaves.
 ;3 - Always keep 1 slot open for admins, kick the user with the shortest connection time if an admin joins.
-
 ;Difference between 1 and 2:
 ;I realize it's a bit confusing, so here's an example.
-;On mode 1--
+;On mode 1
 ;	You have maxplayers set to 10, rslots set to 2, and there are currently 8 non-admins connected.
 ;	If a non-admin tries to join, they'll be kicked to keep the reserved slots open. Two admins join
 ;	and fill the two reserved slots. When non-admins leave, the two admins will still be filling the
 ;	two reserved slots, so another regular player can join and fill the server up again without being
 ;	kicked by the slots system
-
-;On mode 2--
+;On mode 2
 ;	Same setup as mode 1, you have the two admins in the server and the server is full. Now, when a
 ;	non-admin leaves the server, reserved slots will pick up the slot again as reserved. If a regular
 ;	player tries to join and fill the server again, even though there are two admins connected, it will
 ;	kick the regular player to keep the slot open
-
 ;So, the basic difference between these two is mode 1 will subtract currently connected admins from the slot
 ;pool, while mode 2 while always be attempting to reclaim slots if it doesn't currently have enough when
 ;players leave no matter how many admins are connected.
-
 ;rslotsVisible:
 ;	If you set this variable to 0, ULX will automatically change sv_visiblemaxplayers for you so that if
 ;	there are no regular player slots available in your server, it will appear that the server is full.
@@ -157,9 +131,6 @@ ulx rslotsVisible 1 ; When this is 0, sv_visiblemaxplayers will be set to maxpla
 ;	when it appears full. Instead, they have to go to console and use the command "connect <ip>".
 ;	NOTE THIS DOES NOT CHANGE YOUR MAXPLAYERS VARIABLE, ONLY HOW MANY MAXPLAYERS IT _LOOKS_ LIKE YOUR
 ;	SERVER HAS. YOU CAN NEVER, EVER HAVE MORE PLAYERS IN YOUR SERVER THAN THE MAXPLAYERS VARIABLE.
-
-
-
 ulx votemapEnabled 1 ; Enable/Disable the entire votemap command
 ulx votemapMintime 10 ; Time after map change before votes count.
 ulx votemapWaittime 5 ; Time before a user must wait before they can change their vote.
@@ -167,29 +138,23 @@ ulx votemapSuccessratio 0.4 ; Ratio of (votes for map)/(total players) needed to
 ulx votemapMinvotes 3 ; Number of minimum votes needed to change map (Prevents llamas). This supersedes the above convar on small servers.
 ulx votemapVetotime 30 ; Time in seconds an admin has after a successful votemap to veto the vote. Set to 0 to disable.
 ulx votemapMapmode 1 ; 1 = Use all maps but what's specified in votemaps.txt, 2 = Use only the maps specified in votemaps.txt.
-
 ulx voteEcho 0 ; 1 = Echo what every player votes (this does not apply to votemap). 0 = Don't echo
-
 ulx votemap2Successratio 0.5 ; Ratio of (votes for map)/(total players) needed to change map. (Rounds up)
 ulx votemap2Minvotes 3 ; Number of minimum votes needed to change map (Prevents llamas). This supersedes the above convar on small servers.
-
 ulx votekickSuccessratio 0.6 ; Ratio of (votes for kick)/(total players) needed to kick player. (Rounds up)
 ulx votekickMinvotes 2 ; Number of minimum votes needed to kick player (Prevents llamas). This supersedes the above convar on small servers.
-
 ulx votebanSuccessratio 0.7 ; Ratio of (votes for ban)/(total players) needed to ban player. (Rounds up)
 ulx votebanMinvotes 3 ; Number of minimum votes needed to ban player (Prevents llamas). This supersedes the above convar on small servers.
 ]]
-
 files["downloads.txt"] =
 [[; You can add forced downloads here. Add as many as you want, one file or
 ; folder per line. You can also add these to your map- or game-specific files.
 ; You can add a folder to add all files inside that folder recursively.
 ; Any line starting with ';' is a comment and WILL NOT be processed!!!
 ; Examples:
-;sound/cheeseman.mp3 <-- Adds the file 'cheeseman.mp3' under the sound folder
-;sound/my_music <-- Adds all files within the my_music folder, inside the sound folder
+;sound/cheeseman.mp3 <
+;sound/my_music <
 ]]
-
 files["gimps.txt"] =
 [[; Add gimp says in this file, one per line.
 ; Any line starting with a ';' is a comment
@@ -203,7 +168,6 @@ I'm a soulless approximation of a cheese danish!
 Hold up guys, I'm watching The Powerpuff Girls.
 Not yet, I'm being attacked by an... OH CRAP!
 ]]
-
 files["sbox_limits.txt"] =
 [[;The number by each cvar indicates the maximum value for the slider in XGUI.
 |Sandbox
@@ -377,7 +341,6 @@ sbox_maxwire_wheels 30
 sbox_maxwire_wirers 25
 sbox_maxwire_xyzbeacons 25
 ]]
-
 files["votemaps.txt"] =
 [[; List of maps that are either included in the votemap command or excluded from it
 ; Make sure to set votemapMapmode in config.txt to what you want.
@@ -393,7 +356,6 @@ intro
 test_hardware
 test_speakers
 ]]
-
 files["motd.txt"] =
 [[; These settings describe the default configuration and text to be shown on the MOTD. This only applies if ulx showMotd is set to 1.
 ; All style configuration is set, and the values must be valid CSS.
@@ -401,7 +363,6 @@ files["motd.txt"] =
 ; Special type "mods" will automatically list workshop and regular addons in an unordered list.
 ; Special type "admins" will automatically list all users within the groups specified in contents.
 ; For an example of all of these items, please see the default file generated in ulx\lua\data.lua
-
 "info"
 {
 	"description" "欢迎来到我们的服务器，祝您玩得愉快！"
@@ -492,12 +453,11 @@ files["motd.txt"] =
 	}
 }
 ]]
-
-ULib.fileCreateDir( "data/ultra_ulx" ) -- This is ignored if the folder already exists
+ULib.fileCreateDir( "data/ultra_ulx" )
 for filename, content in pairs( files ) do
 	local filepath = "data/ultra_ulx/" .. filename
 	if not ULib.fileExists( filepath, true ) then
 		ULib.fileWrite( filepath, content )
 	end
 end
-files = nil -- Cleanup
+files = nil

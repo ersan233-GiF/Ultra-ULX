@@ -1,14 +1,9 @@
---Commands module (formerly players module) v2 for ULX GUI -- by Stickly Man!
---Handles all user-executable commands, such as kick, slay, ban, etc.
-
 local cmds = xlib.makepanel{ parent=xgui.null }
 cmds.selcmd = nil
 cmds.mask = xlib.makepanel{ x=160, y=30, w=425, h=330, parent=cmds }
 cmds.argslist = xlib.makelistlayout{ w=165, h=330, parent=cmds.mask }
 cmds.argslist.secondaryPos = nil
-
 cmds.argslist.scroll:SetVisible( false )
-
 function cmds.argslist:Open( cmd, secondary )
 	if secondary then
 		if cmds.plist.open then
@@ -42,7 +37,6 @@ end
 cmds.plist:SetVisible( false )
 cmds.plist:AddColumn( ULib.ulx_lang.T("ui_player_name") )
 cmds.plist:AddColumn( ULib.ulx_lang.T("ui_user_group") )
-
 cmds.cmds = xlib.makelistlayout{ x=5, y=30, w=150, h=330, parent=cmds, padding=1, spacing=1 }
 cmds.setselected = function( selcat, LineID )
 	if selcat.Lines[LineID]:GetColumnText(2) == cmds.selcmd then
@@ -52,21 +46,16 @@ cmds.setselected = function( selcat, LineID )
 		cmds.selcmd = nil
 		return
 	end
-
 	for _, cat in pairs( cmds.cmd_contents ) do
 		if cat ~= selcat then
 			cat:ClearSelection()
 		end
 	end
 	cmds.selcmd = selcat.Lines[LineID]:GetColumnText(2)
-
 	if cmds.permissionChanged then cmds.refreshPlist() return end
-
 	if xlib.animRunning then xlib.animQueue_forceStop() end
-
 	local cmd = ULib.cmds.translatedCmds[cmds.selcmd]
 	if cmd.args[2] and ( cmd.args[2].type == ULib.cmds.PlayersArg or cmd.args[2].type == ULib.cmds.PlayerArg ) then
-		-- 道具同款展开：同时拉出玩家列表和参数面板
 		cmds.plist:Open( cmd.args[2] )
 		xlib.addToAnimQueue( function()
 			if cmds.argslist.open then cmds.argslist:Close() end
@@ -77,32 +66,26 @@ cmds.setselected = function( selcat, LineID )
 	end
 	xlib.animQueue_start()
 end
-
 function cmds.refreshPlist( arg )
 	if not arg then arg = ULib.cmds.translatedCmds[cmds.selcmd].args[2] end
 	if not arg or ( arg.type ~= ULib.cmds.PlayersArg and arg.type ~= ULib.cmds.PlayerArg ) then return end
-
 	local lastplys = {}
 	for k, Line in pairs( cmds.plist.Lines ) do
 		if ( Line:IsLineSelected() ) then table.insert( lastplys, Line:GetColumnText(1) ) end
 	end
-
 	local targets = cmds.calculateValidPlayers( arg )
-
 	cmds.plist:Clear()
 	cmds.plist:SetMultiSelect( arg.type == ULib.cmds.PlayersArg )
-
 	for _, ply in ipairs( targets ) do
 		local line = cmds.plist:AddLine( ply:Nick(), xgui.translateGroup( ply:GetUserGroup() ) )
 		line.ply = ply
 		line.OnSelect = function()
 			if cmds.permissionChanged then return end
-
 			if not xlib.animRunning and not cmds.argslist.open then
 				cmds.argslist:Open( ULib.cmds.translatedCmds[cmds.selcmd], false )
 				xlib.animQueue_start( )
 			else
-				if not cmds.clickedFlag then --Prevent this from happening multiple times.
+				if not cmds.clickedFlag then
 					cmds.clickedFlag = true
 					xlib.addToAnimQueue( function() if not cmds.argslist.open then
 						cmds.argslist:Open( ULib.cmds.translatedCmds[cmds.selcmd], false ) end
@@ -110,22 +93,16 @@ function cmds.refreshPlist( arg )
 				end
 			end
 		end
-
-		--Select previously selected Lines
 		if table.HasValue( lastplys, ply:Nick() ) then
 			cmds.plist:SelectItem( line )
 		end
 	end
-
 	cmds.plist:SortByColumn( 1, false )
-
-	--Select only the first item if multiselect is disabled.
 	if not cmds.plist:GetMultiSelect() then
 		local firstSelected = cmds.plist:GetSelected()[1]
 		cmds.plist:ClearSelection()
 		cmds.plist:SelectItem( firstSelected )
 	end
-
 	if not cmds.plist:GetSelectedLine() then
 		if not xlib.animRunning then
 			if cmds.argslist.open then
@@ -139,34 +116,24 @@ function cmds.refreshPlist( arg )
 		end
 	end
 end
-
 function cmds.calculateValidPlayers( arg )
 	if not arg then arg = ULib.cmds.translatedCmds[cmds.selcmd].args[2] end
-
 	local access, tag = LocalPlayer():query( arg.cmd )
 	local restrictions = {}
 	ULib.cmds.PlayerArg.processRestrictions( restrictions, LocalPlayer(), arg, ulx.getTagArgNum( tag, 1 ) )
-
 	local targets = restrictions.restrictedTargets
-	if targets == false then -- No one allowed
+	if targets == false then
 		targets = {}
-	elseif targets == nil then -- Everyone allowed
+	elseif targets == nil then
 		targets = player.GetAll()
 	end
 	return targets
 end
-
 function cmds.buildArgsList( cmd )
 	cmds.argslist:Clear()
 	cmds.curargs = {}
 	local argnum = 0
 	local zpos = 0
-
-
-
-
-
-
 	local expectingplayers = cmd.args[2] and ( ( cmd.args[2].type == ULib.cmds.PlayersArg ) or ( cmd.args[2].type == ULib.cmds.PlayerArg ) ) or false
 	for _, arg in ipairs( cmd.args ) do
 		if not arg.type.invisible then
@@ -174,7 +141,7 @@ function cmds.buildArgsList( cmd )
 			if not ( argnum == 1 and expectingplayers ) then
 				if arg.invisible ~= true then
 					local curitem = arg
-					if curitem.repeat_min then --This command repeats!
+					if curitem.repeat_min then
 						local panel = xlib.makepanel{ h=20, parent=cmds.argslist }
 						local choices = {}
 						panel.argnum = argnum
@@ -242,8 +209,6 @@ function cmds.buildArgsList( cmd )
 		cmds.argslist:Add( panel )
 		panel:SetZPos( zpos )
 		zpos = zpos + 1
-
-		-- 处决类指令：追加"处决并复活"按钮
 		local executionCmds = { ["ulx slay"]=true, ["ulx explode"]=true, ["ulx rocket"]=true, ["ulx ignite"]=true }
 		if executionCmds[ cmd.cmd ] then
 			local revivePanel = xlib.makebutton{ label=btnLabel .. " + 复活", parent=cmds.argslist }
@@ -270,7 +235,7 @@ function cmds.buildArgsList( cmd )
 		panel:SetZPos( zpos )
 		zpos = zpos + 1
 	end
-	if cmd.helpStr then -- Command help text (try translation first)
+	if cmd.helpStr then
 		local helpText = xgui.translateHelp( cmd.cmd ) or cmd.helpStr
 		local panel = xlib.makelabel{ w=160, label=helpText, wordwrap=true, parent=cmds.argslist }
 		panel.xguiIgnore = true
@@ -279,7 +244,6 @@ function cmds.buildArgsList( cmd )
 		zpos = zpos + 1
 	end
 end
-
 function cmds.runCmd( cmd )
 	local cmd = string.Explode( " ", cmd )
 	if cmds.plist:IsVisible() then
@@ -288,10 +252,9 @@ function cmds.runCmd( cmd )
 			table.insert( plys, "$" .. ULib.getUniqueIDForPlayer( line.ply ) )
 			table.insert( plys, "," )
 		end
-		table.remove( plys ) --Removes the final comma
+		table.remove( plys )
 		table.insert( cmd, table.concat( plys ) )
 	end
-
 	for _, arg in ipairs( cmds.curargs ) do
 		if not arg.xguiIgnore then
 			table.insert( cmd, arg:GetValue() )
@@ -299,7 +262,6 @@ function cmds.runCmd( cmd )
 	end
 	RunConsoleCommand( unpack( cmd ) )
 end
-
 function cmds.playerNameChanged( ply, old, new )
 	for i, line in ipairs( cmds.plist.Lines ) do
 		if line:GetColumnText(1) == old then
@@ -307,7 +269,6 @@ function cmds.playerNameChanged( ply, old, new )
 		end
 	end
 end
-
 cmds.refresh = function( permissionChanged )
 	local lastcmd = cmds.selcmd
 	cmds.cmds:Clear()
@@ -315,7 +276,6 @@ cmds.refresh = function( permissionChanged )
 	cmds.expandedcat = nil
 	cmds.selcmd = nil
 	cmds.permissionChanged = true
-
 	local newcategories = {}
 	local sortcategories = {}
 	local matchedCmdFound = false
@@ -325,7 +285,6 @@ cmds.refresh = function( permissionChanged )
 			local catname = data.category
 			if catname == nil or catname == "" then catname = "_Uncategorized" end
 			if not cmds.cmd_contents[catname] then
-				--Make a new category
 				cmds.cmd_contents[catname] = xlib.makelistview{ headerheight=0, multiselect=false, h=136 }
 				cmds.cmd_contents[catname].OnRowSelected = function( self, LineID ) cmds.setselected( self, LineID ) end
 				cmds.cmd_contents[catname]:AddColumn( "" )
@@ -369,7 +328,6 @@ cmds.refresh = function( permissionChanged )
 			xlib.animQueue_start()
 		end
 	end
-
 	table.sort( sortcategories )
 	for _, catname in ipairs( sortcategories ) do
 		local cat = newcategories[catname]
@@ -379,19 +337,13 @@ cmds.refresh = function( permissionChanged )
 	end
 	cmds.permissionChanged = nil
 end
-
---------------
---ANIMATIONS--
---------------
 function cmds.plist:openAnim( arg )
 	xlib.addToAnimQueue( cmds.refreshPlist, arg )
 	xlib.addToAnimQueue( "pnlSlide", { panel=self, startx=-250, starty=0, endx=0, endy=0, setvisible=true } )
 end
-
 function cmds.plist:closeAnim()
 	xlib.addToAnimQueue( "pnlSlide", { panel=self, startx=0, starty=0, endx=-250, endy=0, setvisible=false } )
 end
-
 function cmds.argslist:openAnim( cmd, secondary )
 	xlib.addToAnimQueue( function() cmds.argslist.secondaryPos = secondary end )
 	xlib.addToAnimQueue( cmds.buildArgsList, cmd )
@@ -401,7 +353,6 @@ function cmds.argslist:openAnim( cmd, secondary )
 		xlib.addToAnimQueue( "pnlSlide", { panel=self.scroll, startx=80, starty=0, endx=255, endy=0, setvisible=true } )
 	end
 end
-
 function cmds.argslist:closeAnim( secondary )
 	if secondary then
 		xlib.addToAnimQueue( "pnlSlide", { panel=self.scroll, startx=0, starty=0, endx=-170, endy=0, setvisible=false } )
@@ -410,16 +361,11 @@ function cmds.argslist:closeAnim( secondary )
 	end
 	xlib.addToAnimQueue( function() cmds.argslist.secondaryPos = nil end )
 end
-------------
-
--- 立即尝试刷新（仅当认证已完成时），否则等待 UCLChanged 钩子触发
 if game.SinglePlayer() or ULib.ucl.authed[LocalPlayer():UniqueID()] then
 	cmds.refresh()
 end
 hook.Add( "UCLChanged", "xgui_RefreshPlayerCmds", cmds.refresh )
 hook.Add( "ULibPlayerNameChanged", "xgui_plyUpdateCmds", cmds.playerNameChanged )
-
--- 语言刷新: 仅更新文本不重建结构
 function cmds.refreshTexts()
 	if not cmds.cmd_contents then return end
 	for catname, listView in pairs( cmds.cmd_contents ) do
@@ -439,7 +385,6 @@ function cmds.refreshTexts()
 		local c1 = cmds.plist.Columns[1]; if c1 and c1.Header then c1.Header:SetText( xgui.T("ui_player_name") ) end
 		local c2 = cmds.plist.Columns[2]; if c2 and c2.Header then c2.Header:SetText( xgui.T("ui_user_group") ) end
 	end
-	-- 实时刷新玩家列表行中的用户组翻译
 	if cmds.plist and cmds.plist.Lines then
 		for _, line in ipairs( cmds.plist.Lines ) do
 			if line.ply and line.ply:IsValid() then
@@ -449,5 +394,4 @@ function cmds.refreshTexts()
 	end
 end
 xgui.registerRefresh( "commands", cmds.refreshTexts )
-
 xgui.addModule( "commands", cmds, "icon16/user_gray.png" )

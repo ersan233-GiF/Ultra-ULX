@@ -1,18 +1,13 @@
---sv_groups -- by Stickly Man!
---Server-side code related to the settings menu.
-
 local settings = {}
 function settings.init()
 	ULib.ucl.registerAccess( "xgui_gmsettings", "superadmin", "允许在 XGUI 设置标签页中更改游戏模式相关设置。", "XGUI" )
 	ULib.ucl.registerAccess( "xgui_svsettings", "superadmin", "允许在 XGUI 设置标签页中更改服务器和 ULX 相关设置。", "XGUI" )
-
 	xgui.addDataType( "gimps", function() return ulx.gimpSays end, "xgui_svsettings", 0, -10 )
 	xgui.addDataType( "adverts", function() return ulx.adverts end, "xgui_svsettings", 0, -10 )
 	xgui.addDataType( "banreasons", function() return ulx.common_kick_reasons end, "ulx ban", 0, -10 )
 	xgui.addDataType( "votemaps", function() return settings.votemaps end, nil, 0, -20 )
 	xgui.addDataType( "motdsettings", function() return ulx.motdSettings end, nil, 0, -20 )
 	xgui.addDataType( "banmessage", function() return {message=ULib.BanMessage} end, nil, 0, 0 )
-
 	ULib.replicatedWritableCvar( "sv_alltalk", "rep_sv_alltalk", GetConVarNumber( "sv_alltalk" ), false, false, "xgui_svsettings" )
 	ULib.replicatedWritableCvar( "sv_voiceenable", "rep_sv_voiceenable", GetConVarNumber( "sv_voiceenable" ), false, false, "xgui_svsettings" )
 	ULib.replicatedWritableCvar( "ai_disabled", "rep_ai_disabled", GetConVarNumber( "ai_disabled" ), false, false, "xgui_svsettings" )
@@ -30,7 +25,6 @@ function settings.init()
 	ULib.replicatedWritableCvar( "gmod_maxammo", "rep_gmod_maxammo", GetConVarNumber( "gmod_maxammo" ), false, false, "xgui_svsettings" )
 	ULib.replicatedWritableCvar( "gmod_physiterations", "rep_gmod_physiterations", GetConVarNumber( "gmod_physiterations" ), false, false, "xgui_svsettings" )
 	ULib.replicatedWritableCvar( "sv_timeout", "rep_sv_timeout", GetConVarNumber( "sv_timeout" ), false, false, "xgui_svsettings" )
-
 	function settings.addGimp( ply, args )
 		if ULib.ucl.query( ply, "xgui_svsettings" ) then
 			ulx.addGimpSay( args[1] )
@@ -39,7 +33,6 @@ function settings.init()
 		end
 	end
 	xgui.addCmd( "addGimp", settings.addGimp )
-
 	function settings.removeGimp( ply, args )
 		if ULib.ucl.query( ply, "xgui_svsettings" ) then
 			for a, b in ipairs( ulx.gimpSays ) do
@@ -53,20 +46,15 @@ function settings.init()
 		end
 	end
 	xgui.addCmd( "removeGimp", settings.removeGimp )
-
 	function settings.saveGimps()
 		local orig_file = ULib.fileRead( "data/ultra_ulx/gimps.txt" )
 		local comment = xgui.getCommentHeader( orig_file )
-
 		local new_file = comment
-
 		for i, gimpSay in ipairs( ulx.gimpSays ) do
 			new_file = new_file .. gimpSay .. "\n"
 		end
-
 		ULib.fileWrite( "data/ultra_ulx/gimps.txt", new_file )
 	end
-
 	function settings.addBanReason( ply, args )
 		if ULib.ucl.query( ply, "xgui_svsettings" ) then
 			ulx.addKickReason( args[1] )
@@ -75,7 +63,6 @@ function settings.init()
 		end
 	end
 	xgui.addCmd( "addBanReason", settings.addBanReason )
-
 	function settings.removeBanReason( ply, args )
 		if ULib.ucl.query( ply, "xgui_svsettings" ) then
 			for a, b in ipairs( ulx.common_kick_reasons ) do
@@ -89,21 +76,15 @@ function settings.init()
 		end
 	end
 	xgui.addCmd( "removeBanReason", settings.removeBanReason )
-
 	function settings.saveBanReasons()
 		local orig_file = ULib.fileRead( "data/ultra_ulx/banreasons.txt" )
 		local comment = xgui.getCommentHeader( orig_file )
-
 		local new_file = comment
-
 		for i, banReason in ipairs( ulx.common_kick_reasons ) do
 			new_file = new_file .. banReason .. "\n"
 		end
-
 		ULib.fileWrite( "data/ultra_ulx/banreasons.txt", new_file )
 	end
-
-	--[1]Message, [2]Delay, [3]GroupName/number, [4]Red, [5]Green, [6]Blue, [7]Length, [8]Hold
 	function settings.addAdvert( ply, args )
 		if ULib.ucl.query( ply, "xgui_svsettings" ) then
 			if args[3] == "<No Group>" then args[3] = nil end
@@ -116,9 +97,6 @@ function settings.init()
 		end
 	end
 	xgui.addCmd( "addAdvert", settings.addAdvert )
-
-	--[1]Old GroupType, [2]Old GroupName, [3]Old Number (order in group)
-	--[4]New Message, [5]New Repeat, [6]New Red, [7]New Green, [8]New Blue, [9]New Length
 	 function settings.updateAdvert( ply, args )
 		if ULib.ucl.query( ply, "xgui_svsettings" ) then
 			local group = ( args[1] == "number" ) and tonumber( args[2] ) or args[2]
@@ -133,8 +111,6 @@ function settings.init()
 		end
 	end
 	xgui.addCmd( "updateAdvert", settings.updateAdvert )
-
-	--[1]Old GroupType, [2]Old GroupName, [3]Old Number, [4]New Number
 	function settings.moveAdvert( ply, args )
 		if ULib.ucl.query( ply, "xgui_svsettings" ) then
 			local group = ( args[1] == "number" ) and tonumber( args[2] ) or args[2]
@@ -147,7 +123,6 @@ function settings.init()
 		end
 	end
 	xgui.addCmd( "moveAdvert", settings.moveAdvert )
-
 	function settings.renameAdvertGroup( ply, args )
 		if ULib.ucl.query( ply, "xgui_svsettings" ) then
 			local old = args[1]
@@ -161,8 +136,6 @@ function settings.init()
 		end
 	end
 	xgui.addCmd( "renameAdvertGroup", settings.renameAdvertGroup )
-
-	--[1]GroupName, [2]Number, [3]GroupType, [4]"Ignore"
 	function settings.removeAdvert( ply, args, hold )
 		if ULib.ucl.query( ply, "xgui_svsettings" ) then
 			if args[4] == "hold" then hold = true end
@@ -172,7 +145,7 @@ function settings.init()
 				ulx.adverts[group].removed_last = true
 			end
 			table.remove( ulx.adverts[group], number )
-			if #ulx.adverts[group] == 0 then --Remove the existing group if no other adverts exist
+			if #ulx.adverts[group] == 0 then
 				ulx.adverts[group] = nil
 				timer.Remove( "ULXAdvert" .. type( group ) .. group )
 			end
@@ -183,7 +156,6 @@ function settings.init()
 		end
 	end
 	xgui.addCmd( "removeAdvert", settings.removeAdvert )
-
 	function settings.removeAdvertGroup( ply, args, hold )
 		if ULib.ucl.query( ply, "xgui_svsettings" ) then
 			local group = ( args[2] == "number" ) and tonumber( args[1] ) or args[1]
@@ -197,33 +169,28 @@ function settings.init()
 		end
 	end
 	xgui.addCmd( "removeAdvertGroup", settings.removeAdvertGroup )
-
 	function settings.saveAdverts()
 		local orig_file = ULib.fileRead( "data/ultra_ulx/adverts.txt" )
 		local comment = xgui.getCommentHeader( orig_file )
 		local new_file = comment
-
 		for group_name, group_data in pairs( ulx.adverts ) do
 			local output = ""
 			for i, data in ipairs( group_data ) do
-				if not data.len then -- Must be a tsay advert
+				if not data.len then
 					output = output .. string.format( '{\n\t"text" %q\n\t"red" %q\n\t"green" %q\n\t"blue" %q\n\t"time" %q\n}\n',
 						data.message, data.color.r, data.color.g, data.color.b, data.rpt )
-				else -- Must be a csay advert
+				else
 					output = output .. string.format( '{\n\t"text" %q\n\t"red" %q\n\t"green" %q\n\t"blue" %q\n\t"time_on_screen" %q\n\t"time" %q\n}\n',
 						data.message, data.color.r, data.color.g, data.color.b, data.len, data.rpt )
 				end
 			end
-
 			if type( group_name ) ~= "number" then
 				output = string.format( "%q\n{\n\t%s}\n", group_name, output:gsub( "\n", "\n\t" ) )
 			end
 			new_file = new_file .. output
 		end
-
 		ULib.fileWrite( "data/ultra_ulx/adverts.txt", new_file )
 	end
-
 	util.AddNetworkString( "XGUI.AddVotemaps" )
 	net.Receive( "XGUI.AddVotemaps", function( len, ply )
 		if ULib.ucl.query( ply, "xgui_svsettings" ) then
@@ -235,7 +202,6 @@ function settings.init()
 			xgui.sendDataTable( {}, "votemaps" )
 		end
 	end )
-
 	util.AddNetworkString( "XGUI.RemoveVotemaps" )
 	net.Receive( "XGUI.RemoveVotemaps", function( len, ply )
 		if ULib.ucl.query( ply, "xgui_svsettings" ) then
@@ -253,26 +219,23 @@ function settings.init()
 			xgui.sendDataTable( {}, "votemaps" )
 		end
 	end )
-
-	function settings.updatevotemaps()  --Populates a table of votemaps that gets sent to the admins.
+	function settings.updatevotemaps()
 		settings.votemaps = {}
 		for _, v in ipairs( ulx.votemaps ) do
 			table.insert( settings.votemaps, v )
 		end
 	end
-
 	function settings.saveVotemaps( mapmode )
 		local orig_file = ULib.fileRead( "data/ultra_ulx/votemaps.txt" )
 		local comment = xgui.getCommentHeader( orig_file )
 		local new_file = comment
-
-		if mapmode == 1 then --Use all maps EXCEPT what's specified in votemaps.txt
+		if mapmode == 1 then
 			for _, map in ipairs( ulx.maps ) do
 				if not table.HasValue( ulx.votemaps, map ) then
 					new_file = new_file .. map .. "\n"
 				end
 			end
-		elseif mapmode == 2 then --Use only the maps specified in votemaps.txt
+		elseif mapmode == 2 then
 			for _, map in ipairs( ulx.votemaps ) do
 				new_file = new_file .. map .. "\n"
 			end
@@ -280,16 +243,12 @@ function settings.init()
 			Msg( "XGUI: Could not save votemaps- Invalid or nonexistent ulx_votemapMapmode cvar!\n" )
 			return
 		end
-
 		ULib.fileWrite( "data/ultra_ulx/votemaps.txt", new_file )
 		settings.updatevotemaps()
 	end
-
-
 	util.AddNetworkString( "XGUI.PreviewBanMessage" )
 	net.Receive( "XGUI.PreviewBanMessage", function( len, ply )
 		if ULib.ucl.query( ply, "xgui_svsettings" ) then
-			-- Create fake ban info for testing
 			local banData = {
 				admin   = "Mr. Admin Man (STEAM_1:1:1111111)",
 				name    = "Bob Troll",
@@ -299,27 +258,21 @@ function settings.init()
 				unban   = os.time() + 1654654
 			}
 			local templateMessage = net.ReadString():Trim()
-
-			-- Generate preview and send to client
 			local message = ULib.getBanMessage( "STEAM_1:1:1111111", banData, templateMessage )
 			ULib.clientRPC( ply, "xgui.handleBanPreview", message )
 		end
 	end)
-
 	util.AddNetworkString( "XGUI.SaveBanMessage" )
 	net.Receive( "XGUI.SaveBanMessage", function( len, ply )
 		if ULib.ucl.query( ply, "xgui_svsettings" ) then
 			local orig_file = ULib.fileRead( "data/ultra_ulx/banmessage.txt" )
 			local comment = xgui.getCommentHeader( orig_file )
 			local new_file = comment
-
 			ULib.BanMessage = net.ReadString():Trim()
 			ULib.fileWrite( "data/ultra_ulx/banmessage.txt", new_file .. ULib.BanMessage )
 			xgui.sendDataTable( {}, "banmessage" )
 		end
 	end)
-
-
 	local function updateMOTDGeneratorData(setting, data)
 		local success, prev = ULib.setVar( setting, data, ulx.motdSettings )
 		if (success and prev ~= data) then
@@ -329,7 +282,6 @@ function settings.init()
 			xgui.sendDataTable( {}, "motdsettings" )
 		end
 	end
-
 	util.AddNetworkString( "XGUI.UpdateMotdData" )
 	net.Receive( "XGUI.UpdateMotdData", function( len, ply )
 		if ULib.ucl.query( ply, "ulx showmotd" ) then
@@ -338,7 +290,6 @@ function settings.init()
 			updateMOTDGeneratorData( setting, value )
 		end
 	end)
-
 	util.AddNetworkString( "XGUI.SetMotdData" )
 	net.Receive( "XGUI.SetMotdData", function( len, ply )
 		if ULib.ucl.query( ply, "ulx showmotd" ) then
@@ -347,24 +298,19 @@ function settings.init()
 			updateMOTDGeneratorData( setting, data )
 		end
 	end)
-
 	function settings.saveMotdSettings()
 		local orig_file = ULib.fileRead( "data/ultra_ulx/motd.txt" )
 		local comment = xgui.getCommentHeader( orig_file )
 		local new_file = comment
-
 		local motdSave = { info=ulx.motdSettings.info, style=ulx.motdSettings.style }
 		new_file = new_file .. ULib.makeKeyValues( motdSave )
-
 		ULib.fileWrite( "data/ultra_ulx/motd.txt", new_file )
 	end
 end
-
 function settings.postinit()
 	settings.updatevotemaps()
 	xgui.sendDataTable( {}, "adverts" )
 	xgui.sendDataTable( {}, "votemaps" )
-
 	local function votemapCvarUpdate( sv_cvar, cl_cvar, ply, old_val, new_val )
 		if cl_cvar == "ulx_votemapmapmode" then
 			settings.saveVotemaps( tonumber( new_val ) )
@@ -372,5 +318,4 @@ function settings.postinit()
 	end
 	hook.Add( "ULibReplicatedCvarChanged", "XGUI_CatchVotemapCvarUpdate", votemapCvarUpdate )
 end
-
 xgui.addSVModule( "settings", settings.init, settings.postinit )
