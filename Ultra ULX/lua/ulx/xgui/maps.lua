@@ -39,11 +39,12 @@ end
 maps.changemap = xlib.makebutton{ x=185, y=295, w=192, h=20, disabled=true, label=xgui.T("maps_change"), parent=maps }
 maps.changemap.DoClick = function()
 	if maps.curmap:GetValue() ~= xgui.T("maps_noselect") then
+		local gmId = maps.gamemode:GetSelectedID()
+		local gmVal = gmId and select(2, maps.gamemode:GetOptionData(gmId)) or nil
 		Derma_Query( xgui.T("maps_confirm_change") .. "\"" .. maps.curmap:GetValue() .. "\"?",
 			xgui.T("maps_warning_title"),
 			xgui.T("maps_btn_change"), function()
-				RunConsoleCommand( "ulx", "map", maps.curmap:GetValue(),
-					( maps.gamemode:GetValue() ~= xgui.T("maps_default_gm") ) and maps.gamemode:GetValue() or nil )
+				RunConsoleCommand( "ulx", "map", maps.curmap:GetValue(), gmVal )
 			end,
 			xgui.T("maps_btn_cancel"), function() end )
 	end
