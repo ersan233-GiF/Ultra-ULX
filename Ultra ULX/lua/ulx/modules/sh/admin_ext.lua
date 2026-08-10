@@ -45,7 +45,7 @@ if SERVER then
 	local function esc(v)
 		if v == nil then return "NULL" end
 		if type(v) == "number" then return tostring(v) end
-		return "'" .. sql.SQLStr(tostring(v)) .. "'"
+		return "'" .. sql.SQLStr(tostring(v), true) .. "'"
 	end
 	db:query("CREATE TABLE IF NOT EXISTS ultra_punishments (id INTEGER PRIMARY KEY AUTOINCREMENT, steamid TEXT NOT NULL, admin_steamid TEXT NOT NULL, type TEXT NOT NULL, reason TEXT, expiry INTEGER DEFAULT 0, created INTEGER NOT NULL, active INTEGER DEFAULT 1)")
 	db:query("CREATE INDEX IF NOT EXISTS idx_punishments_steamid ON ultra_punishments(steamid)")
@@ -111,11 +111,11 @@ if SERVER then
 			end
 		end)
 	end)
-	hook.Add("PlayerCanHearPlayersVoice", "ULXCheckTMute", function(_, talker)
-		if talker.ulx_muted then return false end
+	hook.Add("PlayerSay", "ULXCheckTMute", function(ply)
+		if ply.ulx_muted then return "" end
 	end)
-	hook.Add("PlayerSay", "ULXCheckTGag", function(ply)
-		if ply.ulx_gagged then return "" end
+	hook.Add("PlayerCanHearPlayersVoice", "ULXCheckTGag", function(_, talker)
+		if talker.ulx_gagged then return false end
 	end)
 	function ulx.warn(calling_ply, target_ply, reason)
 		cleanExpired()
@@ -249,4 +249,4 @@ local maintCmd = ulx.command(CAT, "ulx maintenance", ulx.maintenance, "!maintena
 maintCmd:addParam{type=ULib.cmds.BoolArg, invisible=true}
 maintCmd:defaultAccess(ULib.ACCESS_SUPERADMIN)
 maintCmd:help("切换服务器维护模式（仅管理员可加入）")
-maintCmd:setOpposite("ulx endmaintenance", {false}, "!endmaintenance")
+maintCmd:setOpposite("ulx endmaintenance", {_, true}, "!endmaintenance")

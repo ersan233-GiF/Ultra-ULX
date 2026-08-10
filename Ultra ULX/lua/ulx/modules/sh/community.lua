@@ -262,6 +262,7 @@ rrCmd:help( "清除地图上所有布娃娃" )
 if SERVER then
 	function ulx.deafen(calling_ply, target_plys, should_undeafen)
 		for _, ply in ipairs(target_plys) do
+			ply.ulx_deafened = not should_undeafen
 			ply:SetNWBool("ulx_deafened", not should_undeafen)
 		end
 		if should_undeafen then
@@ -270,6 +271,12 @@ if SERVER then
 			ulx.fancyLogAdmin(calling_ply, "#A 屏蔽了 #T 的聊天和语音", target_plys)
 		end
 	end
+	hook.Add("PlayerSay", "ULXDeafenSay", function(ply)
+		if ply.ulx_deafened then return "" end
+	end)
+	hook.Add("PlayerCanHearPlayersVoice", "ULXDeafenVoice", function(_, talker)
+		if talker.ulx_deafened then return false end
+	end)
 end
 local deafenCmd = ulx.command(CAT_C, "ulx deafen", ulx.deafen, "!deafen")
 deafenCmd:addParam{type=ULib.cmds.PlayersArg}
@@ -443,13 +450,10 @@ if SERVER then
 		if not allowed then
 			ULib.tsayError(calling_ply, "当前游戏模式不支持生成BOT。", true); return
 		end
-		local success = 0
 		for i = 1, amount do
-			if pcall(RunConsoleCommand, "bot") then success = success + 1 end
-			if i < amount then timer.Simple(0.05 * i, function() end) end
+			timer.Simple(0.05 * (i - 1), function() RunConsoleCommand("bot") end)
 		end
-		if success > 0 then ulx.fancyLogAdmin(calling_ply, "#A 生成了 #i 个BOT", success)
-		else ULib.tsayError(calling_ply, "无法生成BOT。", true) end
+		ulx.fancyLogAdmin(calling_ply, "#A 已请求生成 #i 个BOT", amount)
 	end
 end
 local botCmd = ulx.command(CAT_A, "ulx bot", ulx.bot, "!bot")
@@ -458,27 +462,6 @@ botCmd:addParam{type=ULib.cmds.BoolArg, invisible=true}
 botCmd:defaultAccess(ULib.ACCESS_SUPERADMIN)
 botCmd:help( "生成 BOT 玩家，!kickbots 全部移除" )
 botCmd:setOpposite("ulx kickbots", {_, _, true}, "!kickbots")
-if SERVER then
-	ulx.warns = ulx.warns or {}
-	hook.Add("PlayerDisconnected", "ULXWarnCleanup", function(ply) ulx.warns[ply:SteamID()] = nil end)
-	function ulx.warn(calling_ply, target_ply, reason)
-		local sid = target_ply:SteamID()
-		ulx.warns[sid] = (ulx.warns[sid] or 0) + 1
-		local count = ulx.warns[sid]
-		ULib.tsayError(target_ply, "你已被管理员警告! (" .. count .. "/3) 原因: " .. (reason or "未指定"), true)
-		ulx.fancyLogAdmin(calling_ply, "#A 警告了 #T (#i/3) 原因: #s", target_ply, count, reason or "未指定")
-		if count >= 3 then
-			ULib.kickban(target_ply, 60, "累计3次警告自动封禁1小时", calling_ply)
-			ulx.warns[sid] = 0
-			ulx.fancyLogAdmin(calling_ply, "#A 的警告触发自动封禁: #T (3次警告)", target_ply)
-		end
-	end
-	function ulx.unwarn(calling_ply, target_ply)
-		local sid = target_ply:SteamID()
-		ulx.warns[sid] = math.max(0, (ulx.warns[sid] or 0) - 1)
-		ulx.fancyLogAdmin(calling_ply, "#A 撤销了 #T 的一次警告 (剩余 #i 次)", target_ply, ulx.warns[sid])
-	end
-end
 if SERVER then
 	local disguisedPlayers = {}
 	function ulx.disguise(calling_ply, target_ply, disguise_target, should_restore)
@@ -717,7 +700,6 @@ if CLIENT then
 		local ent = net.ReadEntity()
 		if ent:IsValid() then ent:SetColor(Color(net.ReadUInt(8), net.ReadUInt(8), net.ReadUInt(8))) end
 	end)
-	hook.Add("OnPlayerChat", "ULXDeafenCheck", function(ply) if LocalPlayer():GetNWBool("ulx_deafened") then return true end end)
 	hook.Add("PlayerSay", "ULXSilenceCheck", function(ply)
 		if ply == LocalPlayer() and ply:GetNWBool("ulx_silenced") then
 			chat.AddText(Color(255,100,100), "[ULX] 你已被禁言,无法发送消息。")

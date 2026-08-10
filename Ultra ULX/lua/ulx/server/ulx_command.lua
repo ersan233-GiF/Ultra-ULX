@@ -1,15 +1,4 @@
-	Title: Base
-	Sets up some things for ulx.
-]]
 ulx.cvars = ulx.cvars or {}
-	Function: convar
-	This is what will set up ULX's convars, it makes them under the command "ulx"
-	Parameters:
-		command - The console command. IE, "sv_kickminge".
-		value - The value to start off at.
-		help - *(Optional)* A help string for using the command.
-		access - *(Optional, defaults to ACCESS_ALL)* Restricted access.
-]]
 function ulx.convar( command, value, help, access )
 	help = help or ""
 	access = access or ULib.ACCESS_ALL

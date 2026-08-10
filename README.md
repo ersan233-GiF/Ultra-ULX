@@ -1,6 +1,6 @@
-﻿# Ultra ULX v2.71.0
+﻿# Ultra ULX v2.72.0
 
-[![GitHub release](https://img.shields.io/badge/version-2.71.0-blue)](https://github.com/ersan233-GiF/Ultra-ULX/releases)
+[![GitHub release](https://img.shields.io/badge/version-2.72.0-blue)](https://github.com/ersan233-GiF/Ultra-ULX/releases)
 [![GitHub stars](https://img.shields.io/github/stars/ersan233-GiF/Ultra-ULX?style=social)](https://github.com/ersan233-GiF/Ultra-ULX)
 [![GitHub license](https://img.shields.io/badge/license-MIT-green)](https://github.com/ersan233-GiF/Ultra-ULX/blob/main/LICENSE)
 [![ULX](https://img.shields.io/badge/ULX-3.81%20compatible-orange)](https://github.com/TeamUlysses/ulx)
@@ -42,7 +42,7 @@
 ```
 1. 下载发布包 → 解压 → 将 Ultra ULX 文件夹放入 garrysmod/addons/
 2. 重启服务器
-3. 控制台显示 // Ultra ULX v2.71.0 Loaded! // 即成功
+3. 控制台显示 // Ultra ULX v2.72.0 Loaded! // 即成功
 ```
 
 [⬇️ 下载最新发布包](https://github.com/ersan233-GiF/Ultra-ULX/releases)
@@ -227,7 +227,7 @@ ulx removeuser 玩家名                          ← 按名称移除
 | 模块数 | **23 个** (sh 14 + cl 5 + sv 4) |
 | 道具分类 | **9 类** |
 | ULib 版本 | 2.72 |
-| Ultra ULX 版本 | **v2.71.0** |
+| Ultra ULX 版本 | **v2.72.0** |
 | ULX 兼容版本 | 3.81 |
 
 ---
@@ -649,6 +649,19 @@ ulx.item.Register("my_category", {
 ---
 
 ## 更新日志
+
+### v2.72.0 (2026-08-10)
+
+- **修复 hook 系统双重执行** (shared/hook.lua): 移除历史钩子导入逻辑，消除与原生 hook 表的重复执行（事件被处理两次、PlayerAuthSpawn 迁移失效）
+- **修复 SQL 转义双重引号** (modules/sh/admin_ext.lua): `sql.SQLStr` 已带引号又包一层导致限时禁言/警告/举报/封禁数据库写入全部失败
+- **统一限时禁言/禁聊语义** (modules/sh/admin_ext.lua): `!tmute` 禁文字聊天（同 `!mute`）、`!tgag` 禁语音（同 `!gag`），消除互相冲突
+- **修复 `!endmaintenance`**: opposite 参数修正，现可正确关闭维护模式
+- **修复 `!unwhip`**: opposite 参数错位导致无法停止连扇反而重新开扇，现可正确停止
+- **修复 `!deafen` 屏蔽方向**: 改为服务端拦截被屏蔽者的聊天/语音（别人看不到/听不到）
+- **删除重复 `warn` 定义** (modules/sh/community.lua): 保留 admin_ext 数据库持久化版（3次禁言/5次封禁）
+- **清理 `bot` 命令死代码**: 去除无意义的 `pcall(RunConsoleCommand)` 与空定时器
+- **修复 `possibleId` 全局变量泄漏** (shared/player.lua)
+- **移除 coord.lua 重复的 setOpposite 注册**
 
 ### v2.71.0 (2026-06-20)
 

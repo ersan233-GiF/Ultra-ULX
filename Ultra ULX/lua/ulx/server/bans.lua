@@ -1,8 +1,8 @@
-	Title: Bans
-	Ban-related functions and listeners.
-]]
 ULib.BanMessage = [[
+-------===== [ BANNED ] =====-------
+---= Reason =---
 {{REASON}}
+---= Time Left =---
 {{TIME_LEFT}} ]]
 function ULib.getBanMessage( steamid, banData, templateMessage )
 	banData = banData or ULib.bans[ steamid ]
@@ -43,16 +43,6 @@ local function checkBan( steamid64, ip, password, clpassword, name )
 	return false, message
 end
 hook.Add( "CheckPassword", "ULibBanCheck", checkBan, HOOK_LOW )
-	Function: ban
-	Bans a user.
-	Parameters:
-		ply - The player to ban.
-		time - *(Optional)* The time in minutes to ban the person for, leave nil or 0 for permaban.
-		reason - *(Optional)* The reason for banning
-		admin - *(Optional)* Admin player enacting ban
-	Revisions:
-		v2.10 - Added support for custom ban list
-]]
 function ULib.ban( ply, time, reason, admin )
 	if not time or type( time ) ~= "number" then
 		time = 0
@@ -62,9 +52,6 @@ function ULib.ban( ply, time, reason, admin )
 	end
 	ULib.addBan( ply:SteamID(), time, reason, ply:Name(), admin )
 end
-	Function: kickban
-	An alias for <ban>.
-]]
 ULib.kickban = ULib.ban
 local function escapeOrNull( str )
 	if not str then return "NULL"
@@ -85,18 +72,6 @@ local function writeBan( bandata )
 		)
 	)
 end
-	Function: addBan
-	Helper function to store additional data about bans.
-	Parameters:
-		steamid - Banned player's steamid
-		time - Length of ban in minutes, use 0 for permanant bans
-		reason - *(Optional)* Reason for banning
-		name - *(Optional)* Name of player banned
-		admin - *(Optional)* Admin player enacting the ban
-	Revisions:
-		2.10 - Initial
-		2.40 - If the steamid is connected, kicks them with the reason given
-]]
 function ULib.addBan( steamid, time, reason, name, admin )
 	if reason == "" then reason = nil end
 	local admin_name
@@ -145,14 +120,6 @@ function ULib.addBan( steamid, time, reason, name, admin )
 	writeBan( t )
 	hook.Call( ULib.HOOK_USER_BANNED, _, steamid, t )
 end
-	Function: unban
-	Unbans the given steamid.
-	Parameters:
-		steamid - The steamid to unban.
-		admin - *(Optional)* Admin player unbanning steamid
-	Revisions:
-		v2.10 - Initial
-]]
 function ULib.unban( steamid, admin )
 	RunConsoleCommand("removeid", steamid)
 	RunConsoleCommand("writeid")
@@ -179,9 +146,6 @@ if not sql.TableExists( "ulib_bans" ) then
 	sql.Query( "CREATE INDEX IDX_ULIB_BANS_UNBAN ON ulib_bans ( unban DESC );" )
 end
 local LEGACY_BANS_FILE = "data/ulib/bans.txt"
-	Function: getLegacyBans
-	Returns bans written by ULib versions prior to 2.7.
-]]
 function ULib.getLegacyBans()
 	if not ULib.fileExists( LEGACY_BANS_FILE ) then
 		return nil
@@ -194,9 +158,6 @@ function ULib.getLegacyBans()
 	end
 end
 local legacy_bans = ULib.getLegacyBans()
-	Function: refreshBans
-	Refreshes the ULib bans.
-]]
 function ULib.refreshBans()
 	local results = sql.Query( "SELECT * FROM ulib_bans" )
 	ULib.bans = {}

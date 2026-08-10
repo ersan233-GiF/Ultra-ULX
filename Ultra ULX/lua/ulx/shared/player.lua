@@ -1,16 +1,3 @@
-	Title: Player
-	Has useful player-related functions.
-]]
-	Function: getPicker
-	Gets the player directly in front of the specified player
-	Parameters:
-		ply - The player to look for another player in front of.
-		radius - *(Optional, defaults to 30)* How narrow to make our checks for players in front of us.
-	Returns:
-		The player most directly in front of us if one exists with the given constraints, otherwise nil.
-	Revisions:
-		v2.40 - Initial.
-]]
 function ULib.getPicker( ply, radius )
 	radius = radius or 30
 	local trace = util.GetPlayerTrace( ply )
@@ -43,15 +30,6 @@ function ULib.getPicker( ply, radius )
 end
 local Player = FindMetaTable( "Player" )
 local checkIndexes = { Player.UniqueID, function( ply ) if CLIENT then return "" end local ip = ULib.splitPort( ply:IPAddress() ) return ip end, Player.SteamID, Player.UserID }
-	Function: getPlyByID
-	Finds a user identified by the given ID.
-	Parameters:
-		id - The ID to try to match against connected players. Can be a unique id, ip address, steam id, or user id.
-	Returns:
-		The player matching the id given or nil if none match.
-	Revisions:
-		v2.50 - Initial.
-]]
 function ULib.getPlyByID( id )
 	id = id:upper()
 	local players = player.GetAll()
@@ -64,16 +42,6 @@ function ULib.getPlyByID( id )
 	end
 	return nil
 end
-	Function: getUniqueIDForPly
-	Finds a unique ID for a player, suitable for use in getUsers or getUser to uniquely identify the given player.
-	Parameters:
-		ply - The player we want an ID for
-	Returns:
-		The id for the player or nil if none are unique.
-	Revisions:
-		v2.50 - Initial.
-		v2.51 - Added exception for single player since it's handled differently on client and server.
-]]
 function ULib.getUniqueIDForPlayer( ply )
 	if game.SinglePlayer() then
 		return "1"
@@ -87,28 +55,6 @@ function ULib.getUniqueIDForPlayer( ply )
 	end
 	return nil
 end
-	Function: getUsers
-	Finds users matching an identifier.
-	Parameters:
-		target - A string of what you'd like to target. Accepts a comma separated list.
-		enable_keywords - *(Optional, defaults to false)* If true, various keywords will be enabled:
-			"*" for all players,
-			"^" for self,
-			"@" for picker (person in front of you),
-			"#<group>" for those inside a specific group,
-			"%<group>" for users inside a group (counting inheritance),
-			"$<id>" for users matching a particular ID, and
-			"@<team>" for users inside a given team
-			Any of these can be negated with "!" before it. IE, "!^" targets everyone but yourself.
-		ply - *(Optional)* Player needing getUsers, this is necessary for some of the keywords.
-	Returns:
-		A table of players (false and message if none found).
-	Revisions:
-		v2.40 - Rewrite, added more keywords, removed immunity.
-		v2.50 - Added "#" and '$' keywords, removed special exception for "%user" (replaced by "#user").
-		v2.60 - Returns false if target is an empty string.
-		v2.70 - Added "@<team>" keyword extension.
-]]
 function ULib.getUsers( target, enable_keywords, ply )
 	if target == "" then
 		return false, "No target specified!"
@@ -228,20 +174,6 @@ function ULib.getUsers( target, enable_keywords, ply )
 	end
 	return finalTable
 end
-	Function: getUser
-	Finds a user matching an identifier.
-	Parameters:
-		target - A string of the user you'd like to target. IE, a partial player name.
-		enable_keywords - *(Optional, defaults to false)* If true, the keywords "^" for self, "@" for picker (person in
-			front of you), and "$<id>" will be activated.
-		ply - *(Optional)* Player needing getUsers, this is necessary to use keywords.
-	Returns:
-		The resulting player target, false and message if no user found.
-	Revisions:
-		v2.40 - Rewrite, added keywords, removed immunity.
-		v2.50 - Added "$" keyword.
-		v2.60 - Returns false if target is an empty string.
-]]
 function ULib.getUser( target, enable_keywords, ply )
 	if target == "" then
 		return false, "No target specified!"
@@ -250,7 +182,7 @@ function ULib.getUser( target, enable_keywords, ply )
 	target = target:lower()
 	local plyMatches = {}
 	if enable_keywords and target:sub( 1, 1 ) == "$" then
-		possibleId = target:sub( 2 )
+		local possibleId = target:sub( 2 )
 		table.insert( plyMatches, ULib.getPlyByID( possibleId ) )
 	end
 	for _, player in ipairs( players ) do

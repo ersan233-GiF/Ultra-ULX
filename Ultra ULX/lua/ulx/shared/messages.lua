@@ -1,16 +1,3 @@
-	Title: Messages
-	Handles messaging like logging, debug, etc.
-]]
-	Function: tsay
-	Prints a message in talk say as well as in the user's consoles.
-	Parameters:
-		ply - The player to print to, set to nil to send to everyone. (Ignores this param if called on client)
-		msg - The message to print.
-		wait - *(Optional, defaults to false)* Wait one frame before posting. (Useful to use from things like chat hooks)
-		wasValid - *(INTERNAL USE ONLY)* This is flagged on waiting if the player *was* valid.
-	Revisions:
-		v2.10 - Initial
-]]
 function ULib.tsay( ply, msg, wait, wasValid )
 	ULib.checkArg( 1, "ULib.tsay", {"nil","Player","Entity"}, ply )
 	ULib.checkArg( 2, "ULib.tsay", "string", msg )
@@ -119,44 +106,14 @@ if CLIENT then
 		end
 	end )
 end
-	Function: tsayColor
-	Prints a tsay message in color!
-	Parameters:
-		ply - The player to print to, set to nil to send to everyone. (Ignores this param if called on client)
-		wait - *(Optional, defaults to false)* Wait one frame before posting. (Useful to use from things like chat hooks)
-		... - color arg and text arg ad infinitum, color needs to come before the text it's coloring.
-	Revisions:
-		v2.40 - Initial.
-]]
 function ULib.tsayColor( ply, wait, ... )
 	if SERVER and ply and not ply:IsValid() then ply = serverConsole end
 	if wait then ULib.namedQueueFunctionCall( "ULibChats", tsayColorCallback, ply, ... ) return end
 	tsayColorCallback( ply, ... )
 end
-	Function: tsayError
-	Just like tsay, but prints the string in red
-	Parameters:
-		ply - The player to print to, set to nil to send to everyone. (Ignores this param if called on client)
-		msg - The message to print.
-		wait - *(Optional, defaults to false)* Wait one frame before posting. (Useful to use from things like chat hooks)
-	Revisions:
-		v2.40 - Initial.
-]]
 function ULib.tsayError( ply, msg, wait )
 	return ULib.tsayColor( ply, wait, ULib.COLOR_ERROR, msg )
 end
-	Function: csay
-	Prints a message in center of the screen as well as in the user's consoles.
-	Parameters:
-		ply - The player to print to, set to nil to send to everyone. (Ignores this param if called on client)
-		msg - The message to print.
-		color - *(Optional, defaults to 255, 255, 255, 255)* The color of the text.
-		duration - *(Optional)* The amount of time to show the text.
-		fade - *(Optional, defaults to 0.5)* The length of fade time
-	Revisions:
-		v2.10 - Added fade parameter. Fixed it sending the message multiple times.
-		v2.40 - Changed to use clientRPC.
-]]
 function ULib.csay( ply, msg, color, duration, fade )
 	if CLIENT then
 		ULib.csayDraw( msg, color, duration, fade )
@@ -166,12 +123,6 @@ function ULib.csay( ply, msg, color, duration, fade )
 	ULib.clientRPC( ply, "ULib.csayDraw", msg, color, duration, fade )
 	ULib.console( ply, msg )
 end
-	Function: console
-	Prints a message in the user's consoles.
-	Parameters:
-		ply - The player to print to, set to nil to send to everyone. (Ignores this param if called on client)
-		msg - The message to print.
-]]
 function ULib.console( ply, msg )
 	if CLIENT or (ply and not ply:IsValid()) then
 		Msg( msg .. "\n" )
@@ -186,11 +137,6 @@ function ULib.console( ply, msg )
 		end
 	end
 end
-	Function: error
-	Gives an error to console.
-	Parameters:
-		s - The string to use as the error message
-]]
 function ULib.error( s )
 	if CLIENT then
 		Msg( "[LC ULIB ERROR] " .. s .. "\n" )
@@ -198,15 +144,6 @@ function ULib.error( s )
 		Msg( "[LS ULIB ERROR] " .. s .. "\n" )
 	end
 end
-	Function: debugFunctionCall
-	Prints a function call, very useful for debugging.
-	Parameters:
-		name - The name of the function called.
-		... - all arguments to the function.
-	Revisions:
-		v2.40 - Now uses print instead of Msg, since Msg seems to have a low max length.
-			Changed how the variable length params work so you can pass nil followed by more params
-]]
 function ULib.debugFunctionCall( name, ... )
 	local args = { ... }
 	print( "Function '" .. name .. "' called. Parameters:" )

@@ -4,7 +4,7 @@ ENT.Author 	= "justa"
 AddCSLuaFile()
 if (SERVER) then
 	function ENT:SetPositions(sPos, ePos)
-		self.min = sPos 
+		self.min = sPos
 		self.max = ePos
 	end
 	function ENT:Initialize()
@@ -25,10 +25,10 @@ if (SERVER) then
 	function ENT:Touch(e)
 	end
 	function ENT:StartTouch(e)
-		e.TouchingTrigger = true 
+		e.TouchingTrigger = true
 	end
 	function ENT:EndTouch(e)
 		if OnPlayerTeleported then OnPlayerTeleported(e) end
-		e.TouchingTrigger = false 
+		e.TouchingTrigger = false
 	end
 end

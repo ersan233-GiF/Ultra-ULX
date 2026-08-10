@@ -1,108 +1,22 @@
-	File: Commands
-]]
 ULib.cmds = ULib.cmds or {}
 local cmds = ULib.cmds
-	Variable: cmds.optional
-	This is used when specifying an argument to flag the argument as optional.
-]]
 cmds.optional = cmds.optional or {}
-	Variable: cmds.restrictToCompletes
-	This is used when specifying a string argument to flag that only what was
-	specified for autocomplete is allowed to be passed as a valid argument.
-]]
 cmds.restrictToCompletes = cmds.restrictToCompletes or {}
-	Variable: cmds.takeRestOfLine
-	This is used when specifying a string argument to flag that this argument
-	should use up any remaining args, whether quoted as one arg or not. This
-	is useful for things like specifying a ban reason where you don't want to
-	force users to write an entire sentence within quotes.
-]]
 cmds.takeRestOfLine = cmds.takeRestOfLine or {}
-	Variable: cmds.round
-	This is used when specifying a number argument to flag the argument to round
-	the number to the nearest integer.
-]]
 cmds.round = cmds.round or {}
-	Variable: cmds.ignoreCanTarget
-	This is used when specifying a command that should ignore the can_target
-	property in the groups config. IE, private say in ULX uses this so that
-	users can target admins to chat with them.
-]]
 cmds.ignoreCanTarget = cmds.ignoreCanTarget or {}
-	Variable: cmds.allowTimeString
-	This is used when specyfing a number argument that should allow time string
-	representations to be parsed (eg, '1w1d' for 1 week 1 day).
-]]
 cmds.allowTimeString = cmds.allowTimeString or {}
-	Class: cmds.BaseArg
-	Just defines the basics for us, used in autocomplete and command callbacks.
-	These default implementations just throw an error if called. You shouldn't
-	need any great knowledge about the functions in these types, just that
-	they exist and how to pass in restrictions.
-	Revisions:
-		2.40 - Initial
-]]
 cmds.BaseArg = inheritsFrom( nil )
-	Function: cmds.BaseArg:parseAndValidate
-	Used to, you guessed it, parse and validate an argument specified by a user.
-	Takes user command line input and converts it to a regular lua variable of
-	the correct type.
-	Parameters:
-		ply - The player using the command. Useful for querying.
-		arg - The arg to parse. It's already properly trimmed.
-		cmdInfo - A table containing data about this command.
-		plyRestrictions - The restrictions from the access tag for this player.
-	Returns:
-		The parsed arg correctly typed if it validated, false and an
-		explanation otherwise.
-]]
 function cmds.BaseArg:parseAndValidate( ply, arg, cmdInfo, plyRestrictions )
 	error( "Unimplemented BaseArg:parseAndValidate called" )
 end
-	Function: cmds.BaseArg:complete
-	Used to autocomplete a command. Passes back the options the player has in
-	using this command.
-	Parameters:
-		arg - The arg to parse. It's already properly trimmed.
-		cmdInfo - A table containing data about this command.
-		plyRestrictions - The restrictions from the access tag for this player.
-	Returns:
-		A table of strings containing the options that are available.
-]]
 function cmds.BaseArg:complete( arg, cmdInfo, plyRestrictions )
 	error( "Unimplemented BaseArg:complete called" )
 end
-	Function: cmds.BaseArg:usage
-	Prints a basic usage message for this parameter.
-	Parameters:
-		cmdInfo - A table containing data about this command.
-		plyRestrictions - The restrictions from the access tag for this player.
-	Returns:
-		A string describing what this parameter is and how to use it.
-]]
 function cmds.BaseArg:usage( cmdInfo, plyRestrictions )
 	error( "Unimplemented BaseArg:usage called" )
 end
-	Class: cmds.NumArg
-	A number arg, inherits from <cmds.BaseArg>. Restrictions can include a numeric
-	value for keys 'min', 'max', and 'default'. All do what you think they do.
-	If the argument is optional and no default is specified, 0 is used for
-	default. You can specify the allowTimeString key to allow time string
-	representations. Lastly, you can specify a value for the key 'hint' for a
-	hint on	what this argument is for, IE "damage".
-	Example:
-		The following code creates a command that accepts an optional numeric
-		second argument that defaults to 0 and has to be at least 0.
-:cmd = ULib.cmds.TranslateCommand( "ugm slap", ULib.slap )
-:cmd:addParam{ type=ULib.cmds.PlayerArg, target="*", default="^", ULib.cmds.optional }
-:cmd:addParam{ type=ULib.cmds.NumArg, min=0, default=0, ULib.cmds.optional }
-	Revisions:
-		2.40 - Initial
-]]
 cmds.NumArg = inheritsFrom( cmds.BaseArg )
-	Function: cmds.NumArg:processRestrictions
-	A helper function to help us figure out restrictions on this command.
-]]
 function cmds.NumArg:processRestrictions( cmdRestrictions, plyRestrictions )
 	self.min = nil
 	self.max = nil
@@ -137,9 +51,6 @@ function cmds.NumArg:processRestrictions( cmdRestrictions, plyRestrictions )
 		self.max = cmdRestrictions.max
 	end
 end
-	Function: cmds.NumArg:parseAndValidate
-	See <cmds.BaseArg:parseAndValidate>
-]]
 function cmds.NumArg:parseAndValidate( ply, arg, cmdInfo, plyRestrictions )
 	self:processRestrictions( cmdInfo, plyRestrictions )
 	if not arg and self.min and self.min == self.max then
@@ -175,15 +86,9 @@ function cmds.NumArg:parseAndValidate( ply, arg, cmdInfo, plyRestrictions )
 	end
 	return num
 end
-	Function: cmds.NumArg:complete
-	See <cmds.BaseArg:complete>
-]]
 function cmds.NumArg:complete( ply, arg, cmdInfo, plyRestrictions )
 	return { self:usage( cmdInfo, plyRestrictions ) }
 end
-	Function: cmds.NumArg:usage
-	See <cmds.BaseArg:usage>
-]]
 function cmds.NumArg:usage( cmdInfo, plyRestrictions )
 	self:processRestrictions( cmdInfo, plyRestrictions )
 	local isOptional = table.HasValue( cmdInfo, cmds.optional )
@@ -217,32 +122,13 @@ function cmds.NumArg:usage( cmdInfo, plyRestrictions )
 		return str
 	end
 end
-	Class: cmds.BoolArg
-	A boolean arg, inherits from <cmds.BaseArg>. You can specify a value for the key
-	'hint' for a hint on what this argument is for, IE "revoke access".
-	Example:
-		The following code creates a command that accepts an option boolean
-		third argument that defaults to false.
-:local groupallow = ULib.cmds.TranslateCommand( "ulx groupallow", ulx.groupallow )
-:groupallow:addParam{ type=ULib.cmds.StringArg }
-:groupallow:addParam{ type=ULib.cmds.StringArg }
-:groupallow:addParam{ type=ULib.cmds.BoolArg, hint="revoke access", ULib.cmds.optional }
-	Revisions:
-		2.40 - Initial
-]]
 cmds.BoolArg = inheritsFrom( cmds.BaseArg )
-	Function: cmds.BoolArg:processRestrictions
-	A helper function to help us figure out restrictions on this command.
-]]
 function cmds.BoolArg:processRestrictions( cmdRestrictions, plyRestrictions )
 	self.restrictedTo = nil
 	if plyRestrictions and plyRestrictions ~= "*" then
 		self.restrictedTo = ULib.toBool( plyRestrictions )
 	end
 end
-	Function: cmds.BoolArg:parseAndValidate
-	See <cmds.BaseArg:parseAndValidate>
-]]
 function cmds.BoolArg:parseAndValidate( ply, arg, cmdInfo, plyRestrictions )
 	self:processRestrictions( cmdInfo, plyRestrictions )
 	if not arg and table.HasValue( cmdInfo, cmds.optional ) then
@@ -254,9 +140,6 @@ function cmds.BoolArg:parseAndValidate( ply, arg, cmdInfo, plyRestrictions )
 	end
 	return desired
 end
-	Function: cmds.BoolArg:complete
-	See <cmds.BaseArg:complete>
-]]
 function cmds.BoolArg:complete( ply, arg, cmdInfo, plyRestrictions )
 	self:processRestrictions( cmdInfo, plyRestrictions )
 	local ret = { self:usage( cmdInfo, plyRestrictions ) }
@@ -268,9 +151,6 @@ function cmds.BoolArg:complete( ply, arg, cmdInfo, plyRestrictions )
 	end
 	return ret
 end
-	Function: cmds.BoolArg:usage
-	See <cmds.BaseArg:usage>
-]]
 function cmds.BoolArg:usage( cmdInfo, plyRestrictions )
 	self:processRestrictions( cmdInfo, plyRestrictions )
 	local isOptional = table.HasValue( cmdInfo, cmds.optional )
@@ -288,23 +168,7 @@ function cmds.BoolArg:usage( cmdInfo, plyRestrictions )
 	end
 	return str
 end
-	Class: cmds.PlayerArg
-	A player arg, inherits from <cmds.BaseArg>. Can be restricted by specifying a
-	string in the key 'target'. This string is passed to <getUser()> with
-	keywords enabled to get a list of players this user is allowed to target.
-	Example:
-		The following code creates a command that accepts an optional player
-		argument that defaults to self and cannot be any superadmins.
-:cmd = ULib.cmds.TranslateCommand( "ugm slap", ULib.slap )
-:cmd:addParam{ type=ULib.cmds.PlayerArg, target="!%superadmin", default="^", ULib.cmds.optional }
-:cmd:addParam{ type=ULib.cmds.NumArg, min=0, default=0, ULib.cmds.optional }
-	Revisions:
-		2.40 - Initial
-]]
 cmds.PlayerArg = inheritsFrom( cmds.BaseArg )
-	Function: cmds.PlayerArg:processRestrictions
-	A helper function to help us figure out restrictions on this command.
-]]
 function cmds.PlayerArg:processRestrictions( ply, cmdRestrictions, plyRestrictions )
 	self.restrictedTargets = nil
 	cmds.PlayerArg.restrictedTargets = nil
@@ -348,9 +212,6 @@ function cmds.PlayerArg:processRestrictions( ply, cmdRestrictions, plyRestrictio
 		end
 	end
 end
-	Function: cmds.PlayerArg:parseAndValidate
-	See <cmds.BaseArg:parseAndValidate>
-]]
 function cmds.PlayerArg:parseAndValidate( ply, arg, cmdInfo, plyRestrictions )
 	self:processRestrictions( ply, cmdInfo, plyRestrictions )
 	if not arg and table.HasValue( cmdInfo, cmds.optional ) then
@@ -374,9 +235,6 @@ function cmds.PlayerArg:parseAndValidate( ply, arg, cmdInfo, plyRestrictions )
 	end
 	return target
 end
-	Function: cmds.PlayerArg:complete
-	See <cmds.BaseArg:complete>
-]]
 function cmds.PlayerArg:complete( ply, arg, cmdInfo, plyRestrictions )
 	self:processRestrictions( ply, cmdInfo, plyRestrictions )
 	local targets
@@ -408,9 +266,6 @@ function cmds.PlayerArg:complete( ply, arg, cmdInfo, plyRestrictions )
 	end
 	return names
 end
-	Function: cmds.PlayerArg:usage
-	See <cmds.BaseArg:usage>
-]]
 function cmds.PlayerArg:usage( cmdInfo, plyRestrictions )
 	local isOptional = table.HasValue( cmdInfo, cmds.optional )
 	if isOptional then
@@ -422,18 +277,7 @@ function cmds.PlayerArg:usage( cmdInfo, plyRestrictions )
 	end
 	return "<player>"
 end
-	Class: cmds.PlayersArg
-	A table of players arg, inherits from <cmds.PlayerArg>. Can be restricted by
-	specifying a string in the key 'target'. This string is passed to
-	<getUsers()> with  keywords enabled to get a list of players this user is
-	allowed to target.
-	Revisions:
-		2.40 - Initial
-]]
 cmds.PlayersArg = inheritsFrom( cmds.PlayerArg )
-	Function: cmds.PlayersArg:parseAndValidate
-	See <cmds.PlayerArg:parseAndValidate>
-]]
 function cmds.PlayersArg:parseAndValidate( ply, arg, cmdInfo, plyRestrictions )
 	self:processRestrictions( ply, cmdInfo, plyRestrictions )
 	if not arg and table.HasValue( cmdInfo, cmds.optional ) then
@@ -471,9 +315,6 @@ function cmds.PlayersArg:parseAndValidate( ply, arg, cmdInfo, plyRestrictions )
 	end
 	return targets
 end
-	Function: cmds.PlayersArg:usage
-	See <cmds.PlayerArg:usage>
-]]
 function cmds.PlayersArg:usage( cmdInfo, plyRestrictions )
 	local isOptional = table.HasValue( cmdInfo, cmds.optional )
 	if isOptional then
@@ -485,45 +326,12 @@ function cmds.PlayersArg:usage( cmdInfo, plyRestrictions )
 	end
 	return "<players>"
 end
-	Class: cmds.CallingPlayerArg
-	Simply used to retrieve the player using the command. No validation needed.
-	Revisions:
-		2.40 - Initial
-]]
 cmds.CallingPlayerArg = inheritsFrom( cmds.BaseArg )
 cmds.CallingPlayerArg.invisible = true
-	Function: cmds.CallingPlayerArg:parseAndValidate
-	See <cmds.BaseArg:parseAndValidate>
-]]
 function cmds.CallingPlayerArg:parseAndValidate( ply, arg, cmdInfo, plyRestrictions )
 	return ply
 end
-	Class: cmds.StringArg
-	A player arg, inherits from <cmds.BaseArg>. You can specify completes with a
-	table of strings for the key 'completes'. Can be restricted to these by
-	specifying ULib.cmds.restrictToCompletes. Can also specify
-	ULib.cmds.takeRestOfLine to make it take up the rest of the command line
-	arguments. 'autocomplete_fn' can be specified with the value of a function
-	to call for autocompletes (this is an override). Can specify a value for
-	the key 'repeat_min' when the argument repeats at least n times (this
-	implies ULib.cmds.takeRestOfLine). Though it's not (currently) used by ULib,
-	you can also specify 'repeat_max' to mean that the argument repeats at most
-	n times. Lastly, you can specify a value for the key 'hint' for a hint on
-	what this argument is for, IE "groupname".
-	Example:
-		The following code creates a command that accepts a first argument that
-		is restricted to a list of strings, this same list is also used for
-		autocompletes. A descriptive error is provided if they specify an
-		invalid group.
-:local groupallow = ULib.cmds.TranslateCommand( "ulx groupallow", ulx.groupallow )
-:groupallow:addParam{ type=ULib.cmds.StringArg, completes=ulx.group_names, hint="group", error="invalid group \"%s\" specified", ULib.cmds.restrictToCompletes }
-	Revisions:
-		2.40 - Initial
-]]
 cmds.StringArg = inheritsFrom( cmds.BaseArg )
-	Function: cmds.StringArg:processRestrictions
-	A helper function to help us figure out restrictions on this command.
-]]
 function cmds.StringArg:processRestrictions( cmdRestrictions, plyRestrictions )
 	self.restrictedCompletes = table.Copy( cmdRestrictions.completes )
 	self.playerLevelRestriction = nil
@@ -544,9 +352,6 @@ function cmds.StringArg:processRestrictions( cmdRestrictions, plyRestrictions )
 		end
 	end
 end
-	Function: cmds.StringArg:parseAndValidate
-	See <cmds.BaseArg:parseAndValidate>
-]]
 function cmds.StringArg:parseAndValidate( ply, arg, cmdInfo, plyRestrictions )
 	self:processRestrictions( cmdInfo, plyRestrictions )
 	if not arg and table.HasValue( cmdInfo, cmds.optional ) then
@@ -566,9 +371,6 @@ function cmds.StringArg:parseAndValidate( ply, arg, cmdInfo, plyRestrictions )
 	end
 	return arg
 end
-	Function: cmds.StringArg:complete
-	See <cmds.BaseArg:complete>
-]]
 function cmds.StringArg:complete( ply, arg, cmdInfo, plyRestrictions )
 	if cmdInfo.autocomplete_fn then
 		return cmdInfo.autocomplete_fn( ply, arg, cmdInfo, plyRestrictions )
@@ -592,9 +394,6 @@ function cmds.StringArg:complete( ply, arg, cmdInfo, plyRestrictions )
 		return {self:usage( cmdInfo, plyRestrictions )}
 	end
 end
-	Function: cmds.StringArg:usage
-	See <cmds.BaseArg:usage>
-]]
 function cmds.StringArg:usage( cmdInfo, plyRestrictions )
 	local isOptional = table.HasValue( cmdInfo, cmds.optional )
 	local str = cmdInfo.hint or "string"
@@ -608,10 +407,6 @@ function cmds.StringArg:usage( cmdInfo, plyRestrictions )
 	end
 	return str
 end
-	Table: cmds.translatedCmds
-	Holds all the commands that are set up through the translator. I won't
-	bother explaining the contents here, just inspect them with PrintTable.
-]]
 cmds.translatedCmds = cmds.translatedCmds or {}
 local translatedCmds = cmds.translatedCmds
 local function translateCmdCallback( ply, commandName, argv )
@@ -651,7 +446,7 @@ local function translateCmdCallback( ply, commandName, argv )
 				end
 				arg = arg:Trim()
 				if arg:sub( 1, 1 ) == "\"" and arg:sub( -1, -1 ) == "\""
-					and arg:find( "\"", 2, true ) == arg:len() then -- If balanced single pair quotes, strip them
+					and arg:find( "\"", 2, true ) == arg:len() then
 					arg = ULib.stripQuotes( arg )
 				end
 			end
@@ -763,31 +558,7 @@ local function translateAutocompleteCallback( commandName, args )
 	end
 	return ret
 end
-	Class: cmds.TranslateCommand
-	Offers an abstraction on the "console command" concept. Think of this class
-	as a translator sitting between the user and your program. You tell this
-	translator what arguments and types you're expecting from the user and the
-	translator handles the rest.
-	If the user tries to use a command with the incorrect number or wrong type
-	of args, the translator informs the user of the problem and suggests how to
-	fix it. If the user has everything correct, the translator calls the
-	callback with the correctly typed and validated arguments.
-	Revisions:
-		v2.40 - Initial
-]]
 cmds.TranslateCommand = inheritsFrom( nil )
-	Function: cmds.TranslateCommand:instantiate
-	Parameters:
-		cmd - The command you're creating. IE, "ulx slap".
-		fn - *(Optional on client since it's ignored)* The function callback for this command. The callback receives
-			the arguments you specify.
-		say_cmd - *(Optional)* Specify a say command or commands (as a table) to be tied in.
-		hide_say - *(Optional, defaults to false)* Hide the chat when the say
-			command is used?
-		no_space_in_say - *(Optional, defaults to false)* Is a space between
-			the chat command and arguments required?
-		unsafe - *(Optional, defaults to false)* Flag for ULib.execString, which disallows execution from untrusted config.
-]]
 function cmds.TranslateCommand:instantiate( cmd, fn, say_cmd, hide_say, no_space_in_say, unsafe )
 	ULib.checkArg( 1, "ULib.cmds.TranslateCommand", "string", cmd, 5 )
 	if SERVER then
@@ -805,36 +576,11 @@ function cmds.TranslateCommand:instantiate( cmd, fn, say_cmd, hide_say, no_space
 	translatedCmds[ cmd:lower() ] = self
 	cmds.addCommand( cmd, translateCmdCallback, translateAutocompleteCallback, cmd, say_cmd, hide_say, no_space_in_say, unsafe )
 end
-	Function: cmds.TranslateCommand:addParam
-	Add an argument to this command. See the types above for more usage info.
-	Parameters:
-		t - A table containing the information on this argument.
-]]
 function cmds.TranslateCommand:addParam( t )
 	ULib.checkArg( 1, "ULib.cmds.TranslateCommand:addParam", "table", t )
 	t.cmd = self.cmd
 	table.insert( self.args, t )
 end
-	Function: cmds.TranslateCommand:setOpposite
-	Set the command opposite for this command. IE, if the main command is
-	"jail", the opposite might be "unjail". The same callback is called for
-	both "jail" and "unjail". The parameters passed to this function specify
-	required values for arguments passed to the callback. Any nil values still
-	allow any valid values from the user. Automatically sets default access to
-	be the same as the "non-opposite" command.
-	Parameters:
-		cmd - The name of the command for this opposite. IE, "unjail".
-		args - The args to restrict or allow, in order.
-		say_cmd - *(Optional)* Specify a say command to be tied in.
-		hide_say - *(Optional, defaults to false)* Hide the chat when the say
-			command is used?
-		no_space_in_say - *(Optional, defaults to false)* Is a space between
-			the chat command and arguments required?
-	Example:
-		This sets the opposite to "unjail", where the first parameter can still
-		be any valid value, but the second value must be 0.
-:myCmd:setOpposite( "unjail", { _, 0 }, "!unjail" )
-]]
 function cmds.TranslateCommand:setOpposite( cmd, args, say_cmd, hide_say, no_space_in_say )
 	ULib.checkArg( 1, "ULib.cmds.TranslateCommand:setOpposite", "string", cmd )
 	ULib.checkArg( 2, "ULib.cmds.TranslateCommand:setOpposite", "table", args )
@@ -849,13 +595,6 @@ function cmds.TranslateCommand:setOpposite( cmd, args, say_cmd, hide_say, no_spa
 		self:defaultAccess( self.default_access )
 	end
 end
-	Function: cmds.TranslateCommand:getUsage
-	Parameters:
-		ply - The player wanting the usage information. Used for player adding
-			restriction info in the usage statement.
-	Returns:
-		A string of the usage information for this command.
-]]
 function cmds.TranslateCommand:getUsage( ply )
 	ULib.checkArg( 1, "ULib.cmds.TranslateCommand:getUsage", {"Entity", "Player"}, ply )
 	local access, accessTag = ULib.ucl.query( ply, self.cmd )
@@ -873,22 +612,9 @@ function cmds.TranslateCommand:getUsage( ply )
 	end
 	return str:Trim()
 end
-	Function: cmds.TranslateCommand:call
-	This is just a pass-through function for calling the function callback. If
-	you want to modify the behavior of TranslateCommand on the callback, this
-	is the place to do it. For example, ULX overrides this to add logging info.
-	Parameters:
-		isOpposite - Is this the opposite command that's being called?
-		... - The args that will be passed to the function callback.
-]]
 function cmds.TranslateCommand:call( isOpposite, ... )
 	return self.fn( ... )
 end
-	Function: cmds.TranslateCommand:defaultAccess
-	Parameters:
-		access - The group or groups that should have access to this command by
-			default.
-]]
 function cmds.TranslateCommand:defaultAccess( access )
 	ULib.checkArg( 1, "ULib.cmds.TranslateCommand:defaultAccess", "string", access )
 	if CLIENT then return end
@@ -901,19 +627,6 @@ end
 local routedCmds = {}
 local sayCmds = {}
 local sayCommandCallback
-	Function: cmds.getCommandTableAndArgv
-	Transforms a command and argument list as passed by the source engine into a ULib command table.
-	Parameters:
-		commandName - The *string* top-level command. IE, "ulx".
-		argv - The argument list, as a *list of strings*.
-		valveErrorCorrection - An *optional boolean* of whether to correct for source engine command line mangling.
-	Returns:
-		1 - The command table, as contained in ULib.cmds.routedCmds. If none found, returns nil.
-		2 - The final computed command name
-		3 - The argv table, stripped of ULX command portions.
-	Revisions:
-		v2.62 - Initial
-]]
 function cmds.getCommandTableAndArgv( commandName, argv, valveErrorCorrection )
 	if valveErrorCorrection then
 		local args = ""
@@ -938,17 +651,6 @@ function cmds.getCommandTableAndArgv( commandName, argv, valveErrorCorrection )
 	table.insert( argv, 1, nextWord )
 	return currTable, commandName, argv
 end
-	Function: cmds.execute
-	Given a ULib command table and the information to pass to the command callback, execute the command.
-	Also routes server commands appropriately and executes ULib command hooks.
-	Parameters:
-		cmdTable - The command *table*, internal to ULib.
-		ply - The *player* calling the command.
-		commandName - The *string* of the command name.
-		argv - The argument list, as a *list of strings*.
-	Revisions:
-		v2.62 - Initial
-]]
 function cmds.execute( cmdTable, ply, commandName, argv )
 	if CLIENT and not cmdTable.__client_only then
 		ULib.redirect( ply, commandName, argv )
@@ -1035,55 +737,6 @@ local function autocompleteCallback( commandName, args )
 	end
 	return currTable.__autocomplete( commandName, args )
 end
-	Function: cmds.addCommand
-	*You must run this function on BOTH client AND server.*
-	This function is very similar to garry's concommand.Add() function with a
-	few key differences.
-	First, this function supports commands with spaces in the name. IE,
-	"ulx slap" is handled just like you'd think it ought to be.
-	Second, autocompletes for spaced commands work similar to how the default
-	autocomplete in console works. IE, if you type "ulx sl" into the console,
-	you'll see all commands starting with that ("ulx slap", "ulx slay").
-	Third, it will automatically tie in chat commands.
-	Parameters:
-		cmd - The command you're creating. IE, "ulx slap".
-		fn - *(Optional on clients since it's ignored)* The function callback
-			for this command. The callback receives the same parameters as a
-			callback from concommand.Add() does. This parameter is ignored on
-			clients.
-		autocomplete - *(Optional)* The callback for autocompletes. If left
-			nil, ULib tries to intelligently figure out what commands there are
-			to complete. This parameter is ignored on servers if it's not
-			singleplayer or a listen server.
-		access_string - *(Optional)* Access required for use this command. It's
-			only used for autocomplete purposes and is NOT validated at the
-			server.
-		say_cmd - *(Optional)* Specify a say command or say commands as a table
-			to be tied in.
-		hide_say - *(Optional, defaults to false)* Hide the chat when the say
-			command is used?
-		no_space_in_say - *(Optional, defaults to false)* Is a space between
-			the chat command and arguments required?
-		unsafe - Flag the command as unsafe to execute for <execStringULib>.
-	Example:
-		The code below creates a bunch of different commands under the first
-		"myTest" command. If you type in "myTest " at console, you see all the
-		available commands for the next step in autocompletes. Note that it's
-		case-insensitive, but otherwise works exactly like you would expect.
-:cmds.addCommand( "myTest", print )
-:cmds.addCommand( "myTest hi", print )
-:cmds.addCommand( "myTest hi2", print )
-:cmds.addCommand( "myTest hi2 doOty", print, print )
-:cmds.addCommand( "myTest hi2 doot", print, print )
-:cmds.addCommand( "myTest hi2 color", print, function() return { "red", "green", "blue" } end )
-:cmds.addCommand( "myTest rEd", print, print )
-:cmds.addCommand( "myTest blue", print, print )
-:cmds.addCommand( "myTest bluegreen", print, print )
-:cmds.addCommand( "myTest green", print, print )
-	Revisions:
-		v2.63 - Added unsafe flag
-		v2.40 - Initial
-]]
 function cmds.addCommand( cmd, fn, autocomplete, access_string, say_cmd, hide_say, no_space_in_say, unsafe )
 	ULib.checkArg( 1, "ULib.cmds.addCommand", "string", cmd )
 	if SERVER then
@@ -1124,13 +777,6 @@ function cmds.addCommand( cmd, fn, autocomplete, access_string, say_cmd, hide_sa
 		end
 	end
 end
-	Function: cmds.addCommandClient
-	Exactly like cmds.addCommand, except it will expect the callback to be run
-	on the local client instead of the server.
-	Revisions:
-		v2.63 - Added unsafe flag
-		v2.40 - Initial
-]]
 function cmds.addCommandClient( cmd, fn, autocomplete, unsafe )
 	ULib.checkArg( 1, "ULib.cmds.addCommandClient", "string", cmd )
 	ULib.checkArg( 2, "ULib.cmds.addCommandClient", {"nil", "function"}, fn )

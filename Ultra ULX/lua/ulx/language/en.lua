@@ -1,3 +1,4 @@
+﻿
 local L = ULib.ulx_lang
 local T = L.data
 T["tab_commands"] = "Commands"

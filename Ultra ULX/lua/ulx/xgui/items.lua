@@ -1,3 +1,4 @@
+﻿
 local dualAmmo = { ["weapon_smg1"] = true, ["weapon_ar2"] = true }
 local function translateGroup( name )
 	return xgui.translateGroup( name )

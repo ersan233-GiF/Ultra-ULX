@@ -1,17 +1,3 @@
-	Title: Utilities
-	Has some useful server utilities
-]]
-	Function: clientRPC
-	Think of this function as if you're calling a client function directly from the server. You state who should run it, what the name of
-	the function is, and then a list of parameters to pass to that function on the client. ULib handles the rest. Parameters can be any
-	data type that's allowed on the network and of any size. Send huge tables or strings, it's all the same, and it all works.
-	Parameters:
-		filter - The Player object, table of Player objects for who you want to send this to, nil sends to everyone.
-		fn - A string of the function to run on the client. Does *not* need to be in the global namespace, "myTable.myFunction" works too.
-		... - *Optional* The parameters to pass to the function.
-	Revisions:
-		v2.40 - Initial.
-]]
 function ULib.clientRPC( plys, fn, ... )
 	ULib.checkArg( 1, "ULib.clientRPC", {"nil","Player","table"}, plys )
 	ULib.checkArg( 2, "ULib.clientRPC", {"string"}, fn )
@@ -24,14 +10,6 @@ function ULib.clientRPC( plys, fn, ... )
 		net.Broadcast()
 	end
 end
-	Function: play3DSound
-	Plays a 3D sound, the further away from the point the player is, the softer the sound will be.
-	Parameters:
-		sound - The sound to play, relative to the sound folder.
-		vector - The point to play the sound at.
-		volume - *(Optional, defaults to 1)* The volume to make the sound.
-		pitch - *(Optional, defaults to 1)* The pitch to make the sound, 1 = normal.
-]]
 function ULib.play3DSound( sound, vector, volume, pitch )
 	volume = volume or 100
 	pitch = pitch or 100
@@ -42,11 +20,6 @@ function ULib.play3DSound( sound, vector, volume, pitch )
 	ent:Activate()
 	ent:EmitSound( sound, volume, pitch )
 end
-	Function: getAllReadyPlayers
-	Similar to player.GetAll(), except it only returns players that have ULib ready to go.
-	Revisions:
-		2.40 - Initial
-]]
 function ULib.getAllReadyPlayers()
 	local players = player.GetAll()
 	for i=#players, 1, -1 do
@@ -59,23 +32,6 @@ end
 ULib.repcvars = ULib.repcvars or {}
 local repcvars = ULib.repcvars
 local repCvarServerChanged
-	Function: replicatedWritableCvar
-	This function is mainly intended for use with the menus. This function is very similar to creating a replicated cvar with one caveat:
-	This function also creates a cvar on the client that can be modified and will be sent back to the server.
-	Parameters:
-		sv_cvar - The string of server side cvar.
-		cl_cvar - The string of the client side cvar. *THIS MUST BE DIFFERENT FROM THE sv_cvar VALUE IF YOU'RE PIGGY BACKING AN EXISTING REPLICATED CVAR (like sv_gravity)*.
-		default_value - The string of the default value for the cvar.
-		save - Boolean of whether or not the value is persistent across map changes.
-			This uses garry's way, which has lots of issues. We recommend you watch the cvar for changes and handle saving yourself.
-		notify - Boolean of whether or not value changes are announced on the server
-		access - The string of the access required for a client to actually change the value.
-	Returns:
-		The server-side cvar object.
-	Revisions:
-		v2.40 - Initial.
-		v2.50 - Changed to not depend on the replicated cvars themselves due to Garry-breakage.
-]]
 function ULib.replicatedWritableCvar( sv_cvar, cl_cvar, default_value, save, notify, access )
 	sv_cvar = sv_cvar:lower()
 	cl_cvar = cl_cvar:lower()

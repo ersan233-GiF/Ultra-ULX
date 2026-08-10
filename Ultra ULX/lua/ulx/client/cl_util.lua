@@ -1,6 +1,3 @@
-	Title: Utilities
-	Some client-side utilties
-]]
 local function ULibRPC()
 	local fn_string = net.ReadString()
 	local args = net.ReadTable()

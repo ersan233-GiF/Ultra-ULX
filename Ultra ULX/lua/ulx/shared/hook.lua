@@ -6,7 +6,6 @@ local isstring = isstring
 local isnumber = isnumber
 local math = math
 local IsValid = IsValid
-local OldHooks = hook.GetTable()
 local oldHookCall = hook.Call
 local oldHookAdd = hook.Add
 local oldHookRemove = hook.Remove
@@ -77,12 +76,5 @@ hook_mt.Call          = function(name, gm, ...)
 	end
 	if oldHookCall then
 		return oldHookCall(name, gm, ...)
-	end
-end
-for event_name, t in pairs(OldHooks) do
-	for name, func in pairs(t) do
-		if isstring(name) then
-			hook_mt.Add(event_name, name, func)
-		end
 	end
 end

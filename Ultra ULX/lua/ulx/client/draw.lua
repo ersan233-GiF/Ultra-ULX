@@ -1,16 +1,3 @@
-	Title: Draw
-	Our client-side draw functions
-]]
-	Function: csayDraw
-	Draws a csay text on the screen.
-	Parameters:
-		msg - The message to draw.
-		color - *(Optional, defaults to 255, 255, 255, 255)* The color of the text
-		duration - *(Optional, defaults to 5)* The length of the text
-		fade - *(Optional, defaults to 0.5)* The length of fade time
-	Revisions:
-		v2.10 - Added fade parameter
-]]
 local csayState = {}
 local function csayDrawToScreen()
 	local state = csayState

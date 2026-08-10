@@ -17,8 +17,8 @@ slap:addParam{ type=ULib.cmds.PlayersArg }
 slap:addParam{ type=ULib.cmds.NumArg, min=0, default=0, hint="伤害值", ULib.cmds.optional, ULib.cmds.round }
 slap:defaultAccess( ULib.ACCESS_ADMIN )
 slap:help( "扇目标巴掌造成伤害" )
-function ulx.whip( calling_ply, target_plys, times, freq, dmg )
-	if times and times == 0 then
+function ulx.whip( calling_ply, target_plys, times, freq, dmg, should_stop )
+	if should_stop or times == 0 then
 		for _, v in ipairs( target_plys ) do
 			timer.Remove( "ulxWhip_" .. v:EntIndex() )
 		end
@@ -48,9 +48,10 @@ whip:addParam{ type=ULib.cmds.PlayersArg }
 whip:addParam{ type=ULib.cmds.NumArg, min=1, max=9999, default=10, hint="次数", ULib.cmds.optional, ULib.cmds.round }
 whip:addParam{ type=ULib.cmds.NumArg, min=0.1, max=100, default=2, hint="频率/秒", ULib.cmds.optional }
 whip:addParam{ type=ULib.cmds.NumArg, min=0, default=0, hint="伤害值", ULib.cmds.optional, ULib.cmds.round }
+whip:addParam{ type=ULib.cmds.BoolArg, invisible=true }
 whip:defaultAccess( ULib.ACCESS_ADMIN )
 whip:help( "连续扇目标指定次数，!unwhip 停止" )
-whip:setOpposite( "ulx unwhip", {_, _, 0}, "!unwhip" )
+whip:setOpposite( "ulx unwhip", {_, _, _, _, _, true}, "!unwhip" )
 function ulx.slay( calling_ply, target_plys )
 	local affected_plys = {}
 	for i=1, #target_plys do

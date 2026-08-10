@@ -1,27 +1,4 @@
-	Title: Plugin Helpers
-	Some useful functions for ULib plugins to use for doing plugin-type things.
-]]
-	Table: plugins
-	Holds plugin data for plugins that have registered themselves with ULib.
-	Fields:
-		Name - A string of the name of the plugin.
-		Version - A string or number of the version of the plugin.
-		IsRelease - An optional boolean specifying if this is a release (non-beta) version
-		Author - An optional string of the author of the plugin.
-		URL - An optional string of the URL for the plugin.
-		WorkshopID - An optional number specifying the workshopid for the plugin.
-		BuildNumLocal - An optional number specifying the build number for this plugin.
-		BuildHidden - An optional boolean; if true, the build is not shown in the version string.
-		BuildNumRemoteURL - An optional string specifying the URL to visit to retrieve the latest published build number for the plugin.
-		BuildNumRemoteReceivedCallback - An optional function to callback when the latest published build number is received.
-		WorkshopMounted - A generated boolean which is true only if WorkshopID was specified and that ID is currently mounted.
-		BuildNumRemote - A generated number of the retrieved latest published build number.
-]]
 ULib.plugins = {}
-	Function: registerPlugin
-	Parameters:
-		pluginData - A table of plugin data in the format documented in <plugins>, above.
-]]
 function ULib.registerPlugin( pluginData )
 	local name = pluginData.Name
 	if not ULib.plugins[ name ] then
@@ -62,14 +39,6 @@ ULib.registerPlugin{
 	BuildNumLocal = tonumber(ULib.fileRead( "ulib.build" )),
 	BuildNumRemoteURL = ulibBuildNumURL,
 }
-	Function: pluginVersionStr
-	Returns a human-readable version string for plugins in a consistent format.
-	The string tells users if they're using a development build (with build number/date), workshop, or release version.
-	Parameters:
-		name - The string of the plugin name you are querying about.
-	Returns:
-		A string of the version information for the specified plugin.
-]]
 function ULib.pluginVersionStr( name )
 	local dat = ULib.plugins[ name ]
 	if not dat then return nil end
@@ -98,13 +67,6 @@ local function receiverFor( plugin )
 	end
 	return receiver
 end
-	Function: updateCheck
-	Check for updates for a named plugin at a given URL (usually you will want to
-	use the URL specified in registerPlugin). Note that this is an asynchronous check.
-	Parameters:
-		name - The name of the plugin.
-		url - The URL to check.
-]]
 function ULib.updateCheck( name, url )
 	local plugin = ULib.plugins[ name ]
 	if not plugin then return nil end

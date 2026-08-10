@@ -1,6 +1,3 @@
-	Title: Tables
-	Some table helpers.
-]]
 local metatable_cache = setmetatable( {}, { __mode = "k" } )
 local function make_getter( real_table )
 	local function getter( dummy, key )
@@ -33,13 +30,6 @@ local function make_pairs( real_table )
 	end
 	return pairs
 end
-	Function: makeReadOnly
-	Makes a table and all recursive tables read-only
-	Parameters:
-		t - The table to make read-only
-	Returns:
-		The table read-only'fied
-]]
 function ULib.makeReadOnly( t )
 	local new={}
 	local mt={
@@ -52,11 +42,6 @@ function ULib.makeReadOnly( t )
 	metatable_cache[ new ] = mt
 	return new
 end
-	Function: ropairs
-	The equivalent of "pairs" for a readonly table, since "pairs" won't work.
-	Parameters:
-		t - The table
-]]
 function ULib.ropairs( t )
 	local mt = metatable_cache[ t ]
 	if mt==nil then
@@ -64,17 +49,6 @@ function ULib.ropairs( t )
 	end
 	return mt.__pairs()
 end
-	Function: findInTable
-	Finds a value in a table. As opposed to table.HasValue(), this function will *only* check numeric keys, and will return a number of where the value is.
-	Parameters:
-		t - The table to check
-		check - The value to check if it exists in t. Can be any type.
-		init - *(Optional, defaults to 1)* The value to start from.
-		last - *(Optional, defaults to the length of the table)* The value to end at.
-		recursive - *(Optional, default to false)* If true, it will check any subtables it comes across.
-	Returns:
-		The number of the key where check resides, false if none is found. If init > last it returns false as well.
-]]
 function ULib.findInTable( t, check, init, last, recursive )
 	init = init or 1
 	last = last or #t
@@ -85,16 +59,6 @@ function ULib.findInTable( t, check, init, last, recursive )
 	end
 	return false
 end
-	Function: matrixTable
-	Splits a table into a number of given columns. Does not change original table.
-	Parameters:
-		t - The table to split
-		columns, The number of columns to create
-	Returns:
-		The new table with the column being the first key and the row being the second key.
-	Revisions:
-		v2.10 - Initial
-]]
 function ULib.matrixTable( t, columns )
 	local baserows = math.floor( #t / columns )
 	local remainder = math.fmod( #t, columns )

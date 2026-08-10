@@ -45,7 +45,10 @@ files["banmessage.txt"] = [[
 ; {{STEAMID}} - The banned player's Steam ID (excluding non-number characters)
 ; {{STEAMID64}} - The banned player's 64-bit Steam ID
 ; The two steam ID variables are useful for constructing URLs for appealing bans
+-------===== [ BANNED ] =====-------
+---= Reason =---
 {{REASON}}
+---= Time Left =---
 {{TIME_LEFT}}
 ]]
 files["banreasons.txt"] =
@@ -110,13 +113,13 @@ ulx rslotsVisible 1 ; When this is 0, sv_visiblemaxplayers will be set to maxpla
 ;3 - Always keep 1 slot open for admins, kick the user with the shortest connection time if an admin joins.
 ;Difference between 1 and 2:
 ;I realize it's a bit confusing, so here's an example.
-;On mode 1
+;On mode 1--
 ;	You have maxplayers set to 10, rslots set to 2, and there are currently 8 non-admins connected.
 ;	If a non-admin tries to join, they'll be kicked to keep the reserved slots open. Two admins join
 ;	and fill the two reserved slots. When non-admins leave, the two admins will still be filling the
 ;	two reserved slots, so another regular player can join and fill the server up again without being
 ;	kicked by the slots system
-;On mode 2
+;On mode 2--
 ;	Same setup as mode 1, you have the two admins in the server and the server is full. Now, when a
 ;	non-admin leaves the server, reserved slots will pick up the slot again as reserved. If a regular
 ;	player tries to join and fill the server again, even though there are two admins connected, it will
@@ -152,8 +155,8 @@ files["downloads.txt"] =
 ; You can add a folder to add all files inside that folder recursively.
 ; Any line starting with ';' is a comment and WILL NOT be processed!!!
 ; Examples:
-;sound/cheeseman.mp3 <
-;sound/my_music <
+;sound/cheeseman.mp3 <-- Adds the file 'cheeseman.mp3' under the sound folder
+;sound/my_music <-- Adds all files within the my_music folder, inside the sound folder
 ]]
 files["gimps.txt"] =
 [[; Add gimp says in this file, one per line.

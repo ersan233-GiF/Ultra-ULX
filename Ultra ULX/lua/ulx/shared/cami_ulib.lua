@@ -1,11 +1,3 @@
-	File: CAMI
-	Implements CAMI version "20150902.1".
-	The CAMI API is designed by Falco "FPtje" Peijnenburg, but this source code
-	remains under the same licensing as the rest of ULib.
-	To update the shared FPtje CAMI logic, run the following in the
-	appropriate directory...
-	: wget https://raw.githubusercontent.com/glua/CAMI/master/sh_cami.lua -O cami_global.lua
-]]
 CAMI.ULX_TOKEN = "ULX"
 local function playerHasAccess( actorPly, priv, callback, targetPly, extra )
 	local priv = priv:lower()

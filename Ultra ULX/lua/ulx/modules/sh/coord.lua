@@ -147,5 +147,4 @@ coordCmd:addParam{ type = ULib.cmds.StringArg, hint = "指定SteamID(模式4)", 
 coordCmd:defaultAccess(ULib.ACCESS_ADMIN)
 coordCmd:help("目标头顶显示名字和实时坐标，!uncoord 关闭")
 coordCmd:setOpposite("ulx uncoord", {}, "!uncoord")
-coordCmd:setOpposite("ulx uncoord", {_, _, false}, "!uncoord")
 if not UltraULX_SilentReRegister then Msg("[ULX] 坐标系统已加载 (coordhud + coord)\n") end
