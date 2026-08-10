@@ -1,12 +1,12 @@
-# Ultra ULX v2.70.0
+﻿# Ultra ULX v2.71.0
 
-[![GitHub release](https://img.shields.io/badge/version-2.70.0-blue)](https://github.com/ersan233-GiF/Ultra-ULX/releases)
+[![GitHub release](https://img.shields.io/badge/version-2.71.0-blue)](https://github.com/ersan233-GiF/Ultra-ULX/releases)
 [![GitHub stars](https://img.shields.io/github/stars/ersan233-GiF/Ultra-ULX?style=social)](https://github.com/ersan233-GiF/Ultra-ULX)
 [![GitHub license](https://img.shields.io/badge/license-MIT-green)](https://github.com/ersan233-GiF/Ultra-ULX/blob/main/LICENSE)
 [![ULX](https://img.shields.io/badge/ULX-3.81%20compatible-orange)](https://github.com/TeamUlysses/ulx)
 [![GMod](https://img.shields.io/badge/Garry's%20Mod-Addon-ff69b4)](https://gmod.facepunch.com/)
 
-> 基于 [Team Ulysses ULX v3.71](https://github.com/TeamUlysses/ulx) · 完全中文化 · 114+ 新命令 · 4 种语言
+> 基于 [Team Ulysses ULX v3.71](https://github.com/TeamUlysses/ulx) · 完全中文化 · 114+ 新命令 · 4 种语言（简中/English/Русский/文言文）（简中/English/Русский/文言文）
 
 **[GitHub 仓库](https://github.com/ersan233-GiF/Ultra-ULX)** · **[下载发布包](https://github.com/ersan233-GiF/Ultra-ULX/releases)** · **[提交 Issue](https://github.com/ersan233-GiF/Ultra-ULX/issues)**
 
@@ -14,7 +14,7 @@
 
 ## 模块简介
 
-[Ultra ULX ](https://github.com/ersan233-GiF/Ultra-ULX)是 Garry's Mod 服务端管理插件 [ULX](https://github.com/TeamUlysses/ulx) 的增强分支，在保留原版全部功能的基础上，新增 114+ 条管理命令，支持 4 种语言，集成 SQLite 持久化惩罚系统，自动连跳，坐标 HUD 等。
+**Ultra ULX** 是 Garry's Mod 服务端管理插件 [ULX](https://github.com/TeamUlysses/ulx) 的增强分支，在保留原版全部功能的基础上，新增 114+ 条管理命令，支持 4 种语言，集成 SQLite 持久化惩罚系统，自动连跳，坐标 HUD 等。
 
 ### 核心功能
 
@@ -42,7 +42,7 @@
 ```
 1. 下载发布包 → 解压 → 将 Ultra ULX 文件夹放入 garrysmod/addons/
 2. 重启服务器
-3. 控制台显示 // Ultra ULX v2.70.0 Loaded! // 即成功
+3. 控制台显示 // Ultra ULX v2.71.0 Loaded! // 即成功
 ```
 
 [⬇️ 下载最新发布包](https://github.com/ersan233-GiF/Ultra-ULX/releases)
@@ -227,7 +227,7 @@ ulx removeuser 玩家名                          ← 按名称移除
 | 模块数 | **23 个** (sh 14 + cl 5 + sv 4) |
 | 道具分类 | **9 类** |
 | ULib 版本 | 2.72 |
-| Ultra ULX 版本 | **v2.70.0** |
+| Ultra ULX 版本 | **v2.71.0** |
 | ULX 兼容版本 | 3.81 |
 
 ---
@@ -650,7 +650,7 @@ ulx.item.Register("my_category", {
 
 ## 更新日志
 
-### v2.70.0 (2026-06-20)
+### v2.71.0 (2026-06-20)
 
 - **性能优化**: coord.lua HUDPaint 钩子改为动态添加/移除，关闭后零开销
 - **硬编码迁移**: teleport.lua 全部错误提示和日志改用 `L.T()` 多语言系统
