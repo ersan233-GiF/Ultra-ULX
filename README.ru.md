@@ -10,9 +10,9 @@
 [![Языки](https://img.shields.io/badge/Языки-4-4FC08D)](#языки)
 [![Команды](https://img.shields.io/badge/Команды-150%2B-success)](#справочник-команд)
 
-> **🌐 Язык / Language / 语言:** [🇨🇳 中文](README.md) · [🇬🇧 English](README.en.md) · [🇷🇺 Русский](README.ru.md)
+> 🌐 **Русский** · [简体中文](README.md) · [English](README.en.md)
 
-> Расширенный форк [Team Ulysses ULX v3.81](https://github.com/TeamUlysses/ulx) + ULib v2.72 · Полная локализация · 150+ команд · 4 языка · SQLite-персистентность · Бесследное сосуществование
+> Расширенный форк [Team Ulysses ULX v3.81](https://github.com/TeamUlysses/ulx) + [ULib v2.72](https://github.com/TeamUlysses/ulib) · Полная локализация · 150+ команд · 4 языка · SQLite-персистентность · Бесследное сосуществование
 
 **[⬇️ Скачать последний релиз](https://github.com/ersan233-GiF/Ultra-ULX/releases/latest)** · **[🌐 Официальный сайт](https://ersan233-gif.github.io/Ultra-ULX/)** · **[Сообщить об ошибке](https://github.com/ersan233-GiF/Ultra-ULX/issues)** · **[Журнал изменений](CHANGELOG.md)** · **[Исходный репозиторий](https://github.com/ersan233-GiF/ultra-ulx-source)**
 

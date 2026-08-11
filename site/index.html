@@ -64,12 +64,6 @@
     background:linear-gradient(90deg,#5aa8f5,#40c980);-webkit-background-clip:text;background-clip:text;color:transparent}
   .hero .tagline{color:var(--muted);font-size:18px;margin:16px auto 28px;max-width:660px}
 
-  /* 居中分段语言选择器（Hero 内） */
-  .lang-seg{display:inline-flex;gap:4px;background:var(--bg2);border:1px solid var(--border2);border-radius:999px;padding:5px;margin-bottom:26px;box-shadow:var(--shadow)}
-  .lang-seg button{padding:8px 22px;border-radius:999px;border:none;background:transparent;color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;display:flex;align-items:center;gap:7px}
-  .lang-seg button:hover{color:var(--text)}
-  .lang-seg button.active{background:var(--grad);color:#fff}
-
   .badges{margin:0 auto 30px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
   .badges img{height:22px;border-radius:5px}
   .btn{display:inline-block;padding:14px 32px;border-radius:999px;font-size:16px;font-weight:700;transition:transform .15s,box-shadow .2s;margin:0 8px}
@@ -191,13 +185,6 @@
   <div class="container">
     <svg class="logo-svg" width="86" height="86" viewBox="0 0 48 48" fill="none"><path d="M24 3 42 11v14c0 10.5-7.5 17.5-18 20C13.5 42.5 6 35.5 6 25V11L24 3z" fill="url(#lg2)"/><path d="M17 18h14v4h-5v10h-4V22h-5v-4z" fill="#0b0f17"/><defs><linearGradient id="lg2" x1="6" y1="3" x2="42" y2="45"><stop stop-color="#3c96f0"/><stop offset="1" stop-color="#40c980"/></linearGradient></defs></svg>
     <h1>Ultra ULX</h1>
-
-    <!-- 居中语言分段选择器 -->
-    <div class="lang-seg" style="margin-top:20px">
-      <button type="button" data-lang="zh">🇨🇳 中文</button>
-      <button type="button" data-lang="en">🇬🇧 English</button>
-      <button type="button" data-lang="ru">🇷🇺 Русский</button>
-    </div>
 
     <p class="tagline" data-i18n="hero.tagline">基于 Team Ulysses ULX 的增强分支 · 完全中文化 · 150+ 命令 · 4 种语言 · SQLite 持久化 · 零侵入共存</p>
     <div class="badges">
@@ -521,7 +508,7 @@ function setLang(lang){
   });
   const ph = document.querySelector('[data-i18n-ph]');
   if (ph) ph.placeholder = dict[ph.dataset.i18nPh] || ph.placeholder;
-  document.querySelectorAll('.lang-seg button, .lang-menu button').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  document.querySelectorAll('.lang-menu button').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
   document.querySelectorAll('.lang-btn-label').forEach(el => el.textContent = LANG_LABELS[lang]);
   localStorage.setItem('ulx-lang', lang);
 }
@@ -532,7 +519,7 @@ setLang(['zh','en','ru'].includes(saved) ? saved : 'zh');
 const dd = document.getElementById('langDropdown');
 document.getElementById('langBtn').addEventListener('click', e => { e.stopPropagation(); dd.classList.toggle('open'); });
 document.addEventListener('click', () => dd.classList.remove('open'));
-document.querySelectorAll('#langMenu button, .lang-seg button').forEach(b => b.addEventListener('click', () => { setLang(b.dataset.lang); dd.classList.remove('open'); }));
+document.querySelectorAll('#langMenu button').forEach(b => b.addEventListener('click', () => { setLang(b.dataset.lang); dd.classList.remove('open'); }));
 
 // ── 年份 ──
 document.getElementById('year').textContent = new Date().getFullYear();

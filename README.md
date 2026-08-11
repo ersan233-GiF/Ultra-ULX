@@ -10,9 +10,9 @@
 [![语言](https://img.shields.io/badge/语言-4%20种-4FC08D)](#多语言切换)
 [![命令](https://img.shields.io/badge/命令-150%2B-success)](#命令参考)
 
-> **🌐 语言 / Language / Язык:** [🇨🇳 中文](README.md) · [🇬🇧 English](README.en.md) · [🇷🇺 Русский](README.ru.md)
+> 🌐 **简体中文** · [English](README.en.md) · [Русский](README.ru.md)
 
-> 基于 [Team Ulysses ULX v3.81](https://github.com/TeamUlysses/ulx) + ULib v2.72 的增强分支 · 完全中文化 · 150+ 命令 · 4 种语言 · SQLite 持久化 · 零侵入共存
+> 基于 [Team Ulysses ULX v3.81](https://github.com/TeamUlysses/ulx) + [ULib v2.72](https://github.com/TeamUlysses/ulib) 的增强分支 · 完全中文化 · 150+ 命令 · 4 种语言 · SQLite 持久化 · 零侵入共存
 
 **[⬇️ 下载最新发布包](https://github.com/ersan233-GiF/Ultra-ULX/releases/latest)** · **[🌐 官方网站](https://ersan233-gif.github.io/Ultra-ULX/)** · **[提交 Issue](https://github.com/ersan233-GiF/Ultra-ULX/issues)** · **[查看变更日志](CHANGELOG.md)** · **[开发源码仓库](https://github.com/ersan233-GiF/ultra-ulx-source)**
 
