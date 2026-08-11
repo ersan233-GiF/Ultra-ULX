@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultra ULX — Garry's Mod 服务端管理插件</title>
+<meta name="description" content="Ultra ULX — 基于 ULX 的增强分支，150+ 命令、4 语言、SQLite 持久化，零侵入共存">
+<style>
+  :root{
+    --bg:#0d1117; --bg2:#161b22; --bg3:#1c2330;
+    --border:#2d333b; --text:#e6edf3; --muted:#8b949e;
+    --accent:#3c96f0; --accent2:#40c980; --warn:#f0a03c; --err:#e5534b;
+    --radius:12px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .container{max-width:1080px;margin:0 auto;padding:0 20px}
+
+  /* ── Hero ── */
+  .hero{background:radial-gradient(1200px 500px at 50% -10%,rgba(60,150,240,.18),transparent 60%),linear-gradient(180deg,#0f151f 0%,var(--bg) 100%);padding:80px 0 60px;text-align:center;border-bottom:1px solid var(--border)}
+  .hero .logo{font-size:52px;font-weight:800;letter-spacing:-1px;background:linear-gradient(90deg,#3c96f0,#40c980);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero .tagline{color:var(--muted);font-size:18px;margin:14px auto 26px;max-width:640px}
+  .badges{margin:0 auto 32px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+  .badges img{height:22px;border-radius:4px}
+  .btn{display:inline-block;padding:14px 34px;border-radius:999px;font-size:17px;font-weight:700;transition:transform .15s,box-shadow .15s;margin:0 8px}
+  .btn:hover{transform:translateY(-2px);text-decoration:none}
+  .btn-primary{background:linear-gradient(90deg,#3c96f0,#2f7fd0);color:#fff;box-shadow:0 8px 24px rgba(60,150,240,.35)}
+  .btn-ghost{background:var(--bg2);color:var(--text);border:1px solid var(--border)}
+  .hero .meta{margin-top:30px;color:var(--muted);font-size:14px}
+
+  /* ── 区块 ── */
+  section{padding:60px 0;border-bottom:1px solid var(--border)}
+  h2{font-size:30px;font-weight:800;margin-bottom:8px}
+  .sub{color:var(--muted);margin-bottom:36px}
+
+  /* 特性卡片 */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+  .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:22px;transition:border-color .2s,transform .2s}
+  .card:hover{border-color:var(--accent);transform:translateY(-3px)}
+  .card .icon{font-size:26px;margin-bottom:10px}
+  .card h3{font-size:17px;margin-bottom:6px}
+  .card p{color:var(--muted);font-size:14px}
+
+  /* 安装步骤 */
+  .steps{display:flex;flex-direction:column;gap:14px}
+  .step{display:flex;gap:16px;align-items:flex-start;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px}
+  .step .num{flex-shrink:0;width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
+  .step p{color:var(--text);font-size:15px}
+  .step code{background:var(--bg3);padding:2px 8px;border-radius:6px;font-size:13px;color:#7ee787}
+
+  /* 命令表 */
+  table{width:100%;border-collapse:collapse;background:var(--bg2);border-radius:var(--radius);overflow:hidden}
+  th,td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--border);font-size:14px}
+  th{background:var(--bg3);color:var(--muted);font-weight:600}
+  td code{background:var(--bg3);padding:2px 8px;border-radius:6px;font-size:13px;color:#79c0ff}
+
+  /* 语言 */
+  .langs{display:flex;flex-wrap:wrap;gap:12px}
+  .lang{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 22px;text-align:center;flex:1;min-width:140px}
+  .lang .flag{font-size:26px}
+  .lang .name{font-weight:700;margin-top:6px}
+  .lang .cmd{color:var(--muted);font-size:13px;margin-top:4px}
+  .lang .cmd code{color:#79c0ff;background:var(--bg3);padding:1px 6px;border-radius:5px}
+
+  /* FAQ */
+  details{background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden}
+  summary{padding:16px 20px;cursor:pointer;font-weight:600;list-style:none;position:relative}
+  summary::after{content:"▾";position:absolute;right:20px;color:var(--muted)}
+  details[open] summary::after{transform:rotate(180deg)}
+  details div{padding:0 20px 16px;color:var(--muted);font-size:14px}
+
+  footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px}
+  footer a{color:var(--muted);margin:0 10px}
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<header class="hero">
+  <div class="container">
+    <div class="logo">Ultra ULX</div>
+    <p class="tagline">基于 Team Ulysses ULX 的增强分支 · 完全中文化 · 150+ 命令 · 4 种语言 · SQLite 持久化 · 零侵入共存</p>
+    <div class="badges">
+      <img src="https://img.shields.io/github/v/release/ersan233-GiF/Ultra-ULX?label=最新版本&color=blue" alt="版本">
+      <img src="https://img.shields.io/github/downloads/ersan233-GiF/Ultra-ULX/total?label=总下载&color=success" alt="下载">
+      <img src="https://img.shields.io/github/stars/ersan233-GiF/Ultra-ULX?style=social&label=Stars" alt="Stars">
+      <img src="https://img.shields.io/badge/license-CC_BY--NC--SA_3.0-green" alt="许可">
+      <img src="https://img.shields.io/badge/ULX-3.81%20compatible-orange" alt="ULX">
+      <img src="https://img.shields.io/badge/Garry's%20Mod-Addon-ff69b4" alt="GMod">
+    </div>
+    <div>
+      <a class="btn btn-primary" href="https://github.com/ersan233-GiF/Ultra-ULX/releases/latest">⬇️ 下载发布包</a>
+      <a class="btn btn-ghost" href="https://github.com/ersan233-GiF/Ultra-ULX">GitHub 仓库</a>
+    </div>
+    <div class="meta">当前版本 v2.98.51 · 兼容 ULX 3.81 / ULib 2.72 · 支持简体中文 / English / Русский / 文言文</div>
+  </div>
+</header>
+
+<!-- 特性 -->
+<section>
+  <div class="container">
+    <h2>核心功能</h2>
+    <p class="sub">从日常管理到娱乐互动，一站式覆盖</p>
+    <div class="grid">
+      <div class="card"><div class="icon">🛡️</div><h3>权限管理</h3><p>多级用户组 + 细粒度权限 + SQLite 持久化 + 30 份自动备份</p></div>
+      <div class="card"><div class="icon">⚖️</div><h3>惩罚系统</h3><p>分级警告（3次禁言 / 5次封禁）、限时禁言禁聊、IP 封禁持久化</p></div>
+      <div class="card"><div class="icon">🎮</div><h3>管理工具</h3><p>封禁 / 踢出 / 传送 / 换图 / 清理 / 重置，覆盖日常运维</p></div>
+      <div class="card"><div class="icon">🎉</div><h3>娱乐命令</h3><p>50+ 娱乐互动：slap / ragdoll / freeze / ignite / 火箭 / 颜色…</p></div>
+      <div class="card"><div class="icon">🗳️</div><h3>投票系统</h3><p>玩家投票换图 / 踢人 / 封禁，支持 MapVote / GMVote</p></div>
+      <div class="card"><div class="icon">🖥️</div><h3>XGUI 面板</h3><p>全功能图形管理界面，无需记忆命令即可完成所有操作</p></div>
+      <div class="card"><div class="icon">🏃</div><h3>BHOP 连跳</h3><p>CS:S 标准自动连跳，含坡度补偿与 SetupMove 保活</p></div>
+      <div class="card"><div class="icon">📦</div><h3>道具生成</h3><p>9 类 70+ 预设物品，智能碰撞检测（武器 / 载具 / 道具）</p></div>
+      <div class="card"><div class="icon">🌐</div><h3>4 种语言</h3><p>简体中文 / English / Русский / 文言文，客户端自由切换</p></div>
+      <div class="card"><div class="icon">🧭</div><h3>坐标系统</h3><p>屏幕 HUD + 头顶坐标，4 种可见模式</p></div>
+      <div class="card"><div class="icon">🦘</div><h3>蹲跳增强</h3><p>可调跳跃倍率 + 蹲行速度 + 自动解锁</p></div>
+      <div class="card"><div class="icon">🔒</div><h3>零侵入共存</h3><p>独立数据目录，删除即恢复原版 ULX，无残留</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 安装 -->
+<section>
+  <div class="container">
+    <h2>快速安装</h2>
+    <p class="sub">三步完成部署</p>
+    <div class="steps">
+      <div class="step"><div class="num">1</div><p>下载最新 <a href="https://github.com/ersan233-GiF/Ultra-ULX/releases/latest">发布包</a> 并解压</p></div>
+      <div class="step"><div class="num">2</div><p>将 <code>Ultra ULX</code> 文件夹放入 <code>garrysmod/addons/</code></p></div>
+      <div class="step"><div class="num">3</div><p>重启服务器，控制台显示 <code>Ultra ULX v2.98.51 启动完成</code> 即成功</p></div>
+    </div>
+    <p style="margin-top:20px;color:var(--muted);font-size:14px">安装后需在服务器控制台执行 <code>ulx adduserid &lt;你的SteamID&gt; superadmin</code> 获取管理员权限。</p>
+  </div>
+</section>
+
+<!-- 命令 -->
+<section>
+  <div class="container">
+    <h2>常用命令</h2>
+    <p class="sub">聊天框输入 <code>!指令</code>，或控制台使用 <code>ulx 指令</code></p>
+    <table>
+      <thead><tr><th>命令</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><code>!bring 玩家</code></td><td>把目标传送到自己面前</td></tr>
+        <tr><td><code>!goto 玩家</code></td><td>传送到目标身边</td></tr>
+        <tr><td><code>!ban 玩家 分钟 原因</code></td><td>封禁玩家</td></tr>
+        <tr><td><code>!kick 玩家</code></td><td>踢出玩家</td></tr>
+        <tr><td><code>!mute / !gag 玩家</code></td><td>禁言 / 禁聊</td></tr>
+        <tr><td><code>!freeze / !ragdoll 玩家</code></td><td>冰冻 / 变布娃娃</td></tr>
+        <tr><td><code>!god / !noclip</code></td><td>无敌 / 飞天穿墙</td></tr>
+        <tr><td><code>!cleanup</code></td><td>清理场景道具</td></tr>
+        <tr><td><code>!who</code></td><td>查看玩家列表与 SteamID</td></tr>
+        <tr><td><code>!menu</code></td><td>打开 XGUI 全功能管理面板</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 语言 -->
+<section>
+  <div class="container">
+    <h2>多语言</h2>
+    <p class="sub">客户端自由切换，无需重启</p>
+    <div class="langs">
+      <div class="lang"><div class="flag">🇨🇳</div><div class="name">简体中文</div><div class="cmd"><code>ulx_lang zh-cn</code></div></div>
+      <div class="lang"><div class="flag">🇬🇧</div><div class="name">English</div><div class="cmd"><code>ulx_lang en</code></div></div>
+      <div class="lang"><div class="flag">🇷🇺</div><div class="name">Русский</div><div class="cmd"><code>ulx_lang ru</code></div></div>
+      <div class="lang"><div class="flag">📜</div><div class="name">文言文</div><div class="cmd"><code>ulx_lang lzh</code></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section>
+  <div class="container">
+    <h2>常见问题</h2>
+    <p class="sub">遇到问题先看看这里</p>
+    <details><summary>Unknown command: ulx？</summary><div>检查目录是否多了一层嵌套：<code>addons/Ultra ULX/lua/</code> 必须直接存在。</div></details>
+    <details><summary>怎么给自己管理员权限？</summary><div>服务器控制台执行 <code>ulx adduserid &lt;你的SteamID&gt; superadmin</code>。SteamID 可用聊天框 <code>!who</code> 查看。</div></details>
+    <details><summary>命令无反应？</summary><div>确认自己有对应权限（SuperAdmin / Admin）。</div></details>
+    <details><summary>语言切换后乱码？</summary><div>输入 <code>ulx_lang zh-cn</code> 切回中文。</div></details>
+    <details><summary>怎么卸载？</summary><div>删除 <code>addons/Ultra ULX/</code> 文件夹（可选删除 <code>data/ultra_ulx/</code>），重启服务器即恢复原版 ULX。</div></details>
+    <details><summary>想反馈 Bug 或建议？</summary><div>到 <a href="https://github.com/ersan233-GiF/Ultra-ULX/issues">GitHub Issues</a> 提交，有 Bug / 功能建议模板可用。</div></details>
+  </div>
+</section>
+
+<footer>
+  <p>Ultra ULX · 基于 <a href="https://github.com/TeamUlysses/ulx">ULX</a> by Team Ulysses 增强 · <a href="https://github.com/ersan233-GiF/Ultra-ULX">发布仓库</a> · <a href="https://github.com/ersan233-GiF/ultra-ulx-source">开发源码</a> · <a href="https://github.com/ersan233-GiF/Ultra-ULX/issues">提交 Issue</a></p>
+  <p style="margin-top:8px;color:#4b5563">Made with ❤️ for the Garry's Mod community</p>
+</footer>
+
+</body>
+</html>
