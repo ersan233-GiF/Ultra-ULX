@@ -9,14 +9,44 @@ L.names = {
 }
 L.data = L.data or {}
 L.current = L.current or "zh-cn"
+L.fallbackData = L.fallbackData or {}
+L.fallbackLang = "zh-cn"
 function L.T( key, ... )
 	if key == nil then return "" end
-	local str = L.data[key] or key
+	local str = L.data[key]
+	if str == nil and L.fallbackData then
+		str = L.fallbackData[key]
+	end
+	if str == nil then str = key end
 	if ... then
-		local ok, result = pcall( string.format, str, ... )
+		local lua_str = str
+			:gsub( "#([%.%d]*)f", "%%%1f" )
+			:gsub( "#[%.%d]*i", "%%g" )
+			:gsub( "#[%.%d]*d", "%%g" )
+			:gsub( "#s", "%%s" )
+			:gsub( "#[%.%d]*g", "%%g" )
+			:gsub( "#A", "%%s" )
+			:gsub( "#T", "%%s" )
+			:gsub( "#P", "%%s" )
+		local n = select( "#", ... )
+		local clean_args = { ... }
+		for i = 1, n do
+			if clean_args[i] == nil then
+				clean_args[i] = ""
+			end
+		end
+		local ok, result = pcall( string.format, lua_str, unpack( clean_args, 1, n ) )
 		if ok then str = result end
 	end
 	return str
+end
+if CLIENT and L.current ~= "zh-cn" then
+	L.fallbackData = L.fallbackData or {}
+	local origData = L.data
+	L.data = {}
+	pcall(include, "ulx/language/zh-cn.lua")
+	L.fallbackData = L.data
+	L.data = origData
 end
 function L.load( lang )
 	if not L.names[lang] then
@@ -26,20 +56,11 @@ function L.load( lang )
 	local newData = {}
 	local oldData = L.data
 	L.data = newData
-	if SERVER then
-		local ok, err = pcall( include, "ulx/language/" .. lang .. ".lua" )
-		if not ok then
-			L.data = oldData
-			ErrorNoHalt("[ULX] Failed to load language file '" .. lang .. "': " .. tostring(err) .. "\n")
-			return
-		end
-	else
-		local ok, err = pcall( include, "ulx/language/" .. lang .. ".lua" )
-		if not ok then
-			L.data = oldData
-			ErrorNoHalt("[ULX] Failed to load language file '" .. lang .. "': " .. tostring(err) .. "\n")
-			return
-		end
+	local ok, err = pcall( include, "ulx/language/" .. lang .. ".lua" )
+	if not ok then
+		L.data = oldData
+		ErrorNoHalt("[ULX] Failed to load language file '" .. lang .. "': " .. tostring(err) .. "\n")
+		return
 	end
 	L.current = lang
 end
@@ -56,7 +77,7 @@ if CLIENT then
 		file.Write( "ultra_ulx/language.txt", lang )
 		if xgui and xgui.settings then
 			xgui.settings.language = lang
-			xgui.saveClientSettings()
+			if xgui.saveClientSettings then xgui.saveClientSettings() end
 		end
 	end
 	function L.loadCachedLang()
@@ -86,8 +107,6 @@ if CLIENT then
 			L.switch( "zh-cn" )
 		end
 	end
-end
-if CLIENT then
 	L.loadCachedLang()
 	concommand.Add( "ulx_lang", function( _, _, args )
 		local lang = args[1]
@@ -96,4 +115,44 @@ if CLIENT then
 			L.saveClientLang( lang )
 		end
 	end )
+	net.Receive("ulx_localized_msg", function()
+		local key = net.ReadString()
+		local params = net.ReadTable() or {}
+		local text = L.T(key, unpack(params))
+		chat.AddText(ULib.COLOR_ACCENT, text)
+	end)
+end
+if SERVER then
+	util.AddNetworkString("ulx_localized_msg")
+	concommand.Add("ulx_reload_lang", function(ply, _, args)
+		if not IsValid(ply) or ply:IsSuperAdmin() then
+			local lang = args[1] or L.current
+			L.load(lang)
+			ULib.tsayColor(ply, true, ULib.COLOR_SUCCESS, "[ULX] Language '" .. lang .. "' reloaded (" .. (L.data and table.Count(L.data) or 0) .. " keys)")
+			Msg("[ULX] Language '" .. lang .. "' reloaded (" .. (L.data and table.Count(L.data) or 0) .. " keys)\n")
+		end
+	end)
+	function L.keyedBroadcast(key, ...)
+		local params = {...}
+		net.Start("ulx_localized_msg")
+		net.WriteString(key)
+		net.WriteTable(params)
+		net.Broadcast()
+	end
+	function L.keyedBroadcastFiltered(key, recipients, ...)
+		local params = {...}
+		net.Start("ulx_localized_msg")
+		net.WriteString(key)
+		net.WriteTable(params)
+		if recipients and #recipients > 0 then
+			net.Send(recipients)
+		end
+	end
+	function L.keyedTsay(ply, key, ...)
+		local params = {...}
+		net.Start("ulx_localized_msg")
+		net.WriteString(key)
+		net.WriteTable(params)
+		if IsValid(ply) then net.Send(ply) else net.Broadcast() end
+	end
 end

@@ -185,7 +185,11 @@ function xlib.maketextbox( t )
 	pnl:SetEnterAllowed( true )
 	pnl:SetZPos( t.zpos or 0 )
 	if t.convar then pnl:SetConVar( t.convar ) end
-	if t.text then pnl:SetText( t.text ) end
+	if t.placeholder then
+		pcall(function() pnl:SetPlaceholderText( t.placeholder ) end)
+	elseif t.text then
+		pnl:SetText( t.text )
+	end
 	if t.enableinput then pnl:SetEnabled( t.enableinput ) end
 	if t.multiline then pnl:SetMultiline( t.multiline ) end
 	pnl.selectAll = t.selectall
@@ -202,6 +206,108 @@ function xlib.maketextbox( t )
 		pnl:SetAlpha( val and 128 or 255 )
 	end
 	if t.disabled then pnl:SetDisabled( t.disabled ) end
+	if t.completions and #t.completions > 0 then
+		pnl._completions = t.completions
+		pnl._completionIdx = 0
+		pnl._dropdown = nil
+		local function closeDropdown()
+			if pnl._dropdown and pnl._dropdown:IsValid() then pnl._dropdown:Remove() end
+			pnl._dropdown = nil
+		end
+		local function showDropdown()
+			closeDropdown()
+			local cur = pnl:GetValue()
+			if #cur == 0 then return end
+			local matches = {}
+			for _, c in ipairs(pnl._completions) do
+				if c:lower():find(cur:lower(), 1, true) then
+					table.insert(matches, c)
+					if #matches >= 8 then break end
+				end
+			end
+			if #matches == 0 then return end
+			pnl._dropdown = vgui.Create("DPanel")
+			local drop = pnl._dropdown
+			drop:SetWide(pnl:GetWide())
+			drop:SetTall(#matches * 20 + 4)
+			drop:SetPos(pnl:LocalToScreen(0, pnl:GetTall()))
+			drop:MakePopup()
+			drop.Paint = function(self, w, h)
+				draw.RoundedBox(0, 0, 0, w, h, Color(40,40,40))
+				surface.SetDrawColor(100,100,100,255)
+				surface.DrawOutlinedRect(0, 0, w, h)
+			end
+			for i, text in ipairs(matches) do
+				local btn = vgui.Create("DButton", drop)
+				btn:SetPos(2, 2 + (i-1)*20)
+				btn:SetSize(pnl:GetWide()-4, 20)
+				btn:SetText("")
+				btn.Paint = function(self, w, h)
+					if self:IsHovered() then
+						draw.RoundedBox(0, 0, 0, w, h, Color(0,120,215))
+					end
+					draw.SimpleText(text, "Default", 6, 1, Color(220,220,220))
+				end
+				btn.DoClick = function()
+					pnl:SetText(text)
+					pnl:OnValueChange(text)
+					pnl:SelectAllText()
+					closeDropdown()
+				end
+			end
+			timer.Simple(0.05, function()
+				if pnl._dropdown and pnl._dropdown:IsValid() then
+					hook.Add("VGUIMousePressed", "ULX_CloseAutoComplete_" .. tostring(pnl), function()
+						if pnl._dropdown and pnl._dropdown:IsValid()
+							and not pnl._dropdown:IsHovered()
+							and not pnl:IsHovered() then
+							closeDropdown()
+							hook.Remove("VGUIMousePressed", "ULX_CloseAutoComplete_" .. tostring(pnl))
+						end
+					end)
+				end
+			end)
+		end
+		function pnl:OnValueChange(val)
+			pnl._completionIdx = 0
+			showDropdown()
+		end
+		local oldOnLoseFocus = pnl.OnLoseFocus
+		function pnl:OnLoseFocus()
+			timer.Simple(0.1, closeDropdown)
+			if oldOnLoseFocus then oldOnLoseFocus(self) end
+		end
+		function pnl:OnKeyCodePressed( key )
+			if key == KEY_ESCAPE then
+				closeDropdown()
+				return true
+			end
+			if key == KEY_TAB and pnl._completions then
+				local cur = pnl:GetValue():lower()
+				local matches = {}
+				for _, c in ipairs(pnl._completions) do
+					if c:lower():find(cur, 1, true) then table.insert(matches, c) end
+				end
+				if #matches > 0 then
+					pnl._completionIdx = (pnl._completionIdx % #matches) + 1
+					pnl:SetText(matches[pnl._completionIdx])
+					pnl:OnValueChange(matches[pnl._completionIdx])
+					pnl:SelectAllText()
+					showDropdown()
+				end
+				return true
+			end
+			pnl._completionIdx = 0
+		end
+	end
+	if not pnl._xguiTabComplete then
+		pnl._xguiTabComplete = true
+		local oldOnEnter = pnl.OnEnter
+		pnl.OnEnter = function(self)
+			if t.repconvar then RunConsoleCommand( t.repconvar, self:GetValue() ) end
+			if oldOnEnter then oldOnEnter(self) end
+		end
+	end
 	if t.repconvar then
 		xlib.checkRepCvarCreated( t.repconvar )
 		pnl:SetValue( GetConVar( t.repconvar ):GetString() )
@@ -991,6 +1097,8 @@ xlib.animRun = function()
 	end
 end
 hook.Add( "XLIBDoAnimation", "xlib_runAnims", xlib.animRun )
+local table = table
+local unpack = unpack
 xlib.animQueue = {}
 xlib.animBackupQueue = {}
 xlib.animStep = 0

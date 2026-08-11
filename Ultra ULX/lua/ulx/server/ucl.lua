@@ -981,9 +981,6 @@ local function clReady( ply )
 	if ply.ulib_ready then return end
 	ply.ulib_ready = true
 	hook.Call( ULib.HOOK_LOCALPLAYERREADY, _, ply )
-	net.Start("ulx_version_check")
-	net.WriteString(ulx.VERSION)
-	net.Send(ply)
 end
 concommand.Add( "ulib_cl_ready", clReady )
 local function playerDisconnected( ply )
@@ -999,8 +996,11 @@ local function UCLChanged()
 	ULib.clientRPC( _, "hook.Call", ULib.HOOK_UCLCHANGED )
 end
 hook.Add( ULib.HOOK_UCLCHANGED, "ULibSendUCLToClients", UCLChanged )
-local playerAuth = hook.GetTable().PlayerInitialSpawn.PlayerAuthSpawn
-hook.Remove( "PlayerInitialSpawn", "PlayerAuthSpawn" )
+local hookTable = hook.GetTable()
+local playerAuth = hookTable and hookTable.PlayerInitialSpawn and hookTable.PlayerInitialSpawn.PlayerAuthSpawn
+if playerAuth then
+	hook.Remove( "PlayerInitialSpawn", "PlayerAuthSpawn" )
+end
 local function newPlayerAuth( ply, ... )
 	ucl.authed[ ply:UniqueID() ] = nil
 	playerAuth( ply, ... )

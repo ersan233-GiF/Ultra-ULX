@@ -1,13 +1,14 @@
-local CATEGORY_NAME = "工具"
+local L = ULib.ulx_lang
+local CATEGORY_NAME = "cat_utility"
 if SERVER then
 	function ulx.cleanup( calling_ply )
 		game.CleanUpMap( false, { "player", "prop_vehicle*" } )
-		ulx.fancyLogAdmin( calling_ply, "#A 清理了地图上的所有道具和NPC" )
+		ulx.fancyLogKeyed(calling_ply, "ext_cleanup_log" )
 	end
 end
 local cleanupCmd = ulx.command( CATEGORY_NAME, "ulx cleanup", ulx.cleanup, "!cleanup" )
 cleanupCmd:defaultAccess( ULib.ACCESS_ADMIN )
-cleanupCmd:help( "清理地图上所有道具、布娃娃、NPC 和武器" )
+cleanupCmd:help( L.T("help_cleanup") )
 if SERVER then
 	function ulx.respawn( calling_ply, target_plys )
 		local affected = {}
@@ -34,39 +35,39 @@ if SERVER then
 			end
 		end
 		if #affected > 0 then
-			ulx.fancyLogAdmin( calling_ply, "#A 复活了 #T", affected )
+			ulx.fancyLogKeyed(calling_ply, "ext_respawn_log", affected )
 		else
-			ULib.tsayError( calling_ply, "目标玩家已经存活，无需复活。", true )
+			ULib.tsayError( calling_ply, L.T("ext_already_alive"), true )
 		end
 	end
 end
 local respawnCmd = ulx.command( CATEGORY_NAME, "ulx respawn", ulx.respawn, "!respawn" )
 respawnCmd:addParam{ type=ULib.cmds.PlayersArg }
 respawnCmd:defaultAccess( ULib.ACCESS_ADMIN )
-respawnCmd:help( "复活目标玩家" )
+respawnCmd:help( L.T("help_respawn") )
 if SERVER then
 	function ulx.setmodel( calling_ply, target_plys, model_path )
 		model_path = ulx.standardizeModel( model_path )
 		if not util.IsValidModel( model_path ) then
-			ULib.tsayError( calling_ply, "无效的模型路径: " .. model_path, true )
+			ULib.tsayError( calling_ply, string.format(L.T("ext_invalid_model"), model_path), true )
 			return
 		end
 		for _, ply in ipairs( target_plys ) do
 			ply:SetModel( model_path )
 		end
-		ulx.fancyLogAdmin( calling_ply, "#A 设置了 #T 的模型为 #s", target_plys, model_path )
+		ulx.fancyLogKeyed(calling_ply, "ext_setmodel_log", target_plys, model_path )
 	end
 end
 local setmodelCmd = ulx.command( CATEGORY_NAME, "ulx setmodel", ulx.setmodel, "!setmodel" )
 setmodelCmd:addParam{ type=ULib.cmds.PlayersArg }
-setmodelCmd:addParam{ type=ULib.cmds.StringArg, hint="模型路径", ULib.cmds.takeRestOfLine }
+setmodelCmd:addParam{ type=ULib.cmds.StringArg, hint="model_path", ULib.cmds.takeRestOfLine }
 setmodelCmd:defaultAccess( ULib.ACCESS_ADMIN )
-setmodelCmd:help( "设置目标的模型" )
+setmodelCmd:help( L.T("help_setmodel") )
 if SERVER then
 	function ulx.setteam( calling_ply, target_plys, team_id )
 		team_id = tonumber( team_id )
 		if not team_id then
-			ULib.tsayError( calling_ply, "请指定有效的队伍编号。", true )
+			ULib.tsayError( calling_ply, L.T("ext_invalid_team"), true )
 			return
 		end
 		local affected = {}
@@ -77,15 +78,15 @@ if SERVER then
 			end
 		end
 		if #affected > 0 then
-			ulx.fancyLogAdmin( calling_ply, "#A 将 #T 切换到队伍 #i", affected, team_id )
+			ulx.fancyLogKeyed(calling_ply, "ext_setteam_log", affected, team_id )
 		end
 	end
 end
 local setteamCmd = ulx.command( CATEGORY_NAME, "ulx setteam", ulx.setteam, "!setteam" )
 setteamCmd:addParam{ type=ULib.cmds.PlayersArg }
-setteamCmd:addParam{ type=ULib.cmds.NumArg, min=1, max=32, hint="队伍编号", ULib.cmds.round }
+setteamCmd:addParam{ type=ULib.cmds.NumArg, min=1, max=32, hint="team_id", ULib.cmds.round }
 setteamCmd:defaultAccess( ULib.ACCESS_ADMIN )
-setteamCmd:help( "强制切换目标的队伍" )
+setteamCmd:help( L.T("help_setteam") )
 if SERVER then
 	function ulx.giveweapon( calling_ply, target_plys, weapon_class )
 		weapon_class = weapon_class:lower()
@@ -94,7 +95,7 @@ if SERVER then
 		end
 		local testWep = weapons.GetStored( weapon_class )
 		if not testWep then
-			ULib.tsayError( calling_ply, "无效的武器类名: " .. weapon_class, true )
+			ULib.tsayError( calling_ply, string.format(L.T("ext_invalid_weapon"), weapon_class), true )
 			return
 		end
 		local affected = {}
@@ -105,15 +106,15 @@ if SERVER then
 			end
 		end
 		if #affected > 0 then
-			ulx.fancyLogAdmin( calling_ply, "#A 给予了 #T 武器 #s", affected, weapon_class )
+			ulx.fancyLogKeyed(calling_ply, "ext_giveweapon_log", affected, weapon_class )
 		end
 	end
 end
 local giveweaponCmd = ulx.command( CATEGORY_NAME, "ulx giveweapon", ulx.giveweapon, "!giveweapon" )
 giveweaponCmd:addParam{ type=ULib.cmds.PlayersArg }
-giveweaponCmd:addParam{ type=ULib.cmds.StringArg, hint="武器类名", ULib.cmds.takeRestOfLine }
+giveweaponCmd:addParam{ type=ULib.cmds.StringArg, hint="weapon_class", ULib.cmds.takeRestOfLine }
 giveweaponCmd:defaultAccess( ULib.ACCESS_ADMIN )
-giveweaponCmd:help( "给予目标指定武器" )
+giveweaponCmd:help( L.T("help_giveweapon") )
 if SERVER then
 	util.AddNetworkString( "ulx_scale_sync" )
 	ulx_playerscales = ulx_playerscales or {}; hook.Add("PlayerDisconnected", "ULXScaleCleanup", function(p) ulx_playerscales[p:SteamID64()] = nil end)
@@ -143,7 +144,7 @@ if SERVER then
 			ulx_playerscales[ ply:SteamID64() ] = scale_val
 			applyScale( ply, scale_val )
 		end
-		ulx.fancyLogAdmin( calling_ply, "#A 将 #T 的体型缩放设为 #i", target_plys, scale_val )
+		ulx.fancyLogKeyed(calling_ply, "ext_scale_log", target_plys, scale_val )
 	end
 	hook.Add( "PlayerSpawn", "ULXScaleRespawn", function( ply )
 		local scale = ulx_playerscales[ ply:SteamID64() ]
@@ -171,24 +172,24 @@ if SERVER then
 end
 local scaleCmd = ulx.command( CATEGORY_NAME, "ulx scale", ulx.scale, "!scale" )
 scaleCmd:addParam{ type=ULib.cmds.PlayersArg }
-scaleCmd:addParam{ type=ULib.cmds.NumArg, min=0.1, max=10, default=1, hint="缩放倍率" }
+scaleCmd:addParam{ type=ULib.cmds.NumArg, min=0.1, max=10, default=1, hint="scale" }
 scaleCmd:defaultAccess( ULib.ACCESS_ADMIN )
-scaleCmd:help( "调整目标的体型大小 0.1~10" )
+scaleCmd:help( L.T("help_scale") )
 if SERVER then
 	function ulx.setgravity( calling_ply, target_plys, grav )
 		grav = math.Clamp( grav, 0, 6 )
 		for _, ply in ipairs( target_plys ) do
 			ply:SetGravity( grav )
 		end
-		ulx.fancyLogAdmin( calling_ply, "#A 将 #T 的重力设为 #i", target_plys, grav )
+		ulx.fancyLogKeyed(calling_ply, "ext_gravity_log", target_plys, grav )
 	end
 end
 local gravityCmd = ulx.command( CATEGORY_NAME, "ulx gravity", ulx.setgravity, "!gravity" )
 gravityCmd:addParam{ type=ULib.cmds.PlayersArg }
-gravityCmd:addParam{ type=ULib.cmds.NumArg, min=0, max=6, default=1, hint="重力倍率" }
+gravityCmd:addParam{ type=ULib.cmds.NumArg, min=0, max=6, default=1, hint="gravity" }
 gravityCmd:defaultAccess( ULib.ACCESS_ADMIN )
-gravityCmd:help( "设置目标的重力倍率 0~6，1 为正常" )
-if not UltraULX_SilentReRegister then Msg( "[ULX] 扩展命令模块已加载 (cleanup/respawn/setmodel/setteam/giveweapon/scale/gravity)\n" ) end
+gravityCmd:help( L.T("help_gravity") )
+if not ulx._silentReReg then Msg( L.T("ext_loaded") .. "\n" ) end
 if CLIENT then
 	ulx_playerscale = ulx_playerscale or 1
 	net.Receive( "ulx_scale_sync", function()

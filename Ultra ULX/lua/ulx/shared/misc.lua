@@ -2,14 +2,15 @@ function ULib.explode( separator, str, limit )
 	local t = {}
 	local curpos = 1
 	while true do
+		if limit and #t == limit - 1 then
+			table.insert( t, str:sub( curpos ) )
+			break
+		end
 		local newpos, endpos = str:find( separator, curpos )
 		if newpos ~= nil then
 			table.insert( t, str:sub( curpos, newpos - 1 ) )
 			curpos = endpos + 1
 		else
-			if limit and #t > limit then
-				return t
-			end
 			table.insert( t, str:sub( curpos ) )
 			break
 		end

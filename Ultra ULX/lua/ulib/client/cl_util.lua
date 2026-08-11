@@ -1,0 +1,1 @@
+if CLIENT and not (ulx and ulx._ultra) then include("ulx/cl_init.lua") end

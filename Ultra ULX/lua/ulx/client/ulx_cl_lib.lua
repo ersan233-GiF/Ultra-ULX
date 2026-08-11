@@ -1,3 +1,7 @@
+function ULib.redirect( ply, command, argv )
+	local totalArgv = table.Add( ULib.explode( " ", command ), argv )
+	RunConsoleCommand( "_u", unpack( totalArgv ) )
+end
 ulx.common_kick_reasons = ulx.common_kick_reasons or {}
 function ulx.populateKickReasons( reasons )
 table.Empty( ulx.common_kick_reasons )
@@ -73,7 +77,7 @@ draw.DrawText( curVote.title .. "\n\n" .. table.concat( lines, "\n" ), "Default"
 end
 net.Receive( "ulx_vote", function( ln )
 local title = net.ReadString()
-local timeout = net.ReadInt(16)
+local timeout = net.ReadUInt(32)
 local options = net.ReadTable()
 local function callback( id )
 if id == 0 then id = 10 end

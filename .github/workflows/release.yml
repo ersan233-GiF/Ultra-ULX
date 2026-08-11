@@ -1,0 +1,28 @@
+name: 打包发布
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: 打包 Ultra ULX 并创建 Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 打包 zip
+        run: |
+          zip -r "Ultra-ULX-${GITHUB_REF_NAME}.zip" "Ultra ULX"
+          ls -la
+
+      - name: 创建 Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Ultra-ULX-*.zip
+          generate_release_notes: true

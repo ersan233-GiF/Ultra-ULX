@@ -1,4 +1,5 @@
-local CATEGORY_NAME = "菜单"
+local L = ULib.ulx_lang
+local CATEGORY_NAME = "cat_menu"
 if ULib.fileExists( "lua/ulx/modules/cl/motdmenu.lua" ) or ulx.motdmenu_exists then
 	local function sendMotd( ply, showMotd )
 		if showMotd == "1" then
@@ -21,8 +22,8 @@ if ULib.fileExists( "lua/ulx/modules/cl/motdmenu.lua" ) or ulx.motdmenu_exists t
 	end
 	hook.Add( "PlayerInitialSpawn", "showMotd", showMotd )
 	function ulx.motdUpdated()
-		for i=1, #player.GetAll() do
-			player.GetAll()[i].ulxHasMotd = false
+		for _, ply in ipairs( player.GetAll() ) do
+			ply.ulxHasMotd = false
 		end
 	end
 	local function conVarUpdated( sv_cvar, cl_cvar, ply, old_val, new_val )
@@ -38,19 +39,19 @@ if ULib.fileExists( "lua/ulx/modules/cl/motdmenu.lua" ) or ulx.motdmenu_exists t
 		end
 		if GetConVarString( "ulx_showMotd" ) == "0" then
 			if GetConVarString( "ulx_motdDisabledMessage" ) == "1" then
-				ULib.tsay( calling_ply, "此服务器已禁用 MOTD。" )
+				ULib.tsay( calling_ply, L.T("menu_motd_disabled") )
 			end
 			return
 		end
 		if GetConVarString( "ulx_showMotd" ) == "1" and not ULib.fileExists( GetConVarString( "ulx_motdfile" ) ) then
-			ULib.tsay( calling_ply, "找不到 MOTD 文件。" )
+			ULib.tsay( calling_ply, L.T("menu_motd_missing") )
 			return
 		end
 		showMotd( calling_ply )
 	end
 	local motdmenu = ulx.command( CATEGORY_NAME, "ulx motd", ulx.motd, "!motd" )
 	motdmenu:defaultAccess( ULib.ACCESS_ALL )
-	motdmenu:help( "显示每日欢迎消息." )
+	motdmenu:help( L.T("help_motd") )
 	if SERVER then
 		ulx.convar( "showMotd", "2", " <0/1/2/3> - MOTD mode. 0 is off.", ULib.ACCESS_ADMIN )
 		ulx.convar( "motdfile", "ulx_motd.txt", "MOTD filepath from gmod root to use if ulx showMotd is 1.", ULib.ACCESS_ADMIN )
@@ -114,9 +115,17 @@ if ULib.fileExists( "lua/ulx/modules/cl/motdmenu.lua" ) or ulx.motdmenu_exists t
 			end
 			for group, _ in pairs( ulx.motdSettings.admins ) do
 				ulx.motdSettings.admins[group] = {}
+				local seen = {}
 				for steamID, data in pairs( ULib.ucl.users ) do
-					if data.group == group and data.name then
+					if data.group == group and data.name and not seen[data.name:lower()] then
+						seen[data.name:lower()] = true
 						table.insert( ulx.motdSettings.admins[group], data.name )
+					end
+				end
+				for _, ply in ipairs( player.GetAll() ) do
+					if ply:CheckGroup( group ) and ply:Nick() and not seen[ply:Nick():lower()] then
+						seen[ply:Nick():lower()] = true
+						table.insert( ulx.motdSettings.admins[group], ply:Nick() )
 					end
 				end
 			end

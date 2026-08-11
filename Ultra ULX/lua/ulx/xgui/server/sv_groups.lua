@@ -1,6 +1,6 @@
 local groups = {}
 function groups.init()
-	ULib.ucl.registerAccess( "xgui_managegroups", "superadmin", "允许通过 XGUI 用户组标签页管理用户组、用户和权限字符串。", "XGUI" )
+	ULib.ucl.registerAccess( "xgui_managegroups", "superadmin", ULib.ulx_lang.T("access_xgui_groups"), "XGUI" )
 	xgui.addDataType( "playermodels", player_manager.AllValidModels, "xgui_managegroups", 0, 10 )
 	xgui.addDataType( "teams", function() return xgui.teams end, "xgui_managegroups", 0, -20 )
 	xgui.addDataType( "accesses", function() return xgui.accesses end, "xgui_managegroups", 0, 5 )
@@ -14,7 +14,7 @@ function groups.init()
 			local group = ULib.ucl.groupInheritsFrom( args[2] )
 			while group do
 				if group == args[1] or args[1] == args[2] then
-					ULib.clientRPC( ply, "Derma_Message", "Cannot set inheritance! You cannot inherit from something you're inheriting to!", "XGUI NOTICE" )
+					ULib.clientRPC( ply, "Derma_Message", ULib.ulx_lang.T("xgui_inherit_error"), ULib.ulx_lang.T("xgui_notice") )
 					return
 				end
 				group = ULib.ucl.groupInheritsFrom( group )

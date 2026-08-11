@@ -19,8 +19,6 @@ local function addSideCheckbox( textKey, convar, repconvar, marginTop )
 end
 addSideLabel("sv_alltalk")
 server.alltalkCombo = xlib.makecombobox{ dock=TOP, dockmargin={0,2,0,0}, w=140, repconvar="rep_sv_alltalk", isNumberConvar=true, choices={ T("sv_alltalk_local"), T("sv_alltalk_team"), T("sv_alltalk_near"), T("sv_alltalk_all") }, parent=sidepanel }
-addSideLabelM("sv_server_language", 20)
-server.langCombo = xlib.makecombobox{ dock=TOP, dockmargin={0,2,0,0}, w=140, repconvar="ulx_language", choices={ "简体中文", "English", "Русский", "文言文" }, parent=sidepanel }
 addSideCheckbox("sv_voice", xlib.ifListenHost("sv_voiceenable"), xlib.ifNotListenHost("rep_sv_voiceenable"))
 addSideCheckbox("sv_ai_disable", xlib.ifListenHost("ai_disabled"), xlib.ifNotListenHost("rep_ai_disabled"), 20)
 addSideCheckbox("sv_ai_ignore", xlib.ifListenHost("ai_ignoreplayers"), xlib.ifNotListenHost("rep_ai_ignoreplayers"))
@@ -117,13 +115,6 @@ server.processModules()
 xgui.hookEvent( "onProcessModules", nil, server.processModules, "serverSettingsProcessModules" )
 xgui.registerRefresh( "server_settings", function()
 	xgui.refreshLabels( server.sideLabels )
-	if server.langCombo then
-		local prevId = server.langCombo:GetSelectedID()
-		server.langCombo:Clear()
-		local langChoices = { xgui.T("lang_zhcn"), xgui.T("lang_en"), xgui.T("lang_ru"), xgui.T("lang_lzh") }
-		for _, v in ipairs( langChoices ) do server.langCombo:AddChoice( v ) end
-		if prevId and prevId <= #langChoices then server.langCombo:ChooseOptionID( prevId ) end
-	end
 	if server.alltalkCombo then
 		local prevId = server.alltalkCombo:GetSelectedID()
 		server.alltalkCombo:Clear()
@@ -670,7 +661,7 @@ local function registerMOTDChangeEventsSlider( slider, setting )
 	local tmpfunc = slider.Slider.SetDragging
 	slider.Slider.SetDragging = function( self, bval )
 		tmpfunc( self, bval )
-		if ( !bval ) then
+		if not bval then
 			net.Start( "XGUI.UpdateMotdData" )
 				net.WriteString( setting )
 				net.WriteString( slider.TextArea:GetValue() )
@@ -980,16 +971,16 @@ function plist.ConVarUpdated( sv_cvar, cl_cvar, ply, old_val, new_val )
 		local showURL = false
 		if new_val == "0" then
 			previewDisabled = true
-			plist.lblDescription:SetText( "MOTD is completely disabled.\n" )
+			plist.lblDescription:SetText( "MOTD 已完全禁用。\n" )
 		elseif new_val == "1" then
 			showMotdFile = true
-			plist.lblDescription:SetText( "MOTD is the contents of the given file.\nFile is located in the server's garrysmod root.\n" )
+			plist.lblDescription:SetText( "MOTD 内容来自指定文件。\n文件位于服务器 garrysmod 根目录。\n" )
 		elseif new_val == "2" then
 			showGenerator = true
-			plist.lblDescription:SetText( "MOTD is generated using a basic template and the\nsettings below.\n" )
+			plist.lblDescription:SetText( "MOTD 使用下方基本模板自动生成。\n" )
 		elseif new_val == "3" then
 			showURL = true
-			plist.lblDescription:SetText( "MOTD is the given URL.\nYou can use %curmap% and %steamid%\n(eg, server.com/?map=%curmap%&id=%steamid%)\n" )
+			plist.lblDescription:SetText( "MOTD 内容来自指定网址。\n可使用 %curmap% 和 %steamid% 变量\n(例如: server.com/?map=%curmap%&id=%steamid%)\n" )
 		end
 		plist.btnPreview:SetDisabled( previewDisabled )
 		plist.txtMotdFile:SetVisible( showMotdFile )

@@ -1,20 +1,49 @@
-﻿# Ultra ULX v2.72.0
+# Ultra ULX
 
-[![GitHub release](https://img.shields.io/badge/version-2.72.0-blue)](https://github.com/ersan233-GiF/Ultra-ULX/releases)
-[![GitHub stars](https://img.shields.io/github/stars/ersan233-GiF/Ultra-ULX?style=social)](https://github.com/ersan233-GiF/Ultra-ULX)
-[![GitHub license](https://img.shields.io/badge/license-MIT-green)](https://github.com/ersan233-GiF/Ultra-ULX/blob/main/LICENSE)
+[![最新版本](https://img.shields.io/github/v/release/ersan233-GiF/Ultra-ULX?label=最新版本&color=blue)](https://github.com/ersan233-GiF/Ultra-ULX/releases/latest)
+[![总下载量](https://img.shields.io/github/downloads/ersan233-GiF/Ultra-ULX/total?label=总下载&color=success)](https://github.com/ersan233-GiF/Ultra-ULX/releases)
+[![Stars](https://img.shields.io/github/stars/ersan233-GiF/Ultra-ULX?style=social&label=Stars)](https://github.com/ersan233-GiF/Ultra-ULX)
+[![许可](https://img.shields.io/github/license/ersan233-GiF/Ultra-ULX?label=许可&color=green)](LICENSE)
 [![ULX](https://img.shields.io/badge/ULX-3.81%20compatible-orange)](https://github.com/TeamUlysses/ulx)
-[![GMod](https://img.shields.io/badge/Garry's%20Mod-Addon-ff69b4)](https://gmod.facepunch.com/)
+[![ULib](https://img.shields.io/badge/ULib-2.72%20built--in-blueviolet)](https://github.com/TeamUlysses/ulib)
+[![Garry's Mod](https://img.shields.io/badge/Garry's%20Mod-Addon-ff69b4)](https://gmod.facepunch.com/)
+[![语言](https://img.shields.io/badge/语言-4%20种-4FC08D)](#多语言切换)
+[![命令](https://img.shields.io/badge/命令-150%2B-success)](#命令参考)
 
-> 基于 [Team Ulysses ULX v3.71](https://github.com/TeamUlysses/ulx) · 完全中文化 · 114+ 新命令 · 4 种语言（简中/English/Русский/文言文）（简中/English/Русский/文言文）
+> 基于 [Team Ulysses ULX v3.81](https://github.com/TeamUlysses/ulx) + ULib v2.72 的增强分支 · 完全中文化 · 150+ 命令 · 4 种语言 · SQLite 持久化 · 零侵入共存
 
-**[GitHub 仓库](https://github.com/ersan233-GiF/Ultra-ULX)** · **[下载发布包](https://github.com/ersan233-GiF/Ultra-ULX/releases)** · **[提交 Issue](https://github.com/ersan233-GiF/Ultra-ULX/issues)**
+**[⬇️ 下载最新发布包](https://github.com/ersan233-GiF/Ultra-ULX/releases/latest)** · **[提交 Issue](https://github.com/ersan233-GiF/Ultra-ULX/issues)** · **[查看变更日志](CHANGELOG.md)** · **[开发源码仓库](https://github.com/ersan233-GiF/ultra-ulx-source)**
+
+---
+
+## 目录
+
+- [模块简介](#模块简介)
+- [快速安装](#快速安装)
+- [命令使用](#命令使用)
+- [首次开服设置](#首次开服设置)
+- [多语言切换](#多语言切换)
+- [与原版 ULX 共存](#与原版-ulx-共存)
+- [卸载](#卸载)
+- [常见问题 (FAQ)](#常见问题-faq)
+- [项目总览](#项目总览)
+- [完整文件树](#完整文件树)
+- [与原版 ULX 对比](#与原版-ulx-对比)
+- [命令参考](#命令参考)
+- [模块手册](#模块手册)
+- [配置系统](#配置系统)
+- [发布说明](#发布说明)
+- [开发与贡献](#开发与贡献)
+- [安全](#安全)
+- [许可证](#许可证)
+- [致谢](#致谢)
+- [更新日志](#更新日志)
 
 ---
 
 ## 模块简介
 
-**Ultra ULX** 是 Garry's Mod 服务端管理插件 [ULX](https://github.com/TeamUlysses/ulx) 的增强分支，在保留原版全部功能的基础上，新增 114+ 条管理命令，支持 4 种语言，集成 SQLite 持久化惩罚系统，自动连跳，坐标 HUD 等。
+[Ultra ULX](https://github.com/ersan233-GiF/Ultra-ULX) 是 Garry's Mod 服务端管理插件 [ULX](https://github.com/TeamUlysses/ulx) 的增强分支，在保留原版全部功能的基础上，新增 **150+ 条管理命令**，支持 **4 种语言**，集成 SQLite 持久化惩罚系统、自动连跳、坐标 HUD 等。
 
 ### 核心功能
 
@@ -42,7 +71,7 @@
 ```
 1. 下载发布包 → 解压 → 将 Ultra ULX 文件夹放入 garrysmod/addons/
 2. 重启服务器
-3. 控制台显示 // Ultra ULX v2.72.0 Loaded! // 即成功
+3. 控制台显示 Ultra ULX v2.98.51 启动完成信息即成功
 ```
 
 [⬇️ 下载最新发布包](https://github.com/ersan233-GiF/Ultra-ULX/releases)
@@ -227,7 +256,7 @@ ulx removeuser 玩家名                          ← 按名称移除
 | 模块数 | **23 个** (sh 14 + cl 5 + sv 4) |
 | 道具分类 | **9 类** |
 | ULib 版本 | 2.72 |
-| Ultra ULX 版本 | **v2.72.0** |
+| Ultra ULX 版本 | **v2.98.51** |
 | ULX 兼容版本 | 3.81 |
 
 ---
@@ -243,10 +272,9 @@ addons/Ultra ULX/                          [~1.07 MB / ~26,100 行]
 │
 └── lua/
     ├── autorun/
-    │   ├── init_ulx.lua ............. 132 B  [  6行]  ⭐ 入口：include("ulx/init.lua") + CSLuaFile 批量发送
-    │   └── rngfix/                               RNG 修正（独立包，不依赖 ULX）
-    │       ├── ent_trigger.lua ....... 493 B  [ 39行]  触发器实体定义
-    │       └── sh_rngfix.lua ......... 585 B  [ 19行]  修正实体生成位置 & NAN 伤害
+    │   ├── init_ulx.lua ............. 132 B  [  6行]  ⭐ Ultra 主入口
+    │   ├── ulib_init.lua ............ 118 B  [  6行]  ULib 路径兼容入口
+    │   └── sh_rngfix.lua ..................  RNG 修正（独立包，不依赖 ULX）
     │
     └── ulx/
         ├── init.lua ................. 6.6 KB  [188行]  ⭐⭐ 服务端主入口（阶段加载91文件+语言ConVar+共存覆盖）
@@ -266,8 +294,7 @@ addons/Ultra ULX/                          [~1.07 MB / ~26,100 行]
         │   ├── tables.lua .......... 3.5 KB   [123行]  ⭐   只读表/矩阵工具
         │   ├── language.lua ........ 2.9 KB   [109行]  ⭐   多语言系统（load/switch/缓存）
         │   ├── hook.lua ............ 2.2 KB   [ 94行]  自定义5级优先级钩子系统
-        │   ├── cami_ulib.lua ....... 4.1 KB   [ 98行]  CAMI-ULib 桥接
-        │   └── ulx_defines.lua ..... 521 B    [ 12行]  ULX 兼容常量
+        │   └── cami_ulib.lua ....... 4.1 KB   [ 98行]  CAMI-ULib 桥接
         │
         ├── server/ ............................... 133.5 KB [3,597行]
         │   ├── ucl.lua ............ 37.1 KB  [1,307行] ⭐⭐⭐ 权限系统（SQLite+txt双存储+30份自动备份+恢复）
@@ -427,7 +454,7 @@ Layer 1: ULib 共享库 (15 文件)
          → commands → sh_ucl → plugin → cami_global → cami_ulib → language
 Layer 2: ULX 服务端 (13 文件)
          → player → bans → concommand → srv_util → ucl → phys
-         → player_ext → entity_ext → data → ulx_defines → ulx_lib
+         → player_ext → entity_ext → data → ulx_lib
          → ulx_command → ulx_base → log → end
 Layer 3: 模块 (23 文件)
          → sh: 14 模块 | cl: 5 模块 | sv: 4 模块
@@ -644,26 +671,72 @@ ulx.item.Register("my_category", {
 
 ---
 
-**[⬆ 返回顶部](#ultra-ulx-v2691)**
+## 发布说明
+
+> **优先级：[P1] 发布者使用**
+
+本仓库是 **Ultra ULX 发布仓库**：根目录的 `Ultra ULX/` 文件夹即为可直接放入 `garrysmod/addons/` 的完整插件（已剥离开发注释，零依赖）。
+
+- **开发源码**（含注释、开发文档、构建工具链）：[ultra-ulx-source](https://github.com/ersan233-GiF/ultra-ulx-source)
+- **发布流程**：开发完成 → 迭代版本号 → 构建发布包 → 推送本仓库 → 打 `v*` 标签自动创建 Release（见 `.github/workflows/release.yml`）
+- **当前版本**：v2.98.51
+
+---
+
+## 开发与贡献
+
+> **优先级：[P2] 开发者**
+
+欢迎提交 PR 与 Issue！请先阅读 [贡献指南](.github/CONTRIBUTING.md)。
+
+> 本仓库为**发布仓库**，代码开发与构建工具链在 **[ultra-ulx-source](https://github.com/ersan233-GiF/ultra-ulx-source)** 进行。欢迎在该仓库提交 PR / Issue。
+
+---
+
+## 安全
+
+> **优先级：[P1] 服务器管理员**
+
+- 所有写入路径均经过消毒与转义（`sql.SQLStr`），防止 SQL 注入
+- `ulx url` 命令内置域名白名单，防止开放重定向
+- 客户端 RPC 使用命名空间白名单（`ulx.*` / `ULib.*`），防止恶意调用
+- 发现安全漏洞请参阅 [SECURITY.md](.github/SECURITY.md)，请勿公开披露
+
+---
+
+## 许可证
+
+本项目基于 [CC BY-NC-SA 3.0](LICENSE.md) 许可发布（非商业使用）。
+
+- 原版 ULX / ULib 版权归 [Team Ulysses](https://github.com/TeamUlysses) 所有
+- Ultra ULX 在保留原版权声明的基础上进行增强与中文化
+
+---
+
+## 致谢
+
+- [Team Ulysses](https://github.com/TeamUlysses) — 原版 ULX / ULib 的开发者
+- Garry's Mod 社区 — 命令灵感与大量反馈
+- 所有为 Ultra ULX 提交过 Issue / PR / 建议的朋友
+
+---
+
+**[⬆ 返回顶部](#ultra-ulx)**
 
 ---
 
 ## 更新日志
 
-### v2.72.0 (2026-08-10)
+### v2.98.51 (2026-08-11)
 
-- **修复 hook 系统双重执行** (shared/hook.lua): 移除历史钩子导入逻辑，消除与原生 hook 表的重复执行（事件被处理两次、PlayerAuthSpawn 迁移失效）
-- **修复 SQL 转义双重引号** (modules/sh/admin_ext.lua): `sql.SQLStr` 已带引号又包一层导致限时禁言/警告/举报/封禁数据库写入全部失败
-- **统一限时禁言/禁聊语义** (modules/sh/admin_ext.lua): `!tmute` 禁文字聊天（同 `!mute`）、`!tgag` 禁语音（同 `!gag`），消除互相冲突
-- **修复 `!endmaintenance`**: opposite 参数修正，现可正确关闭维护模式
-- **修复 `!unwhip`**: opposite 参数错位导致无法停止连扇反而重新开扇，现可正确停止
-- **修复 `!deafen` 屏蔽方向**: 改为服务端拦截被屏蔽者的聊天/语音（别人看不到/听不到）
-- **删除重复 `warn` 定义** (modules/sh/community.lua): 保留 admin_ext 数据库持久化版（3次禁言/5次封禁）
-- **清理 `bot` 命令死代码**: 去除无意义的 `pcall(RunConsoleCommand)` 与空定时器
-- **修复 `possibleId` 全局变量泄漏** (shared/player.lua)
-- **移除 coord.lua 重复的 setOpposite 注册**
+- **发布**：全新发布包，迭代自 v2.98.50，可直接放入 `addons/` 使用（已剥离开发注释）
+- **修复**：XGUI 设置面板语法错误（`not` 替代 C 风格 `!`），消除级联报错
+- **清理**：移除 4 个无发送端的死网络接收器，减少无用 net 监听
+- **界面**：恢复 v2.72.0 经典 XGUI 布局与底部信息栏
+- **性能**：全模块热路径 local 缓存优化
+- **语言**：4 语言包对齐至 1626 键
 
-### v2.71.0 (2026-06-20)
+### v2.70.0 (2026-06-20)
 
 - **性能优化**: coord.lua HUDPaint 钩子改为动态添加/移除，关闭后零开销
 - **硬编码迁移**: teleport.lua 全部错误提示和日志改用 `L.T()` 多语言系统
@@ -674,4 +747,4 @@ ulx.item.Register("my_category", {
 - **修复运算符优先级**: sv_bans.lua `\255` 拼接括号修正
 - **修复 `mousecode` 拼写错误**: xlib.lua 中 `mousecode` → `mcode`
 
-*Ultra ULX — 基于 [ULX](https://github.com/TeamUlysses/ulx) by Team Ulysses · [GitHub 仓库](https://github.com/ersan233-GiF/Ultra-ULX) · [提交 Issue](https://github.com/ersan233-GiF/Ultra-ULX/issues)*
+*Ultra ULX — 基于 [ULX](https://github.com/TeamUlysses/ulx) by Team Ulysses · [发布仓库](https://github.com/ersan233-GiF/Ultra-ULX) · [开发源码](https://github.com/ersan233-GiF/ultra-ulx-source)*

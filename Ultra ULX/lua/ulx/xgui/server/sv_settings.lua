@@ -128,10 +128,12 @@ function settings.init()
 			local old = args[1]
 			local new = args[2]
 			if ulx.adverts[old] then
+				local lastK
 				for k, v in pairs( ulx.adverts[old] ) do
 					ulx.addAdvert( v.message, v.rpt, new, v.color, v.len )
+					lastK = k
 				end
-				settings.removeAdvertGroup( ply, { old, type( k ) } )
+				settings.removeAdvertGroup( ply, { old, type( lastK ) } )
 			end
 		end
 	end

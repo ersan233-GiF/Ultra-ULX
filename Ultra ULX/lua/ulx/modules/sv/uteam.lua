@@ -71,7 +71,7 @@ function ulx.saveTeams()
 	ULib.ucl.saveGroups()
 end
 function ulx.refreshTeams()
-	if not ulx.uteamEnabled() then
+	if not ulx.uteamEnabled or not ulx.uteamEnabled() then
 		return
 	end
 	next_team_index = starting_team_index

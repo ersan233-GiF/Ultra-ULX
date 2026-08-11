@@ -74,7 +74,7 @@ local function repCvarOnJoin( ply )
 		net.Start( "ulib_repWriteCvarBatch_Part" )
 			net.WriteUInt( sendsize, 16 )
 			net.WriteUInt( idx, 16 )
-			net.WriteData( string.sub( compressedcvars, offset, offset + sendsize ) )
+			net.WriteData( string.sub( compressedcvars, offset, offset + sendsize - 1 ) )
 		net.Send( ply )
 		offset = offset + sendsize
 		idx = idx + 1

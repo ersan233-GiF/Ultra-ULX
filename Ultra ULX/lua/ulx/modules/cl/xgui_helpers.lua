@@ -138,11 +138,11 @@ function xgui.load_helpers()
 		function xgui.chunkbox:Progress( datatype )
 			self.value = self.value + 1
 			self:SetFraction( self.value / self.max )
-			self.Label:SetText( "Getting data: " .. datatype .. " - " .. string.format("%.2f", (self.value / self.max) * 100) .. "%" )
+			self.Label:SetText( ULib.ulx_lang.T( "xgui_getting_data", datatype, ( self.value / self.max ) * 100 ) )
 			if self.value == self.max then
 				xgui.dataInitialized = true
 				xgui.expectingdata = nil
-				self.Label:SetText( "Waiting for clientside processing..." )
+				self.Label:SetText( ULib.ulx_lang.T( "xgui_waiting_client_processing" ) )
 				xgui.queueFunctionCall( xgui.chunkbox.SetVisible, "chunkbox", xgui.chunkbox, false )
 				RunConsoleCommand( "_xgui", "dataComplete" )
 			end
@@ -309,23 +309,33 @@ function xgui.load_helpers()
 		ULib.cmds.StringArg.processRestrictions( restrictions, arg, ulx.getTagArgNum( tag, argnum ) )
 		local is_restricted_to_completes = table.HasValue( arg, ULib.cmds.restrictToCompletes )
 			or restrictions.playerLevelRestriction
+		local completions = {}
+		if restrictions.restrictedCompletes then
+			for _, v in ipairs(restrictions.restrictedCompletes) do table.insert(completions, v) end
+		end
+		if arg.hint and (arg.hint:find("玩家") or arg.hint:find("SteamID") or arg.hint:find("Player") or arg.hint:find("player")) then
+			for _, ply in ipairs(player.GetAll()) do
+				table.insert(completions, ply:Nick())
+				table.insert(completions, ply:SteamID())
+			end
+		end
 		if is_restricted_to_completes then
-			return xlib.makecombobox{ text=trHint(arg.hint, "StringArg"), choices=restrictions.restrictedCompletes, parent=parent }
+			return xlib.makecombobox{ placeholder=trHint(arg.hint, "StringArg"), choices=restrictions.restrictedCompletes, parent=parent }
 		elseif restrictions.restrictedCompletes and table.Count( restrictions.restrictedCompletes ) > 0 then
-			local outPanel = xlib.makecombobox{ text=trHint(arg.hint), choices=restrictions.restrictedCompletes, enableinput=true, selectall=true, parent=parent }
+			local outPanel = xlib.makecombobox{ placeholder=trHint(arg.hint), choices=restrictions.restrictedCompletes, enableinput=true, selectall=true, parent=parent }
 			outPanel.OnEnter = function( self )
 				self:GetParent():OnEnter()
 			end
 			return outPanel
 		else
-			return xlib.maketextbox{ text=trHint(arg.hint, "StringArg"), selectall=true, parent=parent }
+			return xlib.maketextbox{ placeholder=trHint(arg.hint, "StringArg"), selectall=true, completions=completions, parent=parent }
 		end
 	end
 	function ULib.cmds.PlayerArg.x_getcontrol( arg, argnum, parent )
 		local access, tag = LocalPlayer():query( arg.cmd )
 		local restrictions = {}
 		ULib.cmds.PlayerArg.processRestrictions( restrictions, LocalPlayer(), arg, ulx.getTagArgNum( tag, argnum ) )
-		local outPanel = xlib.makecombobox{ text=trHint(arg.hint), parent=parent }
+		local outPanel = xlib.makecombobox{ placeholder=trHint(arg.hint), parent=parent }
 		local targets = restrictions.restrictedTargets
 		if targets == false then
 			targets = {}

@@ -8,9 +8,10 @@ if (SERVER) then
 		self.max = ePos
 	end
 	function ENT:Initialize()
-		local box = (self.max - self.min) * 2
+		self.min = self.min or Vector(0, 0, 0)
+		self.max = self.max or Vector(0, 0, 0)
 		self:SetSolid(SOLID_BBOX)
-		self:PhysicsInitBox(-box, box)
+		self:PhysicsInitBox(self.min, self.max)
 		self:SetCollisionBounds(self.min, self.max)
 		self:SetTrigger(true)
 		self:DrawShadow(false)
@@ -28,6 +29,8 @@ if (SERVER) then
 		e.TouchingTrigger = true
 	end
 	function ENT:EndTouch(e)
+		if not IsValid(e) then return end
+		hook.Run("OnPlayerTeleported", e)
 		if OnPlayerTeleported then OnPlayerTeleported(e) end
 		e.TouchingTrigger = false
 	end

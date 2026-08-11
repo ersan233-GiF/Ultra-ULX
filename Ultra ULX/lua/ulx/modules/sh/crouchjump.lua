@@ -1,4 +1,5 @@
-local CAT = "移动"
+local L = ULib.ulx_lang
+local CAT = "cat_movement"
 if SERVER then
 	util.AddNetworkString("ulx_crouchjump")
 	local cjData = {}
@@ -24,6 +25,7 @@ if SERVER then
 		local ducking  = ply:Crouching()
 		local vel      = mv:GetVelocity()
 		local btns     = mv:GetButtons()
+		local duckIntent = bit.band(btns, IN_DUCK) ~= 0
 		if d and d.active and d.multiplier > 1.0 then
 			if lastGround[sid] and not onGround and lastDuck[sid] then
 				local newZ = vel.z * d.multiplier
@@ -39,7 +41,7 @@ if SERVER then
 				mv:RemoveKey(IN_DUCK)
 			end
 			if not onGround and bit.band(btns, IN_DUCK) ~= 0 then
-				cmd:AddKey(IN_DUCK)
+				mv:AddKey(IN_DUCK)
 			end
 		end
 		if d and d.crouchspeed > 1.0 and onGround and ducking then
@@ -50,7 +52,7 @@ if SERVER then
 			end
 		end
 		lastGround[sid] = onGround
-		lastDuck[sid]   = ducking
+		lastDuck[sid]   = duckIntent
 	end)
 	local function sendSettings(targets, d)
 		net.Start("ulx_crouchjump")
@@ -73,8 +75,7 @@ if SERVER then
 			d.crouchspeed = crouchspeed
 		end
 		sendSettings(target_plys, getData(target_plys[1]))
-		ulx.fancyLogAdmin(calling_ply, string.format("#A 启用了 #T 的蹲跳增强 (%.1fx跳力 + 蹲姿解锁 + %.1fx蹲速)",
-			multiplier, crouchspeed), target_plys)
+		ulx.fancyLogKeyed(calling_ply, "cj_enable_log", target_plys, multiplier, crouchspeed)
 	end
 	function ulx.uncrouchjump(calling_ply, target_plys)
 		for _, p in ipairs(target_plys) do
@@ -85,16 +86,34 @@ if SERVER then
 			d.crouchspeed = 1.0
 		end
 		sendSettings(target_plys, {active=false, multiplier=1.0, unlock=false, crouchspeed=1.0})
-		ulx.fancyLogAdmin(calling_ply, "#A 关闭了 #T 的蹲跳增强", target_plys)
+		ulx.fancyLogKeyed(calling_ply, "cj_disable_log", target_plys)
+	end
+	local function readValidatedTargets(admin, count)
+		local selectors = {}
+		local seen = {}
+		for _ = 1, count do
+			local p = player.GetBySteamID64(net.ReadString())
+			if IsValid(p) and not seen[p] then
+				local id = ULib.getUniqueIDForPlayer(p)
+				if id then
+					selectors[#selectors + 1] = "$" .. id
+					seen[p] = true
+				end
+			end
+		end
+		if #selectors == 0 then return {} end
+		local parser = ULib.cmds.PlayersArg()
+		local targets, err = parser:parseAndValidate(admin, table.concat(selectors, ","), { cmd = "ulx crouchjump", type = ULib.cmds.PlayersArg })
+		if not targets then
+			ULib.tsayError(admin, err or L.T("cmd_cannot_target_any"), true)
+			return {}
+		end
+		return targets
 	end
 	net.Receive("ulx_crouchjump", function(len, ply)
 		if not ply:query("ulx crouchjump") then return end
 		local count = net.ReadUInt(8)
-		local targets = {}
-		for _ = 1, count do
-			local p = player.GetBySteamID64(net.ReadString())
-			if IsValid(p) then table.insert(targets, p) end
-		end
+		local targets = readValidatedTargets(ply, count)
 		if #targets == 0 then return end
 		local active      = net.ReadBool()
 		local multiplier  = net.ReadFloat()
@@ -109,9 +128,9 @@ if SERVER then
 		end
 		sendSettings(targets, getData(targets[1]))
 		if active then
-			ulx.fancyLogAdmin(ply, "#A 应用了蹲跳参数", targets)
+			ulx.fancyLogKeyed(ply, "cj_apply_log", targets)
 		else
-			ulx.fancyLogAdmin(ply, "#A 关闭了蹲跳增强", targets)
+			ulx.fancyLogKeyed(ply, "cj_disable_log", targets)
 		end
 	end)
 	hook.Add("PlayerDisconnected", "ULXCrouchJumpCleanup", function(ply)
@@ -122,13 +141,17 @@ if SERVER then
 else
 	net.Receive("ulx_crouchjump", function()
 		local count = net.ReadUInt(8)
-		for _ = 1, count do net.ReadString(); net.ReadBool(); net.ReadFloat(); net.ReadBool(); net.ReadFloat() end
+		for _ = 1, count do net.ReadString() end
+		net.ReadBool()
+		net.ReadFloat()
+		net.ReadBool()
+		net.ReadFloat()
 	end)
 end
 local cjCmd = ulx.command(CAT, "ulx crouchjump", ulx.crouchjump, "!crouchjump")
 cjCmd:addParam{ type = ULib.cmds.PlayersArg }
-cjCmd:addParam{ type = ULib.cmds.NumArg, min = 1.0, max = 10.0, default = 2.0, hint = "跳力倍率", ULib.cmds.optional }
-cjCmd:addParam{ type = ULib.cmds.NumArg, min = 1.0, max = 5.0,  default = 1.5, hint = "蹲走速度倍率", ULib.cmds.optional }
+cjCmd:addParam{ type = ULib.cmds.NumArg, min = 1.0, max = 10.0, default = 2.0, hint = L.T("hint_jump_power"), ULib.cmds.optional }
+cjCmd:addParam{ type = ULib.cmds.NumArg, min = 1.0, max = 5.0,  default = 1.5, hint = L.T("hint_crouch_speed"), ULib.cmds.optional }
 cjCmd:defaultAccess(ULib.ACCESS_ADMIN)
-cjCmd:help( "蹲跳增强，!uncrouchjump 关闭" )
+cjCmd:help( L.T("help_crouchjump") )
 cjCmd:setOpposite("ulx uncrouchjump", {_, _, 1.0, 1.0}, "!uncrouchjump")

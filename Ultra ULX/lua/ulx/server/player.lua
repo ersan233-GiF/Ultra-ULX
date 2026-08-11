@@ -46,18 +46,19 @@ function ULib.slap( ent, damage, power, nosound )
 	end
 	ent:SetHealth( newHp )
 end
-function ULib.kick( ply, reason, calling_ply )
-	local nick = calling_ply and calling_ply:IsValid() and
-		(string.format( "%s(%s)", calling_ply:Nick(), calling_ply:SteamID() ) or "Console")
+function ULib.kick( ply, reason, calling_ply, silent )
+	local nick = (IsValid( calling_ply ) and string.format( "%s(%s)", calling_ply:Nick(), calling_ply:SteamID() )) or "Console"
 	local steamid = ply:SteamID()
 	if reason and nick then
-		ply:Kick( string.format( "Kicked by %s - %s", nick, reason ) )
+		ply:Kick( string.format( ULib.ulx_lang.T("kick_format_with_reason"), nick, reason ) )
 	elseif nick then
-		ply:Kick( "Kicked by " .. nick )
+		ply:Kick( string.format( ULib.ulx_lang.T("kick_format_no_reason"), nick ) )
 	else
-		ply:Kick( reason or "[ULX] Kicked from server" )
+		ply:Kick( reason or ULib.ulx_lang.T("kick_default_reason") )
 	end
-	hook.Call( ULib.HOOK_USER_KICKED, _, steamid, reason or "[ULX] Kicked from server", calling_ply )
+	if not silent then
+		hook.Call( ULib.HOOK_USER_KICKED, _, steamid, reason or ULib.ulx_lang.T("kick_default_reason"), calling_ply )
+	end
 end
 local function doInvis()
 	local remove = true

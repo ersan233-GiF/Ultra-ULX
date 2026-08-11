@@ -2,7 +2,7 @@ ulx.convar( "rslotsMode", "0", " - Sets the slots mode. See config for more info
 ulx.convar( "rslots", "2", " - Sets the number of reserved slots, only applicable for modes 1 and 2.", ULib.ACCESS_ADMIN )
 ulx.convar( "rslotsVisible", "1", " - Sets whether slots are visible. See config for more information.", ULib.ACCESS_ADMIN )
 local access = "ulx reservedslots"
-ULib.ucl.registerAccess( access, ULib.ACCESS_ADMIN, "预留槽位访问权限", "Other" )
+ULib.ucl.registerAccess( access, ULib.ACCESS_ADMIN, ULib.ulx_lang.T("access_reserved_slots"), "Other" )
 function calcSlots( disconnect )
 	local mode = GetConVarNumber( "ulx_rslotsMode" )
 	if mode == 3 then return 1 end

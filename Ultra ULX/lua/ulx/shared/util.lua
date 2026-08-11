@@ -1,9 +1,17 @@
 local dataFolder = "data"
+local function stripDataPrefix( f )
+	local lower = f:lower()
+	local prefixLen = dataFolder:len()
+	local separator = lower:sub( prefixLen + 1, prefixLen + 1 )
+	if lower:sub( 1, prefixLen ) == dataFolder and ( separator == "/" or separator == "\\" ) then
+		return f:sub( prefixLen + 2 )
+	end
+	return nil
+end
 function ULib.fileExists( f, noMount )
 	if noMount then return file.Exists( f, "MOD" ) end
-	local isDataFolder = f:lower():sub( 1, dataFolder:len() ) ~= dataFolder
-	local fWoData = f:sub( dataFolder:len() + 2 )
-	return file.Exists( f, "GAME" ) or (isDataFolder and file.Exists( fWoData, "DATA" ))
+	local fWoData = stripDataPrefix( f )
+	return file.Exists( f, "GAME" ) or (fWoData ~= nil and file.Exists( fWoData, "DATA" ))
 end
 function ULib.fileRead( f, noMount )
 	local existsWoMount = ULib.fileExists( f, true )
@@ -13,48 +21,43 @@ function ULib.fileRead( f, noMount )
 		end
 		return file.Read( f, "MOD" )
 	end
-	local isDataFolder = f:lower():sub( 1, dataFolder:len() ) == dataFolder
-	local fWoData = f:sub( dataFolder:len() + 2 )
-	if not existsWoMount and not ULib.fileExists( f ) then
-		return nil
-	end
-	if not isDataFolder then
-		return file.Read( f, "GAME" )
-	else
-		if existsWoMount then
+	local fWoData = stripDataPrefix( f )
+	if fWoData ~= nil then
+		if file.Exists( fWoData, "DATA" ) then
 			return file.Read( fWoData, "DATA" )
-		else
+		end
+		if file.Exists( f, "GAME" ) then
 			return file.Read( f, "GAME" )
 		end
+		return nil
 	end
+	if not ULib.fileExists( f ) then return nil end
+	return file.Read( f, "GAME" )
 end
 function ULib.fileWrite( f, content )
-	local isDataFolder = f:lower():sub( 1, dataFolder:len() ) == dataFolder
-	local fWoData = f:sub( dataFolder:len() + 2 )
-	if not isDataFolder then return nil end
+	local fWoData = stripDataPrefix( f )
+	if fWoData == nil then return nil end
 	file.Write( fWoData, content )
 end
 function ULib.fileAppend( f, content )
-	local isDataFolder = f:lower():sub( 1, dataFolder:len() ) == dataFolder
-	local fWoData = f:sub( dataFolder:len() + 2 )
-	if not isDataFolder then return nil end
+	local fWoData = stripDataPrefix( f )
+	if fWoData == nil then return nil end
 	file.Append( fWoData, content )
 end
 function ULib.fileCreateDir( f )
-	local isDataFolder = f:lower():sub( 1, dataFolder:len() ) == dataFolder
-	local fWoData = f:sub( dataFolder:len() + 2 )
-	if not isDataFolder then return nil end
+	local fWoData = stripDataPrefix( f )
+	if fWoData == nil then return nil end
 	file.CreateDir( fWoData )
 end
 function ULib.fileDelete( f )
-	local isDataFolder = f:lower():sub( 1, dataFolder:len() ) == dataFolder
-	local fWoData = f:sub( dataFolder:len() + 2 )
-	if not isDataFolder then return nil end
+	local fWoData = stripDataPrefix( f )
+	if fWoData == nil then return nil end
 	file.Delete( fWoData )
 end
 function ULib.fileIsDir( f, noMount )
 	if not noMount then
-		return file.IsDir( f, "GAME" )
+		local fWoData = stripDataPrefix( f )
+		return file.IsDir( f, "GAME" ) or (fWoData ~= nil and file.IsDir( fWoData, "DATA" ))
 	else
 		return file.IsDir( f, "MOD" )
 	end

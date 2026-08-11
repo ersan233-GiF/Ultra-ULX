@@ -157,7 +157,7 @@ xgui.registerRefresh( "maps", function()
 	maps.nextLevelLabel:SetText( xgui.T("maps_nextlevel") )
 	maps.gamemodeLabel:SetText( xgui.T("maps_gamemode") )
 	local noselectStr = xgui.T("maps_noselect")
-	if maps.curmap:GetValue() == noselectStr or maps.curmap:GetValue() == "未选择地图" or maps.curmap:GetValue() == "No Map Selected" then
+	if maps.curmap:GetValue() == noselectStr then
 		maps.curmap:SetText( noselectStr )
 	end
 	if maps.gamemode then

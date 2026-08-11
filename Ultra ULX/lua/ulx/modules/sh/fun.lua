@@ -1,35 +1,36 @@
-local CATEGORY_NAME = "娱乐"
+local L = ULib.ulx_lang
+local CATEGORY_NAME = "cat_fun"
 function ulx.slap( calling_ply, target_plys, dmg )
 	local affected_plys = {}
 	for i=1, #target_plys do
 		local v = target_plys[ i ]
 		if v:IsFrozen() then
-			ULib.tsayError( calling_ply, v:Nick() .. " is frozen!", true )
+			ULib.tsayError( calling_ply, L.T("fun_frozen_error", v:Nick()), true )
 		else
 			ULib.slap( v, dmg )
 			table.insert( affected_plys, v )
 		end
 	end
-	ulx.fancyLogAdmin( calling_ply, "#A slapped #T with #i damage", affected_plys, dmg )
+	ulx.fancyLogKeyed(calling_ply, "fun_slap_log", affected_plys, dmg )
 end
 local slap = ulx.command( CATEGORY_NAME, "ulx slap", ulx.slap, "!slap" )
 slap:addParam{ type=ULib.cmds.PlayersArg }
-slap:addParam{ type=ULib.cmds.NumArg, min=0, default=0, hint="伤害值", ULib.cmds.optional, ULib.cmds.round }
+slap:addParam{ type=ULib.cmds.NumArg, min=0, default=0, hint="damage", ULib.cmds.optional, ULib.cmds.round }
 slap:defaultAccess( ULib.ACCESS_ADMIN )
-slap:help( "扇目标巴掌造成伤害" )
-function ulx.whip( calling_ply, target_plys, times, freq, dmg, should_stop )
-	if should_stop or times == 0 then
+slap:help( L.T("fun_slap_help") )
+function ulx.whip( calling_ply, target_plys, times, freq, dmg )
+	if times and times == 0 then
 		for _, v in ipairs( target_plys ) do
 			timer.Remove( "ulxWhip_" .. v:EntIndex() )
 		end
-		ulx.fancyLogAdmin( calling_ply, "#A 停止了连续迫害 #T", target_plys )
+		ulx.fancyLogKeyed(calling_ply, "fun_whip_stop_log", target_plys )
 		return
 	end
 	local affected_plys = {}
 	for i=1, #target_plys do
 		local v = target_plys[ i ]
 		if v:IsFrozen() then
-			ULib.tsayError( calling_ply, v:Nick() .. " is frozen!", true )
+			ULib.tsayError( calling_ply, L.T("fun_frozen_error", v:Nick()), true )
 		else
 			local interval = freq and freq > 0 and ( 1 / freq ) or 0.5
 			local tid = "ulxWhip_" .. v:EntIndex()
@@ -41,17 +42,160 @@ function ulx.whip( calling_ply, target_plys, times, freq, dmg, should_stop )
 			table.insert( affected_plys, v )
 		end
 	end
-	ulx.fancyLogAdmin( calling_ply, "#A 连续扇 #T #i 次 (频率:#ix/秒 伤害:#i)", affected_plys, times, freq or 2, dmg )
+	ulx.fancyLogKeyed(calling_ply, "fun_whip_log", affected_plys, times, freq or 2, dmg )
 end
 local whip = ulx.command( CATEGORY_NAME, "ulx whip", ulx.whip, "!whip" )
 whip:addParam{ type=ULib.cmds.PlayersArg }
-whip:addParam{ type=ULib.cmds.NumArg, min=1, max=9999, default=10, hint="次数", ULib.cmds.optional, ULib.cmds.round }
-whip:addParam{ type=ULib.cmds.NumArg, min=0.1, max=100, default=2, hint="频率/秒", ULib.cmds.optional }
-whip:addParam{ type=ULib.cmds.NumArg, min=0, default=0, hint="伤害值", ULib.cmds.optional, ULib.cmds.round }
-whip:addParam{ type=ULib.cmds.BoolArg, invisible=true }
+whip:addParam{ type=ULib.cmds.NumArg, min=1, max=9999, default=10, hint="times", ULib.cmds.optional, ULib.cmds.round }
+whip:addParam{ type=ULib.cmds.NumArg, min=0.1, max=100, default=2, hint="freq_sec", ULib.cmds.optional }
+whip:addParam{ type=ULib.cmds.NumArg, min=0, default=0, hint="damage", ULib.cmds.optional, ULib.cmds.round }
 whip:defaultAccess( ULib.ACCESS_ADMIN )
-whip:help( "连续扇目标指定次数，!unwhip 停止" )
-whip:setOpposite( "ulx unwhip", {_, _, _, _, _, true}, "!unwhip" )
+whip:help( L.T("fun_whip_help") )
+whip:setOpposite( "ulx unwhip", {_, _, 0}, "!unwhip" )
+local gameModeDefaultHP = nil
+local gameModeDefaultArmor = nil
+local function getGameModeDefaultHP()
+	if gameModeDefaultHP then return gameModeDefaultHP end
+	local cv = GetConVar("ulx_default_maxhp")
+	if cv then gameModeDefaultHP = math.max(cv:GetInt(), 1); return gameModeDefaultHP end
+	if GAMEMODE then
+		if GAMEMODE.DefaultPlayerHealth then gameModeDefaultHP = GAMEMODE.DefaultPlayerHealth; return gameModeDefaultHP end
+		if GAMEMODE.ConVars and GAMEMODE.ConVars.DefaultPlayerHealth then gameModeDefaultHP = GAMEMODE.ConVars.DefaultPlayerHealth; return gameModeDefaultHP end
+	end
+	for _, p in ipairs(player.GetAll()) do
+		if IsValid(p) and p:Alive() then
+			gameModeDefaultHP = (p.GetMaxHealth and p:GetMaxHealth()) or p:Health()
+			if gameModeDefaultHP and gameModeDefaultHP > 0 then return gameModeDefaultHP end
+		end
+	end
+	gameModeDefaultHP = 100
+	return gameModeDefaultHP
+end
+local function getGameModeDefaultArmor()
+	if gameModeDefaultArmor then return gameModeDefaultArmor end
+	local cv = GetConVar("ulx_default_maxarmor")
+	if cv then gameModeDefaultArmor = cv:GetInt(); return gameModeDefaultArmor end
+	if GAMEMODE then
+		if GAMEMODE.DefaultPlayerArmor then gameModeDefaultArmor = GAMEMODE.DefaultPlayerArmor; return gameModeDefaultArmor end
+	end
+	gameModeDefaultArmor = 0
+	return gameModeDefaultArmor
+end
+local playerMaxHP = {}
+local playerMaxArmor = {}
+local function getPlayerMaxHP( ply ) return playerMaxHP[ply:SteamID64()] end
+local function getPlayerMaxArmor( ply ) return playerMaxArmor[ply:SteamID64()] end
+local function clampHP( ply, amount )
+	local m = getPlayerMaxHP(ply) or getGameModeDefaultHP()
+	return m > 0 and math.min(amount, m) or amount
+end
+local function clampArmor( ply, amount )
+	local m = getPlayerMaxArmor(ply)
+	return m and m > 0 and math.min(amount, m) or amount
+end
+function ulx.regen( calling_ply, target_plys, interval, amount, should_stop )
+	if interval and interval <= 0 then should_stop = true end
+	interval = math.max(interval or 1, 0.1)
+	amount = math.max(amount or 10, 0.1)
+	local affected = {}
+	for _, v in ipairs(target_plys) do
+		local tid = "ulxRegen_" .. v:EntIndex()
+		timer.Remove(tid)
+		if should_stop then
+			table.insert(affected, v)
+		else
+			timer.Create(tid, interval, 0, function()
+				if not v:IsValid() or not v:Alive() then timer.Remove(tid) return end
+				local newHp = clampHP(v, v:Health() + amount)
+				v:SetHealth(newHp)
+			end)
+			table.insert(affected, v)
+		end
+	end
+	if should_stop then
+		ulx.fancyLogKeyed(calling_ply, "fun_regen_stop", affected)
+	else
+		ulx.fancyLogKeyed(calling_ply, "fun_regen_start", affected, interval, amount)
+	end
+end
+local regen = ulx.command( CATEGORY_NAME, "ulx regen", ulx.regen, "!regen" )
+regen:addParam{ type=ULib.cmds.PlayersArg }
+regen:addParam{ type=ULib.cmds.NumArg, min=0.1, max=300, default=1, hint="interval_sec", ULib.cmds.optional }
+regen:addParam{ type=ULib.cmds.NumArg, min=0.1, max=1000, default=10, hint="regen_amount", ULib.cmds.optional }
+regen:defaultAccess( ULib.ACCESS_ADMIN )
+regen:help( L.T("fun_regen_help") )
+regen:setOpposite( "ulx unregen", {_, _, _, _, true}, "!unregen" )
+function ulx.armorregen( calling_ply, target_plys, interval, amount, should_stop )
+	if interval and interval <= 0 then should_stop = true end
+	interval = math.max(interval or 1, 0.1)
+	amount = math.max(amount or 10, 0.1)
+	local affected = {}
+	for _, v in ipairs(target_plys) do
+		local tid = "ulxArmorRegen_" .. v:EntIndex()
+		timer.Remove(tid)
+		if should_stop then table.insert(affected, v)
+		else
+			timer.Create(tid, interval, 0, function()
+				if not v:IsValid() or not v:Alive() then timer.Remove(tid) return end
+				v:SetArmor(clampArmor(v, v:Armor() + amount))
+			end)
+			table.insert(affected, v)
+		end
+	end
+	local keyArmorRegen = should_stop and "fun_armorregen_stop" or "fun_armorregen_start"
+	ulx.fancyLogKeyed(calling_ply, keyArmorRegen, affected, interval, amount)
+end
+local armorregen = ulx.command( CATEGORY_NAME, "ulx armorregen", ulx.armorregen, "!armorregen" )
+armorregen:addParam{ type=ULib.cmds.PlayersArg }
+armorregen:addParam{ type=ULib.cmds.NumArg, min=0.1, max=300, default=1, hint="interval_sec", ULib.cmds.optional }
+armorregen:addParam{ type=ULib.cmds.NumArg, min=0.1, max=1000, default=10, hint="regen_amount", ULib.cmds.optional }
+armorregen:defaultAccess( ULib.ACCESS_ADMIN )
+armorregen:help( L.T("fun_armorregen_help") )
+armorregen:setOpposite( "ulx unarmorregen", {_, _, _, _, true}, "!unarmorregen" )
+function ulx.maxhp( calling_ply, target_plys, amount )
+	if amount == 0 then
+		for _, ply in ipairs(target_plys) do
+			playerMaxHP[ply:SteamID64()] = nil
+		end
+		ulx.fancyLogKeyed(calling_ply, "fun_maxhp_remove", target_plys, getGameModeDefaultHP())
+		return
+	end
+	amount = math.Clamp(amount, 1, 2147483647)
+	for _, ply in ipairs(target_plys) do
+		playerMaxHP[ply:SteamID64()] = amount
+		if ply:Health() > amount then ply:SetHealth(amount) end
+	end
+	ulx.fancyLogKeyed(calling_ply, "fun_maxhp_set", target_plys, amount)
+end
+local maxhp = ulx.command( CATEGORY_NAME, "ulx maxhp", ulx.maxhp, nil, false, false, true )
+maxhp:addParam{ type=ULib.cmds.PlayersArg }
+maxhp:addParam{ type=ULib.cmds.NumArg, min=0, max=2147483647, default=0, hint="maxhp_cap", ULib.cmds.round }
+maxhp:defaultAccess( ULib.ACCESS_ADMIN )
+maxhp:help( L.T("fun_maxhp_help") )
+function ulx.maxarmor( calling_ply, target_plys, amount )
+	if amount == 0 then
+		for _, ply in ipairs(target_plys) do
+			playerMaxArmor[ply:SteamID64()] = nil
+		end
+		ulx.fancyLogKeyed(calling_ply, "fun_maxarmor_remove", target_plys)
+		return
+	end
+	amount = math.Clamp(amount, 1, 2147483647)
+	for _, ply in ipairs(target_plys) do
+		playerMaxArmor[ply:SteamID64()] = amount
+		if ply:Armor() > amount then ply:SetArmor(amount) end
+	end
+	ulx.fancyLogKeyed(calling_ply, "fun_maxarmor_set", target_plys, amount)
+end
+local maxarmor = ulx.command( CATEGORY_NAME, "ulx maxarmor", ulx.maxarmor, nil, false, false, true )
+maxarmor:addParam{ type=ULib.cmds.PlayersArg }
+maxarmor:addParam{ type=ULib.cmds.NumArg, min=0, max=2147483647, default=0, hint="maxarmor_cap", ULib.cmds.round }
+maxarmor:defaultAccess( ULib.ACCESS_ADMIN )
+maxarmor:help( L.T("fun_maxarmor_help") )
+hook.Add( "PlayerDisconnected", "ULXMaxHPArmorCleanup", function(ply)
+	playerMaxHP[ply:SteamID64()] = nil
+	playerMaxArmor[ply:SteamID64()] = nil
+end, HOOK_MONITOR_HIGH )
 function ulx.slay( calling_ply, target_plys )
 	local affected_plys = {}
 	for i=1, #target_plys do
@@ -59,20 +203,20 @@ function ulx.slay( calling_ply, target_plys )
 		if ulx.getExclusive( v, calling_ply ) then
 			ULib.tsayError( calling_ply, ulx.getExclusive( v, calling_ply ), true )
 		elseif not v:Alive() then
-			ULib.tsayError( calling_ply, v:Nick() .. " 已经死了！", true )
+			ULib.tsayError( calling_ply, L.T("fun_already_dead_error", v:Nick()), true )
 		elseif v:IsFrozen() then
-			ULib.tsayError( calling_ply, v:Nick() .. " 已被冻结！", true )
+			ULib.tsayError( calling_ply, L.T("fun_frozen_error", v:Nick()), true )
 		else
 			v:Kill()
 			table.insert( affected_plys, v )
 		end
 	end
-	ulx.fancyLogAdmin( calling_ply, "#A 杀死了 #T", affected_plys )
+	ulx.fancyLogKeyed(calling_ply, "fun_slay_log", affected_plys )
 end
 local slay = ulx.command( CATEGORY_NAME, "ulx slay", ulx.slay, "!slay" )
 slay:addParam{ type=ULib.cmds.PlayersArg }
 slay:defaultAccess( ULib.ACCESS_ADMIN )
-slay:help( "直接杀死目标" )
+slay:help( L.T("fun_slay_help") )
 function ulx.sslay( calling_ply, target_plys )
 	local affected_plys = {}
 	for i=1, #target_plys do
@@ -80,9 +224,9 @@ function ulx.sslay( calling_ply, target_plys )
 		if ulx.getExclusive( v, calling_ply ) then
 			ULib.tsayError( calling_ply, ulx.getExclusive( v, calling_ply ), true )
 		elseif not v:Alive() then
-			ULib.tsayError( calling_ply, v:Nick() .. " 已经死了！", true )
+			ULib.tsayError( calling_ply, L.T("fun_already_dead_error", v:Nick()), true )
 		elseif v:IsFrozen() then
-			ULib.tsayError( calling_ply, v:Nick() .. " 已被冻结！", true )
+			ULib.tsayError( calling_ply, L.T("fun_frozen_error", v:Nick()), true )
 		else
 			if v:InVehicle() then
 				v:ExitVehicle()
@@ -91,12 +235,12 @@ function ulx.sslay( calling_ply, target_plys )
 			table.insert( affected_plys, v )
 		end
 	end
-	ulx.fancyLogAdmin( calling_ply, "#A 静默杀死了 #T", affected_plys )
+	ulx.fancyLogKeyed(calling_ply, "fun_sslay_log", affected_plys )
 end
 local sslay = ulx.command( CATEGORY_NAME, "ulx sslay", ulx.sslay, "!sslay" )
 sslay:addParam{ type=ULib.cmds.PlayersArg }
 sslay:defaultAccess( ULib.ACCESS_SUPERADMIN )
-sslay:help( "静默杀死目标，不显示死亡消息" )
+sslay:help( L.T("fun_sslay_help") )
 function ulx.ignite( calling_ply, target_plys, seconds, should_extinguish )
 	local affected_plys = {}
 	for i=1, #target_plys do
@@ -112,17 +256,17 @@ function ulx.ignite( calling_ply, target_plys, seconds, should_extinguish )
 		end
 	end
 	if not should_extinguish then
-		ulx.fancyLogAdmin( calling_ply, "#A 点燃了 #T #i 秒", affected_plys, seconds )
+		ulx.fancyLogKeyed(calling_ply, "fun_ignite_log", affected_plys, seconds )
 	else
-		ulx.fancyLogAdmin( calling_ply, "#A 熄灭了 #T 的火焰", affected_plys )
+		ulx.fancyLogKeyed(calling_ply, "fun_unignite_log", affected_plys )
 	end
 end
 local ignite = ulx.command( CATEGORY_NAME, "ulx ignite", ulx.ignite, "!ignite" )
 ignite:addParam{ type=ULib.cmds.PlayersArg }
-ignite:addParam{ type=ULib.cmds.NumArg, min=1, max=300, default=300, hint="秒数", ULib.cmds.optional, ULib.cmds.round }
+ignite:addParam{ type=ULib.cmds.NumArg, min=1, max=300, default=300, hint="seconds", ULib.cmds.optional, ULib.cmds.round }
 ignite:addParam{ type=ULib.cmds.BoolArg, invisible=true }
 ignite:defaultAccess( ULib.ACCESS_ADMIN )
-ignite:help( "点燃目标持续灼烧，!unignite 熄灭" )
+ignite:help( L.T("fun_ignite_help") )
 ignite:setOpposite( "ulx unignite", {_, _, _, true}, "!unignite" )
 local function checkFireDeath( ply )
 	if ply.ulx_ignited_until and ply.ulx_ignited_until >= CurTime() and ply:IsOnFire() then
@@ -145,28 +289,28 @@ function ulx.unigniteall( calling_ply )
 			v.ulx_ignited_until = nil
 		end
 	end
-	ulx.fancyLogAdmin( calling_ply, "#A 熄灭了所有火焰" )
+	ulx.fancyLogKeyed(calling_ply, "fun_unigniteall_log", {calling_ply})
 end
 local unigniteall = ulx.command( CATEGORY_NAME, "ulx unigniteall", ulx.unigniteall, "!unigniteall" )
 unigniteall:defaultAccess( ULib.ACCESS_ADMIN )
-unigniteall:help( "熄灭所有玩家和实体的火焰" )
+unigniteall:help( L.T("fun_unigniteall_help") )
 if SERVER then
 	util.AddNetworkString( "ulib_sound" )
 end
 function ulx.playsound( calling_ply, sound )
 	if not ULib.fileExists( "sound/" .. sound ) then
-		ULib.tsayError( calling_ply, "服务器上不存在该音效！", true )
+		ULib.tsayError( calling_ply, L.T("fun_sound_missing"), true )
 		return
 	end
 	net.Start( "ulib_sound" )
 		net.WriteString( Sound( sound ) )
 	net.Broadcast()
-	ulx.fancyLogAdmin( calling_ply, "#A 播放了音效 #s", sound )
+	ulx.fancyLogKeyed(calling_ply, "fun_playsound_log", sound )
 end
 local playsound = ulx.command( CATEGORY_NAME, "ulx playsound", ulx.playsound, "!playsound" )
-playsound:addParam{ type=ULib.cmds.StringArg, hint="音效路径", autocomplete_fn=ulx.soundComplete }
+playsound:addParam{ type=ULib.cmds.StringArg, hint="sound_path", autocomplete_fn=ulx.soundComplete }
 playsound:defaultAccess( ULib.ACCESS_ADMIN )
-playsound:help( "服务器广播播放音效文件" )
+playsound:help( L.T("fun_playsound_help") )
 function ulx.freeze( calling_ply, target_plys, should_unfreeze )
 	local affected_plys = {}
 	for i=1, #target_plys do
@@ -195,23 +339,23 @@ function ulx.freeze( calling_ply, target_plys, should_unfreeze )
 		end
 	end
 	if not should_unfreeze then
-		ulx.fancyLogAdmin( calling_ply, "#A 冻结了 #T", affected_plys )
+		ulx.fancyLogKeyed(calling_ply, "fun_freeze_log", affected_plys )
 	else
-		ulx.fancyLogAdmin( calling_ply, "#A 解冻了 #T", affected_plys )
+		ulx.fancyLogKeyed(calling_ply, "fun_unfreeze_log", affected_plys )
 	end
 end
 local freeze = ulx.command( CATEGORY_NAME, "ulx freeze", ulx.freeze, "!freeze" )
 freeze:addParam{ type=ULib.cmds.PlayersArg }
 freeze:addParam{ type=ULib.cmds.BoolArg, invisible=true }
 freeze:defaultAccess( ULib.ACCESS_ADMIN )
-freeze:help( "冻结目标无法移动，!unfreeze 解除" )
+freeze:help( L.T("fun_freeze_help") )
 freeze:setOpposite( "ulx unfreeze", {_, _, true}, "!unfreeze" )
 function ulx.god( calling_ply, target_plys, should_revoke )
 	if not target_plys[ 1 ]:IsValid() then
 		if not should_revoke then
-			Msg( "You are the console, you are already god.\n" )
+			Msg( L.T("fun_console_god") .. "\n" )
 		else
-			Msg( "Your position of god is irrevocable; if you don't like it, leave the matrix.\n" )
+			Msg( L.T("fun_console_god2") .. "\n" )
 		end
 		return
 	end
@@ -232,42 +376,49 @@ function ulx.god( calling_ply, target_plys, should_revoke )
 		end
 	end
 	if not should_revoke then
-		ulx.fancyLogAdmin( calling_ply, "#A 给予 #T 无敌模式", affected_plys )
+		ulx.fancyLogKeyed(calling_ply, "fun_god_log", affected_plys )
 	else
-		ulx.fancyLogAdmin( calling_ply, "#A 取消 #T 无敌模式", affected_plys )
+		ulx.fancyLogKeyed(calling_ply, "fun_ungod_log", affected_plys )
 	end
 end
 local god = ulx.command( CATEGORY_NAME, "ulx god", ulx.god, "!god" )
 god:addParam{ type=ULib.cmds.PlayersArg, ULib.cmds.optional }
 god:addParam{ type=ULib.cmds.BoolArg, invisible=true }
 god:defaultAccess( ULib.ACCESS_ADMIN )
-god:help( "给予目标无敌模式，!ungod 解除" )
+god:help( L.T("fun_god_help") )
 god:setOpposite( "ulx ungod", {_, _, true}, "!ungod" )
 function ulx.hp( calling_ply, target_plys, amount )
+	amount = math.max(amount, 1)
+	local clamped = false
 	for i=1, #target_plys do
-		target_plys[ i ]:SetHealth( amount )
+		local newHp = clampHP(target_plys[i], amount)
+		if newHp ~= amount then clamped = true end
+		target_plys[i]:SetHealth(newHp)
 	end
-	ulx.fancyLogAdmin( calling_ply, "#A 设置 #T 生命值为 #i", target_plys, amount )
+	ulx.fancyLogKeyed( calling_ply, clamped and "fun_hp_capped" or "fun_hp_set", target_plys, amount )
 end
 local hp = ulx.command( CATEGORY_NAME, "ulx hp", ulx.hp, "!hp" )
 hp:addParam{ type=ULib.cmds.PlayersArg }
-hp:addParam{ type=ULib.cmds.NumArg, min=1, max=2^32/2-1, hint="生命值", ULib.cmds.round }
+hp:addParam{ type=ULib.cmds.NumArg, min=1, max=2147483647, hint="hp_value", ULib.cmds.round }
 hp:defaultAccess( ULib.ACCESS_ADMIN )
-hp:help( "设置目标的生命值" )
+hp:help( L.T("fun_hp_help") )
 function ulx.armor( calling_ply, target_plys, amount )
+	local clamped = false
 	for i=1, #target_plys do
-		target_plys[ i ]:SetArmor( amount )
+		local newArmor = clampArmor(target_plys[i], amount)
+		if newArmor ~= amount then clamped = true end
+		target_plys[i]:SetArmor(newArmor)
 	end
-	ulx.fancyLogAdmin( calling_ply, "#A 设置 #T 护甲值为 #i", target_plys, amount )
+	ulx.fancyLogKeyed( calling_ply, clamped and "fun_armor_capped" or "fun_armor_set", target_plys, amount )
 end
 local armor = ulx.command( CATEGORY_NAME, "ulx armor", ulx.armor, "!armor" )
 armor:addParam{ type=ULib.cmds.PlayersArg }
-armor:addParam{ type=ULib.cmds.NumArg, min=0, max=255, hint="护甲值", ULib.cmds.round }
+armor:addParam{ type=ULib.cmds.NumArg, min=0, max=2147483647, hint="armor_value", ULib.cmds.round }
 armor:defaultAccess( ULib.ACCESS_ADMIN )
-armor:help( "设置目标的护甲值" )
+armor:help( L.T("fun_armor_help") )
 function ulx.cloak( calling_ply, target_plys, amount, should_uncloak )
 	if not target_plys[ 1 ]:IsValid() then
-		Msg( "You are always invisible.\n" )
+		Msg( L.T("fun_console_cloak") .. "\n" )
 		return
 	end
 	amount = 255 - amount
@@ -275,17 +426,17 @@ function ulx.cloak( calling_ply, target_plys, amount, should_uncloak )
 		ULib.invisible( target_plys[ i ], not should_uncloak, amount )
 	end
 	if not should_uncloak then
-		ulx.fancyLogAdmin( calling_ply, "#A 隐身 #T 透明度 #i", target_plys, amount )
+		ulx.fancyLogKeyed(calling_ply, "fun_cloak_log", target_plys, amount )
 	else
-		ulx.fancyLogAdmin( calling_ply, "#A 取消 #T 隐身", target_plys )
+		ulx.fancyLogKeyed(calling_ply, "fun_uncloak_log", target_plys )
 	end
 end
 local cloak = ulx.command( CATEGORY_NAME, "ulx cloak", ulx.cloak, "!cloak" )
 cloak:addParam{ type=ULib.cmds.PlayersArg, ULib.cmds.optional }
-cloak:addParam{ type=ULib.cmds.NumArg, min=0, max=255, default=255, hint="透明度", ULib.cmds.round, ULib.cmds.optional }
+cloak:addParam{ type=ULib.cmds.NumArg, min=0, max=255, default=255, hint="alpha", ULib.cmds.round, ULib.cmds.optional }
 cloak:addParam{ type=ULib.cmds.BoolArg, invisible=true }
 cloak:defaultAccess( ULib.ACCESS_ADMIN )
-cloak:help( "使目标隐身，!uncloak 恢复可见" )
+cloak:help( L.T("fun_cloak_help") )
 cloak:setOpposite( "ulx uncloak", {_, _, _, true}, "!uncloak" )
 if SERVER then
 	util.AddNetworkString( "ulx_blind" )
@@ -323,19 +474,22 @@ function ulx.blind( calling_ply, target_plys, amount, duration, should_unblind )
 		end
 	end
 	if not should_unblind then
-		local durStr = duration and duration > 0 and (" (" .. duration .. "秒)") or ""
-		ulx.fancyLogAdmin( calling_ply, "#A blinded #T by amount #i" .. durStr, target_plys, amount )
+		if duration and duration > 0 then
+			ulx.fancyLogKeyed(calling_ply, "fun_blind_duration", target_plys, amount, duration )
+		else
+			ulx.fancyLogKeyed(calling_ply, "fun_blind_log", target_plys, amount )
+		end
 	else
-		ulx.fancyLogAdmin( calling_ply, "#A unblinded #T", target_plys )
+		ulx.fancyLogKeyed(calling_ply, "fun_unblind_log", target_plys )
 	end
 end
 local blind = ulx.command( CATEGORY_NAME, "ulx blind", ulx.blind, "!blind" )
 blind:addParam{ type=ULib.cmds.PlayersArg }
-blind:addParam{ type=ULib.cmds.NumArg, min=0, max=255, default=255, hint="黑屏程度", ULib.cmds.round, ULib.cmds.optional }
-blind:addParam{ type=ULib.cmds.NumArg, min=0, max=3600, default=0, hint="持续时间/秒 (0=永久)", ULib.cmds.round, ULib.cmds.optional }
+blind:addParam{ type=ULib.cmds.NumArg, min=0, max=255, default=255, hint="blindness", ULib.cmds.round, ULib.cmds.optional }
+blind:addParam{ type=ULib.cmds.NumArg, min=0, max=3600, default=0, hint="duration_perm", ULib.cmds.round, ULib.cmds.optional }
 blind:addParam{ type=ULib.cmds.BoolArg, invisible=true }
 blind:defaultAccess( ULib.ACCESS_ADMIN )
-blind:help( "使目标屏幕变黑，!unblind 解除。可指定持续时间" )
+blind:help( L.T("fun_blind_help") )
 blind:setOpposite( "ulx unblind", {_, _, _, _, true}, "!unblind" )
 local doJail
 local jailableArea
@@ -347,7 +501,7 @@ function ulx.jail( calling_ply, target_plys, seconds, should_unjail )
 			if ulx.getExclusive( v, calling_ply ) then
 				ULib.tsayError( calling_ply, ulx.getExclusive( v, calling_ply ), true )
 			elseif not jailableArea( v:GetPos() ) then
-				ULib.tsayError( calling_ply, v:Nick() .. " is not in an area where a jail can be placed!", true )
+				ULib.tsayError( calling_ply, v:Nick() .. " " .. L.T("fun_no_jail_pos"), true )
 			else
 				doJail( v, seconds )
 				table.insert( affected_plys, v )
@@ -359,30 +513,30 @@ function ulx.jail( calling_ply, target_plys, seconds, should_unjail )
 		end
 	end
 	if not should_unjail then
-		local str = "#A jailed #T"
 		if seconds > 0 then
-			str = str .. " for #i seconds"
+			ulx.fancyLogKeyed(calling_ply, "fun_jail_time_log", affected_plys, seconds )
+		else
+			ulx.fancyLogKeyed(calling_ply, "fun_jail_log", affected_plys )
 		end
-		ulx.fancyLogAdmin( calling_ply, str, affected_plys, seconds )
 	else
-		ulx.fancyLogAdmin( calling_ply, "#A unjailed #T", affected_plys )
+		ulx.fancyLogKeyed(calling_ply, "fun_unjail_log", affected_plys )
 	end
 end
 local jail = ulx.command( CATEGORY_NAME, "ulx jail", ulx.jail, "!jail" )
 jail:addParam{ type=ULib.cmds.PlayersArg }
-jail:addParam{ type=ULib.cmds.NumArg, min=0, default=0, hint="秒, 0为永久", ULib.cmds.round, ULib.cmds.optional }
+jail:addParam{ type=ULib.cmds.NumArg, min=0, default=0, hint="jail_seconds", ULib.cmds.round, ULib.cmds.optional }
 jail:addParam{ type=ULib.cmds.BoolArg, invisible=true }
 jail:defaultAccess( ULib.ACCESS_ADMIN )
-jail:help( "将目标关入监狱，!unjail 释放" )
+jail:help( L.T("fun_jail_help") )
 jail:setOpposite( "ulx unjail", {_, _, _, true}, "!unjail" )
 function ulx.jailtp( calling_ply, target_ply, seconds, should_unjail )
 	if should_unjail then
 		if target_ply.jail then
 			target_ply.jail.unjail()
 			target_ply.jail = nil
-			ulx.fancyLogAdmin( calling_ply, "#A teleported and unjailed #T", target_ply )
+			ulx.fancyLogKeyed(calling_ply, "fun_unjail_log", target_ply )
 		else
-			ULib.tsayError( calling_ply, target_ply:Nick() .. " 没有被囚禁！", true )
+			ULib.tsayError( calling_ply, L.T("fun_unjailtp_not_jailed", target_ply:Nick()), true )
 		end
 		return
 	end
@@ -410,10 +564,10 @@ function ulx.jailtp( calling_ply, target_ply, seconds, should_unjail )
 		ULib.tsayError( calling_ply, ulx.getExclusive( target_ply, calling_ply ), true )
 		return
 	elseif not target_ply:Alive() then
-		ULib.tsayError( calling_ply, target_ply:Nick() .. " is dead!", true )
+		ULib.tsayError( calling_ply, L.T("fun_maul_dead", target_ply:Nick()), true )
 		return
 	elseif not jailableArea( pos ) then
-		ULib.tsayError( calling_ply, "该位置无法放置监狱！", true )
+		ULib.tsayError( calling_ply, L.T("fun_jail_cant_place"), true )
 		return
 	else
 		target_ply.ulx_prevpos = target_ply:GetPos()
@@ -425,18 +579,18 @@ function ulx.jailtp( calling_ply, target_ply, seconds, should_unjail )
 		target_ply:SetLocalVelocity( Vector( 0, 0, 0 ) )
 		doJail( target_ply, seconds )
 	end
-	local str = "#A teleported and jailed #T"
 	if seconds > 0 then
-		str = str .. " for #i seconds"
+		ulx.fancyLogKeyed(calling_ply, "fun_jailtp_time_log", target_ply, seconds )
+	else
+		ulx.fancyLogKeyed(calling_ply, "fun_jailtp_log", target_ply )
 	end
-	ulx.fancyLogAdmin( calling_ply, str, target_ply, seconds )
 end
 local jailtp = ulx.command( CATEGORY_NAME, "ulx jailtp", ulx.jailtp, "!jailtp" )
 jailtp:addParam{ type=ULib.cmds.PlayerArg }
-jailtp:addParam{ type=ULib.cmds.NumArg, min=0, default=0, hint="秒, 0为永久", ULib.cmds.round, ULib.cmds.optional }
+jailtp:addParam{ type=ULib.cmds.NumArg, min=0, default=0, hint="jail_seconds", ULib.cmds.round, ULib.cmds.optional }
 jailtp:addParam{ type=ULib.cmds.BoolArg, invisible=true }
 jailtp:defaultAccess( ULib.ACCESS_ADMIN )
-jailtp:help( "将目标传送到准星位置并关入监狱，!unjailtp 释放" )
+jailtp:help( L.T("fun_jailtp_help") )
 jailtp:setOpposite( "ulx unjailtp", {_, _, _, true}, "!unjailtp" )
 local function jailCheck()
 	local remove_timer = true
@@ -590,14 +744,10 @@ function ulx.ragdollPlayer( v )
 	ragdoll:Spawn()
 	ragdoll:Activate()
 	v:SetParent( ragdoll )
-	local j = 1
-	while true do
+	for j = 0, ragdoll:GetPhysicsObjectCount() - 1 do
 		local phys_obj = ragdoll:GetPhysicsObjectNum( j )
-		if phys_obj then
+		if IsValid( phys_obj ) then
 			phys_obj:SetVelocity( velocity )
-			j = j + 1
-		else
-			break
 		end
 	end
 	v:Spectate( OBS_MODE_CHASE )
@@ -639,7 +789,7 @@ function ulx.ragdoll( calling_ply, target_plys, should_unragdoll )
 			if ulx.getExclusive( v, calling_ply ) then
 				ULib.tsayError( calling_ply, ulx.getExclusive( v, calling_ply ), true )
 			elseif not v:Alive() then
-				ULib.tsayError( calling_ply, v:Nick() .. " is dead and cannot be ragdolled!", true )
+				ULib.tsayError( calling_ply, L.T("fun_ragdoll_dead", v:Nick()), true )
 			else
 				ulx.ragdollPlayer( v )
 				table.insert( affected_plys, v )
@@ -650,16 +800,16 @@ function ulx.ragdoll( calling_ply, target_plys, should_unragdoll )
 		end
 	end
 	if not should_unragdoll then
-		ulx.fancyLogAdmin( calling_ply, "#A ragdolled #T", affected_plys )
+		ulx.fancyLogKeyed(calling_ply, "fun_ragdoll_log", affected_plys )
 	else
-		ulx.fancyLogAdmin( calling_ply, "#A unragdolled #T", affected_plys )
+		ulx.fancyLogKeyed(calling_ply, "fun_unragdoll_log", affected_plys )
 	end
 end
 local ragdoll = ulx.command( CATEGORY_NAME, "ulx ragdoll", ulx.ragdoll, "!ragdoll" )
 ragdoll:addParam{ type=ULib.cmds.PlayersArg }
 ragdoll:addParam{ type=ULib.cmds.BoolArg, invisible=true }
 ragdoll:defaultAccess( ULib.ACCESS_ADMIN )
-ragdoll:help( "使目标变成布娃娃无法行动，!unragdoll 恢复" )
+ragdoll:help( L.T("fun_ragdoll_help") )
 ragdoll:setOpposite( "ulx unragdoll", {_, _, true}, "!unragdoll" )
 local function ragdollSpawnCheck( ply )
 	if ply.ragdoll then
@@ -728,9 +878,9 @@ zombieDeath = function( ent, ply )
 			if not ply:IsValid() then return end
 			local ent2 = newZombie( pos, ang, ply )
 			table.insert( ply.maul_npcs, ent2 )
-			local ents = ents.FindByClass( "npc_headcrab_fast" )
-			for _, ent in ipairs( ents ) do
-				dist = ent:GetPos():Distance( pos )
+			local crabs = ents.FindByClass( "npc_headcrab_fast" )
+			for _, ent in ipairs( crabs ) do
+				local dist = ent:GetPos():Distance( pos )
 				if dist < 128 then
 					ent:Remove()
 				end
@@ -765,7 +915,7 @@ function ulx.maul( calling_ply, target_plys )
 		if ulx.getExclusive( v, calling_ply ) then
 			ULib.tsayError( calling_ply, ulx.getExclusive( v, calling_ply ), true )
 		elseif not v:Alive() then
-			ULib.tsayError( calling_ply, v:Nick() .. " is dead!", true )
+			ULib.tsayError( calling_ply, v:Nick() .. " " .. L.T("fun_already_dead") .. "!", true )
 		else
 			local pos = {}
 			local testent = newZombie( Vector( 0, 0, 0 ), Angle( 0, 0, 0 ), v, true )
@@ -811,16 +961,16 @@ function ulx.maul( calling_ply, target_plys )
 				ulx.setExclusive( v, "being mauled" )
 				table.insert( affected_plys, v )
 			else
-				ULib.tsayError( calling_ply, "找不到放置 NPC 的位置给 " .. v:Nick(), true )
+				ULib.tsayError( calling_ply, L.T("fun_maul_no_pos", v:Nick()), true )
 			end
 		end
 	end
-	ulx.fancyLogAdmin( calling_ply, "#A mauled #T", affected_plys )
+	ulx.fancyLogKeyed(calling_ply, "fun_maul_log", affected_plys )
 end
 local maul = ulx.command( CATEGORY_NAME, "ulx maul", ulx.maul, "!maul" )
 maul:addParam{ type=ULib.cmds.PlayersArg }
 maul:defaultAccess( ULib.ACCESS_SUPERADMIN )
-maul:help( "召唤僵尸群围攻目标" )
+maul:help( L.T("fun_maul_help") )
 checkMaulDeath = function( ply, weapon, killer )
 	if ply.maul_npcs then
 		if killer == ply and CurTime() < ply.maulStart + 20 then
@@ -876,13 +1026,19 @@ local function maulDisconnectedCheck( ply )
 	checkMaulDeath( ply )
 end
 hook.Add( "PlayerDisconnected", "ULXMaulDisconnectedCheck", maulDisconnectedCheck, HOOK_MONITOR_HIGH )
+hook.Add( "PlayerDisconnected", "ULXFunCleanupTimers", function(ply)
+	local eid = ply:EntIndex()
+	for _, prefix in ipairs({"ulxRegen_","ulxArmorRegen_","ulxWhip_","ulxBlind_","ulxJail_"}) do
+		timer.Remove(prefix .. eid)
+	end
+end, HOOK_MONITOR_HIGH)
 function ulx.stripweapons( calling_ply, target_plys )
 	for i=1, #target_plys do
 		target_plys[ i ]:StripWeapons()
 	end
-	ulx.fancyLogAdmin( calling_ply, "#A stripped weapons from #T", target_plys )
+	ulx.fancyLogKeyed(calling_ply, "fun_strip_log", target_plys )
 end
 local strip = ulx.command( CATEGORY_NAME, "ulx strip", ulx.stripweapons, "!strip" )
 strip:addParam{ type=ULib.cmds.PlayersArg }
 strip:defaultAccess( ULib.ACCESS_ADMIN )
-strip:help( "卸下目标的所有武器" )
+strip:help( L.T("fun_strip_help") )

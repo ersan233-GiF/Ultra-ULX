@@ -4,25 +4,25 @@ function ULib.parseTime(str)
 	local s = string.lower(str:Trim())
 	if s == "永久" or s == "0" or s == "permanent" or s == "perm" then return 0 end
 	local total = 0
-	local buf = ""
-	for i = 1, #s do
-		local c = s:sub(i, i)
-		if c:match("%d") then
-			buf = buf .. c
-		elseif c:match("[a-z%E2%80%8B%E5%88%86%E9%92%9F%E5%B0%8F%E6%97%B6%E5%A4%A9%E5%91%A8%E6%9C%88]") then
-			local n = tonumber(buf) or 1
-			buf = ""
-			if c == "s" or c == "秒" then total = total + n
-			elseif c == "m" or c == "分" then total = total + n * 60
-			elseif c == "h" or c == "小" or c == "时" then total = total + n * 3600
-			elseif c == "d" or c == "天" then total = total + n * 86400
-			elseif c == "w" or c == "周" then total = total + n * 604800
-			elseif c == "mo" or c == "月" then total = total + n * 2592000 end
+	local unitMultipliers = {
+		["秒"] = 1, ["s"] = 1, ["sec"] = 1, ["seconds"] = 1, ["second"] = 1,
+		["分"] = 60, ["分钟"] = 60, ["m"] = 60, ["min"] = 60, ["minutes"] = 60, ["minute"] = 60,
+		["小"] = 3600, ["时"] = 3600, ["小时"] = 3600, ["h"] = 3600, ["hour"] = 3600, ["hours"] = 3600,
+		["天"] = 86400, ["d"] = 86400, ["day"] = 86400, ["days"] = 86400,
+		["周"] = 604800, ["星期"] = 604800, ["礼拜"] = 604800, ["w"] = 604800, ["week"] = 604800, ["weeks"] = 604800,
+		["月"] = 2592000, ["个月"] = 2592000, ["mo"] = 2592000, ["month"] = 2592000, ["months"] = 2592000,
+	}
+	for numStr, unit in s:gmatch("(%d*)%s*([^%d]+)") do
+		local n = tonumber(numStr) or 1
+		unit = unit:Trim():lower()
+		local multiplier = unitMultipliers[unit]
+		if multiplier then
+			total = total + n * multiplier
 		end
 	end
-	if buf ~= "" then
-		local n = tonumber(buf)
-		if n then total = total + n * 60 end
+	if total == 0 then
+		local n = tonumber(s)
+		if n then total = n * 60 end
 	end
 	return math.floor(total)
 end

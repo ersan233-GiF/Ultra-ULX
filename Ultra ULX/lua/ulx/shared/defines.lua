@@ -1,6 +1,12 @@
 ULib = ULib or {}
 ULib.RELEASE = false
 ULib.VERSION = 2.72
+ulx = ulx or {}
+ulx.VERSION = "2.98.51"
+ulx.VERSION_STR = "v" .. ulx.VERSION
+ulx.BUILD = "20260706"
+ulx.BASE_ULX = "3.81"
+ulx.BASE_ULIB = "2.72"
 ULib.AUTOMATIC_UPDATE_CHECKS = true
 ULib.ACCESS_ALL = "user"
 ULib.ACCESS_OPERATOR = "operator"
@@ -53,40 +59,14 @@ if SERVER then
 	util.AddNetworkString( "ulib_repWriteCvarBatch_Part" )
 	util.AddNetworkString( "ulib_repWriteCvarBatch_Complete" )
 	util.AddNetworkString( "ulib_repChangeCvar" )
-	util.AddNetworkString( "ulx_version_check" )
-	util.AddNetworkString( "ulx_file_sync_manifest" )
 end
-ulx.VERSION = "2.72.0"
-ulx.VERSION_STR = "v2.72.0"
-if SERVER then
-	ulx.SYNC_FILES = ulx.SYNC_FILES or {
-		"ulx/shared/defines.lua", "ulx/shared/misc.lua", "ulx/shared/util.lua",
-		"ulx/shared/hook.lua", "ulx/shared/tables.lua", "ulx/shared/player.lua",
-		"ulx/shared/messages.lua", "ulx/shared/commands.lua", "ulx/shared/sh_ucl.lua",
-		"ulx/shared/plugin.lua", "ulx/shared/cami_global.lua", "ulx/shared/cami_ulib.lua",
-		"ulx/shared/ulx_defines.lua", "ulx/shared/ulx_base.lua",
-		"ulx/shared/language.lua",
-		"ulx/cl_init.lua",
-		"ulx/client/cl_commands.lua", "ulx/client/cl_util.lua",
-		"ulx/client/draw.lua", "ulx/client/ulx_cl_lib.lua",
-		"ulx/modules/cl/motdmenu.lua", "ulx/modules/cl/uteam.lua",
-		"ulx/modules/cl/xgui_client.lua", "ulx/modules/cl/xgui_helpers.lua",
-		"ulx/modules/cl/xlib.lua",
-		"ulx/modules/sh/chat.lua", "ulx/modules/sh/community.lua",
-		"ulx/modules/sh/extras.lua", "ulx/modules/sh/fun.lua",
-		"ulx/modules/sh/menus.lua", "ulx/modules/sh/rcon.lua",
-		"ulx/modules/sh/teleport.lua", "ulx/modules/sh/user.lua",
-		"ulx/modules/sh/userhelp.lua", "ulx/modules/sh/util.lua",
-		"ulx/modules/sh/vote.lua", "ulx/modules/sh/bhop.lua",
-		"ulx/modules/sh/crouchjump.lua", "ulx/modules/sh/coord.lua",
-		"ulx/items/init.lua", "ulx/items/weapons_hl2.lua", "ulx/items/weapons_css.lua",
-		"ulx/items/weapons_admin.lua", "ulx/items/tools.lua", "ulx/items/ammo.lua",
-		"ulx/items/props.lua", "ulx/items/seats.lua", "ulx/items/vehicles.lua",
-		"ulx/xgui/bans.lua", "ulx/xgui/commands.lua", "ulx/xgui/groups.lua",
-		"ulx/xgui/items.lua", "ulx/xgui/maps.lua", "ulx/xgui/settings.lua",
-		"ulx/xgui/xgui_core.lua", "ulx/xgui/framework/init.lua", "ulx/xgui/framework/layout.lua",
-		"ulx/xgui/gamemodes/sandbox.lua",
-		"ulx/xgui/settings/client.lua", "ulx/xgui/settings/server.lua",
-	}
-	ulx._sync_cache = ulx._sync_cache or {}
-end
+ulx.version = tonumber( ulx.BASE_ULX ) or 3.81
+ulx.release = false
+ulx.ID_ORIGINAL = 1
+ulx.ID_PLAYER_HELP = 2
+ulx.ID_HELP = 3
+ulx.ID_MMAIN = 1
+ulx.ID_MCLIENT = 2
+ulx.ID_MADMIN = 3
+ulx.HOOK_ULXDONELOADING = "ULXLoaded"
+ulx.HOOK_VETO = "ULXVetoChanged"

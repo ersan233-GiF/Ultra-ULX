@@ -1,0 +1,21 @@
+# Windows
+Thumbs.db
+desktop.ini
+nul
+
+# macOS
+.DS_Store
+
+# 备份 / 缓存
+*.bak
+*.tmp
+*.pyc
+__pycache__/
+*.luac
+
+# 开发环境（本仓库为发布仓库，不含开发文件）
+.codex/
+.vscode/
+docs/
+scripts/
+tools/

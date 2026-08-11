@@ -1,4 +1,3 @@
-﻿
 local dualAmmo = { ["weapon_smg1"] = true, ["weapon_ar2"] = true }
 local function translateGroup( name )
 	return xgui.translateGroup( name )
@@ -176,14 +175,14 @@ function items.buildArgsList( classname )
 		makeBtn( T("items_spawn_btn") ).DoClick = function() sendSpawn( 1 ) end
 	end
 	if itype >= 2 then
-		local undoBtn = xlib.makebutton{ label = xgui.T("items_spawn_undo") or "撤回上一次", parent=items.argslist }
+		local undoBtn = xlib.makebutton{ label = xgui.T("items_spawn_undo"), parent=items.argslist }
 		undoBtn.xguiIgnore = true
 		undoBtn.DoClick = function()
 			net.Start( "ulx_items_spawn_undo" )
 			net.SendToServer()
 		end
 		items.argslist:Add( undoBtn ); undoBtn:SetZPos( z ); z = z + 1
-		local clearBtn = xlib.makebutton{ label = xgui.T("items_spawn_clear") or "清除所有", parent=items.argslist }
+		local clearBtn = xlib.makebutton{ label = xgui.T("items_spawn_clear"), parent=items.argslist }
 		clearBtn.xguiIgnore = true
 		clearBtn.DoClick = function()
 			net.Start( "ulx_items_spawn_clear" )
@@ -229,7 +228,7 @@ function items.refresh()
 	local lp = LocalPlayer()
 	for _, catname in ipairs( ulx.itemOrder ) do
 		local data = ulx.itemRegistry[catname]
-		if data then
+		if data and #data > 0 then
 			local visibleItems = {}
 			local hasAny = false
 			for _, it in ipairs( data ) do

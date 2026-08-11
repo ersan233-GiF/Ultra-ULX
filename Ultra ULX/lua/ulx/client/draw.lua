@@ -19,8 +19,9 @@ local function csayDrawToScreen()
 	if state.duration - dtime < state.fade then
 		alpha = (state.duration - dtime) / state.fade * 255
 	end
-	state.color.a = alpha
-	draw.DrawText(state.msg, "TargetID", ScrW() * 0.5, ScrH() * 0.25, state.color, TEXT_ALIGN_CENTER)
+	local c = state.color
+	local drawColor = Color(c.r, c.g, c.b, math.Clamp(math.floor(alpha), 0, 255))
+	draw.DrawText(state.msg, "TargetID", ScrW() * 0.5, ScrH() * 0.25, drawColor, TEXT_ALIGN_CENTER)
 end
 function ULib.csayDraw( msg, color, duration, fade )
 	csayState.msg = msg

@@ -74,7 +74,7 @@ btnPermaFilter.DoClick = function( self )
 	xbans.retrieveBans()
 end
 local hideIncomplete = 0
-local btnIncompleteFilter = xlib.makebutton{ x=455, y=6, w=95, label=xgui.T("bans_incomplete_show"), parent=xbans, tooltip="Filter ban records without metadata." }
+local btnIncompleteFilter = xlib.makebutton{ x=455, y=6, w=95, label=xgui.T("bans_incomplete_show"), parent=xbans, tooltip=xgui.T("bans_incomplete_tooltip") }
 btnIncompleteFilter.DoClick = function( self )
 	hideIncomplete = ( hideIncomplete + 1 ) % 3
 	local texts = { xgui.T("bans_incomplete_show"), xgui.T("bans_incomplete_hide"), xgui.T("bans_incomplete_only") }
@@ -224,11 +224,11 @@ end )
 xgui.addModule( "bans", xbans, "icon16/delete.png" )
 function xgui.ShowBanWindow( ply, ID, doFreeze, isUpdate, bandata )
 	if not LocalPlayer():query( "ulx ban" ) and not LocalPlayer():query( "ulx banid" ) then return end
-	local xgui_banwindow = xlib.makeframe{ label=( isUpdate and "编辑封禁" or "封禁玩家" ), w=285, h=180, skin=xgui.settings.skin }
-	xlib.makelabel{ x=37, y=33, label="玩家名称:", parent=xgui_banwindow }
+	local xgui_banwindow = xlib.makeframe{ label=( isUpdate and xgui.T("bans_edit_title") or xgui.T("bans_new_ban") ), w=285, h=180, skin=xgui.settings.skin }
+	xlib.makelabel{ x=37, y=33, label=xgui.T("bans_player_name") .. ":", parent=xgui_banwindow }
 	xlib.makelabel{ x=23, y=58, label="SteamID:", parent=xgui_banwindow }
-	xlib.makelabel{ x=28, y=83, label="封禁原因:", parent=xgui_banwindow }
-	xlib.makelabel{ x=10, y=108, label="封禁时长:", parent=xgui_banwindow }
+	xlib.makelabel{ x=28, y=83, label=xgui.T("bans_ban_reason") .. ":", parent=xgui_banwindow }
+	xlib.makelabel{ x=10, y=108, label=xgui.T("bans_ban_length") .. ":", parent=xgui_banwindow }
 	local reason = xlib.makecombobox{ x=75, y=80, w=200, parent=xgui_banwindow, enableinput=true, selectall=true, choices=ULib.cmds.translatedCmds["ulx ban"].args[4].completes }
 	local banpanel = ULib.cmds.NumArg.x_getcontrol( ULib.cmds.translatedCmds["ulx ban"].args[3], 2, xgui_banwindow )
 	banpanel.interval:SetParent( xgui_banwindow )
@@ -284,13 +284,13 @@ function xgui.ShowBanWindow( ply, ID, doFreeze, isUpdate, bandata )
 			doFreeze = false
 		end
 	end
-	xlib.makebutton{ x=165, y=150, w=75, label="取消", parent=xgui_banwindow }.DoClick = function()
+	xlib.makebutton{ x=165, y=150, w=75, label=xgui.T("maps_btn_cancel"), parent=xgui_banwindow }.DoClick = function()
 		if doFreeze and ply and ply:IsValid() then
 			RunConsoleCommand( "ulx", "unfreeze", "$" .. ULib.getUniqueIDForPlayer( ply ) )
 		end
 		xgui_banwindow:Remove()
 	end
-	xlib.makebutton{ x=45, y=150, w=75, label=( isUpdate and "更新" or "封禁!" ), parent=xgui_banwindow }.DoClick = function()
+	xlib.makebutton{ x=45, y=150, w=75, label=( isUpdate and xgui.T("sv_update") or xgui.T("bans_btn_ban") ), parent=xgui_banwindow }.DoClick = function()
 		if isUpdate then
 			local function performUpdate(btime)
 				RunConsoleCommand( "_xgui", "updateBan", steamID:GetValue(), btime, reason:GetValue(), name:GetValue() )
@@ -298,9 +298,9 @@ function xgui.ShowBanWindow( ply, ID, doFreeze, isUpdate, bandata )
 			end
 			local btime = banpanel:GetMinutes()
 			if btime ~= 0 and bandata and btime * 60 + bandata.time < os.time() then
-				Derma_Query( "警告！您指定的新封禁时间将导致此封禁到期。\n确定要继续吗？", "XGUI 警告",
-					"到期封禁", function() performUpdate(btime); xbans.RemoveBanDetailsWindow( bandata.steamID ) end,
-					"取消", function() end )
+			Derma_Query( xgui.T("bans_expire_confirm"), xgui.T("maps_warning_title"),
+				xgui.T("bans_expire_btn"), function() performUpdate(btime); xbans.RemoveBanDetailsWindow( bandata.steamID ) end,
+				xgui.T("maps_btn_cancel"), function() end )
 			else
 				performUpdate(btime)
 			end

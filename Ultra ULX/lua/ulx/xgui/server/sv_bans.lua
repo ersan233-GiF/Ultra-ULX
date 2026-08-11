@@ -1,6 +1,6 @@
 local bans={}
 function bans.init()
-	ULib.ucl.registerAccess( "xgui_managebans", "superadmin", "允许在 XGUI 中添加、移除和查看封禁。", "XGUI" )
+	ULib.ucl.registerAccess( "xgui_managebans", "superadmin", ULib.ulx_lang.T("access_xgui_bans"), "XGUI" )
 	xgui.addDataType( "bans", function() return { count=table.Count( ULib.bans ) } end, "xgui_managebans", 30, 20 )
 	local function xgui_banWindowChat( ply, func, args, doFreeze )
 		if doFreeze ~= true then doFreeze = false end
@@ -21,7 +21,7 @@ function bans.init()
 	function bans.updateBan( ply, args )
 		local access, accessTag = ULib.ucl.query( ply, "ulx ban" )
 		if not access then
-			ULib.tsayError( ply, "编辑封禁错误：您需要 ulx ban 权限，" .. ply:Nick() .. "！", true )
+			ULib.tsayError( ply, ULib.ulx_lang.T("xgui_ban_no_access", ply:Nick()), true )
 			return
 		end
 		local steamID = args[1] or ""
@@ -29,7 +29,7 @@ function bans.init()
 		local reason = args[3]
 		local name = args[4]
 		if not ULib.isValidSteamID(steamID) then
-			ULib.tsayError( ply, "无效的 SteamID", true )
+			ULib.tsayError( ply, ULib.ulx_lang.T("xgui_invalid_steamid"), true )
 			return
 		end
 		local cmd = ULib.cmds.translatedCmds[ "ulx ban" ]
@@ -40,13 +40,13 @@ function bans.init()
 		local argInfo = cmd.args[3]
 		local success, err = argInfo.type:parseAndValidate( ply, bantime, argInfo, accessPieces[2] )
 		if not success then
-			ULib.tsayError( ply, "编辑封禁错误：" .. err, true )
+			ULib.tsayError( ply, ULib.ulx_lang.T("xgui_ban_error", err), true )
 			return
 		end
 		local argInfo = cmd.args[4]
 		local success, err = argInfo.type:parseAndValidate( ply, reason, argInfo, accessPieces[3] )
 		if not success then
-			ULib.tsayError( ply, "编辑封禁错误：您未指定有效的原因，" .. ply:Nick() .. "！", true )
+			ULib.tsayError( ply, ULib.ulx_lang.T("xgui_ban_no_reason", ply:Nick()), true )
 			return
 		end
 		if not ULib.bans[steamID] then

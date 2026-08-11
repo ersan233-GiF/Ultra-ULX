@@ -1,7 +1,7 @@
-local CAT = "工具"
+local L = ULib.ulx_lang
+local CAT = "cat_utility"
 if SERVER then
 	util.AddNetworkString("ulx_coordhud")
-	util.AddNetworkString("ulx_coord_req")
 	util.AddNetworkString("ulx_coord_data")
 	local hudEnabled = {}
 	function ulx.coordhud(calling_ply, target_plys, active)
@@ -13,13 +13,16 @@ if SERVER then
 	net.Receive("ulx_coordhud", function(len, ply)
 		if not ply:query("ulx coordhud") then return end
 		local n = net.ReadUInt(8)
-		for _ = 1, n do
-			local p = player.GetBySteamID64(net.ReadString())
-			if IsValid(p) then
-				if net.ReadBool() then hudEnabled[p:SteamID64()] = true else hudEnabled[p:SteamID64()] = nil end
-				net.Start("ulx_coordhud"); net.WriteBool(hudEnabled[p:SteamID64()] == true); net.Send(p)
-			end
+		local enable
+		for i = 1, n do
+			net.ReadString()
+			local b = net.ReadBool()
+			if i == 1 then enable = b end
 		end
+		if enable == nil then return end
+		local sid = ply:SteamID64()
+		if enable then hudEnabled[sid] = true else hudEnabled[sid] = nil end
+		net.Start("ulx_coordhud"); net.WriteBool(hudEnabled[sid] == true); net.Send(ply)
 	end)
 	hook.Add("PlayerDisconnected", "ULXCHUDClean", function(p) hudEnabled[p:SteamID64()] = nil end)
 	local coordData = {}
@@ -58,18 +61,33 @@ if SERVER then
 			broadcast(p)
 		end
 	end
-	net.Receive("ulx_coord_req", function(len, ply)
-		if not ply:query("ulx coord") then return end
-		local n = net.ReadUInt(8); local tg = {}
-		for _ = 1, n do local p = player.GetBySteamID64(net.ReadString()); if IsValid(p) then tg[#tg+1] = p end end
-		if #tg == 0 then return end
-		local a = net.ReadBool(); local m = net.ReadUInt(4); local ts = net.ReadString()
-		for _, p in ipairs(tg) do local d = getData(p); d.enabled = a; d.mode = m; d.targetSid = ts; broadcast(p) end
-	end)
+	local function readValidatedTargets(admin, count)
+		local selectors = {}
+		local seen = {}
+		for _ = 1, count do
+			local p = player.GetBySteamID64(net.ReadString())
+			if IsValid(p) and not seen[p] then
+				local id = ULib.getUniqueIDForPlayer(p)
+				if id then
+					selectors[#selectors + 1] = "$" .. id
+					seen[p] = true
+				end
+			end
+		end
+		if #selectors == 0 then return {} end
+		local parser = ULib.cmds.PlayersArg()
+		local targets, err = parser:parseAndValidate(admin, table.concat(selectors, ","), { cmd = "ulx coord", type = ULib.cmds.PlayersArg })
+		if not targets then
+			ULib.tsayError(admin, err or L.T("cmd_cannot_target_any"), true)
+			return {}
+		end
+		return targets
+	end
 	local lastPosCache = {}
 	timer.Create("ULXCoordBC", 0.5, 0, function()
 		for _, p in ipairs(player.GetAll()) do
-			if getData(p).enabled then
+			local d = coordData[p:SteamID64()]
+			if d and d.enabled then
 				local pos = p:GetPos()
 				local cache = lastPosCache[p:SteamID64()]
 				if not cache or cache:DistToSqr(pos) > 1 then
@@ -137,14 +155,14 @@ local hudCmd = ulx.command(CAT, "ulx coordhud", ulx.coordhud, "!coordhud")
 hudCmd:addParam{ type = ULib.cmds.PlayersArg, ULib.cmds.optional }
 hudCmd:addParam{ type = ULib.cmds.BoolArg, invisible = true, ULib.cmds.optional }
 hudCmd:defaultAccess(ULib.ACCESS_ALL)
-hudCmd:help("屏幕上方半透明实时坐标 HUD，!uncoordhud 关闭")
+hudCmd:help( L.T("help_coordhud") )
 hudCmd:setOpposite("ulx uncoordhud", {}, "!uncoordhud")
 local coordCmd = ulx.command(CAT, "ulx coord", ulx.coord, "!coord")
 coordCmd:addParam{ type = ULib.cmds.PlayersArg }
 coordCmd:addParam{ type = ULib.cmds.BoolArg, invisible = true, ULib.cmds.optional }
-coordCmd:addParam{ type = ULib.cmds.NumArg, min = 1, max = 4, default = 1, hint = "1=仅自己 2=管理员 3=公开 4=指定", ULib.cmds.optional, ULib.cmds.round }
-coordCmd:addParam{ type = ULib.cmds.StringArg, hint = "指定SteamID(模式4)", ULib.cmds.optional }
+coordCmd:addParam{ type = ULib.cmds.NumArg, min = 1, max = 4, default = 1, hint = "coord_mode", ULib.cmds.optional, ULib.cmds.round }
+coordCmd:addParam{ type = ULib.cmds.StringArg, hint = "steamid", ULib.cmds.optional }
 coordCmd:defaultAccess(ULib.ACCESS_ADMIN)
-coordCmd:help("目标头顶显示名字和实时坐标，!uncoord 关闭")
-coordCmd:setOpposite("ulx uncoord", {}, "!uncoord")
-if not UltraULX_SilentReRegister then Msg("[ULX] 坐标系统已加载 (coordhud + coord)\n") end
+coordCmd:help( L.T("help_coord") )
+coordCmd:setOpposite("ulx uncoord", {_, _, false}, "!uncoord")
+if not ulx._silentReReg then Msg( L.T("coord_loaded") .. "\n" ) end

@@ -183,7 +183,8 @@ function ULib.getUser( target, enable_keywords, ply )
 	local plyMatches = {}
 	if enable_keywords and target:sub( 1, 1 ) == "$" then
 		local possibleId = target:sub( 2 )
-		table.insert( plyMatches, ULib.getPlyByID( possibleId ) )
+		local match = ULib.getPlyByID( possibleId )
+		if match then table.insert( plyMatches, match ) end
 	end
 	for _, player in ipairs( players ) do
 		if target == player:Nick():lower() then

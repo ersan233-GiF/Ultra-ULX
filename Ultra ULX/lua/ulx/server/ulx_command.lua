@@ -49,10 +49,22 @@ local function sendAutocompletes( ply )
 end
 hook.Add( ULib.HOOK_UCLAUTH, "sendAutoCompletes", sendAutocompletes )
 hook.Add( "PlayerInitialSpawn", "sendAutoCompletes", sendAutocompletes )
+local cvarDebounceTimers = {}
 function cvarChanged( sv_cvar, cl_cvar, ply, old_value, new_value )
 	if not sv_cvar:find( "^ulx_" ) then return end
 	local command = sv_cvar:gsub( "^ulx_", "" ):lower()
 	if not ulx.cvars[ command ] then return end
+	local debounceKey = command
+	if cvarDebounceTimers[debounceKey] then
+		timer.Remove(cvarDebounceTimers[debounceKey])
+	end
+	cvarDebounceTimers[debounceKey] = "ulx_cvar_save_" .. command
+	timer.Create(cvarDebounceTimers[debounceKey], 2, 1, function()
+		cvarDebounceTimers[debounceKey] = nil
+		doCvarWrite(sv_cvar, command, new_value)
+	end)
+end
+function doCvarWrite(sv_cvar, command, new_value)
 	sv_cvar = ulx.cvars[ command ].original
 	local path = "data/ultra_ulx/config.txt"
 	if not ULib.fileExists( path ) then

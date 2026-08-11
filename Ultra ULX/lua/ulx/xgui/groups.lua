@@ -110,14 +110,14 @@ groups.aplayer.DoClick = function()
 	menu:SetSkin( xgui.settings.skin )
 	for k, v in ipairs( player.GetAll() ) do
 		if v:GetUserGroup() ~= groups.list:GetGroupValue() then
-			menu:AddOption( v:Nick() .. "  |  " .. xgui.translateGroup( v:GetUserGroup() ),
+			menu:AddOption( v:Nick() .. xgui.T("groups_player_separator") .. xgui.translateGroup( v:GetUserGroup() ),
 				function() groups.changeUserGroup( v:SteamID(), groups.list:GetGroupValue() ) end )
 		end
 	end
 	menu:AddSpacer()
 	for ID, v in pairs( xgui.data.users ) do
 		if v.group ~= groups.list:GetGroupValue() and not groups.isOnline( ID ) then
-			menu:AddOption( ( v.name or ID ) .. "  |  " .. xgui.translateGroup( v.group or "<无>" ),
+			menu:AddOption( ( v.name or ID ) .. xgui.T("groups_player_separator") .. xgui.translateGroup( v.group or xgui.T("group_none") ),
 				function() groups.changeUserGroup( ID, groups.list:GetGroupValue() ) end )
 		end
 	end

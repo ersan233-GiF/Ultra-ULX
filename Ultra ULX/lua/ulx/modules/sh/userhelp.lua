@@ -30,17 +30,16 @@ User Management Commands:
 ulx adduser <user> <group> - Add the specified CONNECTED player to the specified group.
 The group MUST exist for this command to succeed. Use operator, admin, superadmin, or see ulx
 addgroup. You can only specify one group. See above for explanation on immunity.
-Ex 1. ulx adduser "Someguy" superadmin  -- This will add the connected "Someguy" as a superadmin
-Ex 2. ulx adduser "Dood" monkey         -- This will add the connected "Dood" to the group monkey
+Ex 1. ulx adduser "Someguy" superadmin
+Ex 2. ulx adduser "Dood" monkey
   on the condition that the group exists
 ulx removeuser <user> - Remove the specified connected player from the permanent access list.
-Ex 1. ulx removeuser "Foo bar"            -- This removes the user "Foo bar"
+Ex 1. ulx removeuser "Foo bar"
 ulx userallow <user> <access> [<access tag>] - Puts the access on the USER'S ALLOW list, with
   optional access tag (see above)
 See above for explanation of allow list vs. deny list, as well as how access strings/tags work.
-Ex 1. ulx userallow "Pi" "ulx slap"                 -- This grants the user access to "ulx slap"
-Ex 2. ulx userallow "Pi" "ulx slap" "!%admin 0"     -- This grants the user access to "ulx slap"
-  -- but they can only slap users lower than an admin, and they can only slap for 0 damage
+Ex 1. ulx userallow "Pi" "ulx slap"
+Ex 2. ulx userallow "Pi" "ulx slap" "!%admin 0"
 ulx userdeny <user> <access> [<revoke>] - Removes a player's access. If revoke is true, this simply
   removes the access string from the user's allow/deny lists instead of adding it to the user's
   deny list. See above for an explanation on the deny list.

@@ -1,227 +1,152 @@
-local CAT = "移动"
+local L   = ULib.ulx_lang
+local CAT = "cat_movement"
+local MAX_SPEED = 10000
+local function hSpeed(v)
+	return math.sqrt(v.x * v.x + v.y * v.y)
+end
 if SERVER then
 	util.AddNetworkString("ulx_bhop")
-	local bhopCount = 0
+	local bhopCount  = 0
 	local savedCvars = {}
-	local BHOP_CVARS  = { "sv_airaccelerate", "sv_accelerate", "sv_friction", "sv_gravity", "sv_maxspeed", "sv_maxvelocity" }
-	local BHOP_VALUES = { "2000", "5", "4", "800", "10000", "10000" }
-	local function applyCvars()
-		if bhopCount == 1 then
+	local BHOP_CVARS  = { "sv_airaccelerate" }
+	local BHOP_VALUES = { "300"              }
+	local globalAirAccel = CreateConVar("ulx_bhop_global_airaccelerate", "0", FCVAR_ARCHIVE, "Legacy mode: temporarily set sv_airaccelerate globally while ULX BHop is active.")
+	local function applyGlobalCvars()
+		bhopCount = bhopCount + 1
+		if globalAirAccel:GetBool() and bhopCount == 1 then
 			for i, cv in ipairs(BHOP_CVARS) do
-				savedCvars[cv] = GetConVarString(cv) or ""
+				savedCvars[cv] = GetConVarString(cv) or BHOP_VALUES[i]
 				RunConsoleCommand(cv, BHOP_VALUES[i])
 			end
 		end
 	end
-	local function restoreCvars()
-		if bhopCount <= 0 then return end
-		bhopCount = bhopCount - 1
+	local function restoreGlobalCvars()
+		bhopCount = math.max(bhopCount - 1, 0)
 		if bhopCount == 0 then
 			for _, cv in ipairs(BHOP_CVARS) do
-				if savedCvars[cv] and savedCvars[cv] ~= "" then RunConsoleCommand(cv, savedCvars[cv]) end
+				if savedCvars[cv] then RunConsoleCommand(cv, savedCvars[cv]) end
 			end
 			savedCvars = {}
 		end
 	end
 	hook.Add("ShutDown", "ULXBHopRestore", function()
 		if bhopCount > 0 then
-			for i, cv in ipairs(BHOP_CVARS) do RunConsoleCommand(cv, savedCvars[cv] or BHOP_VALUES[i]) end
+			for _, cv in ipairs(BHOP_CVARS) do
+				if savedCvars[cv] then RunConsoleCommand(cv, savedCvars[cv]) end
+			end
 		end
 	end)
-	local playerPhys = {}
-	local function savePhysics(ply)
-		local sid = ply:SteamID64()
-		playerPhys[sid] = playerPhys[sid] or {}
-		local p = playerPhys[sid]
-		p.run  = ply:GetRunSpeed()
-		p.walk = ply:GetWalkSpeed()
-		p.jump = ply:GetJumpPower()
-		p.grav = ply:GetGravity()
-		p.step = ply:GetStepSize()
-		p.maxspd = ply:GetMaxSpeed()
+	local active   = {}
+	local sidCache = {}
+	local function getPlayerKey(ply)
+		local sid = sidCache[ply]
+		if sid then return sid end
+		if ply:IsBot() then
+			sid = "BOT:" .. ply:UserID()
+		else
+			sid = ply:SteamID64()
+			if not sid or sid == "" or sid == "0" then sid = ply:SteamID() end
+			if not sid or sid == "" then sid = tostring(ply:UserID()) end
+		end
+		sidCache[ply] = sid
+		return sid
 	end
-	local function restorePhysics(ply)
-		local p = playerPhys[ply:SteamID64()]
-		if not p then return end
-		ply:SetRunSpeed(p.run)
-		ply:SetWalkSpeed(p.walk)
-		ply:SetJumpPower(p.jump)
-		ply:SetGravity(p.grav)
-		ply:SetStepSize(p.step)
-		ply:SetMaxSpeed(p.maxspd)
-		playerPhys[ply:SteamID64()] = nil
-	end
-	local function applyPhysics(ply)
-		ply:SetRunSpeed(250)
-		ply:SetWalkSpeed(250)
-		ply:SetJumpPower(290)
-		ply:SetGravity(1)
-		ply:SetStepSize(18)
-		ply:SetMaxSpeed(10000)
-	end
-	local bhopActive = {}
 	function ulx.bhop(calling_ply, target_plys, speedlimit, should_disable)
-		local active = not should_disable
+		local enable = not should_disable
 		speedlimit = tonumber(speedlimit) or 0
 		for _, ply in ipairs(target_plys) do
-			local sid = ply:SteamID64()
-			if active then
-				if bhopActive[sid] == nil then
-					savePhysics(ply)
-					bhopCount = bhopCount + 1
-					applyCvars()
+			local sid = getPlayerKey(ply)
+			if enable then
+				if active[sid] == nil then
+					applyGlobalCvars()
 				end
-				bhopActive[sid] = speedlimit
-				applyPhysics(ply)
-				local hint = speedlimit > 0 and (" 限速=" .. speedlimit) or " 不限速"
-				ULib.tsayColor(ply, true, Color(100,255,100), "[BHop] 自动连跳已开启" .. hint .. "，按住空格即可跳跃，输入 !unbhop 可关闭")
+				active[sid] = speedlimit
+				ULib.tsayColor(ply, true, Color(100, 255, 100),
+					speedlimit > 0 and L.T("bhop_enabled_limit", speedlimit) or L.T("bhop_enabled"))
 			else
-				if bhopActive[sid] ~= nil then
-					restorePhysics(ply)
-					bhopActive[sid] = nil
-					restoreCvars()
-					ULib.tsayColor(ply, true, Color(255,180,100), "[BHop] 自动连跳已关闭，移动参数已恢复")
+				if active[sid] ~= nil then
+					active[sid] = nil
+					restoreGlobalCvars()
+					ULib.tsayColor(ply, true, Color(255, 180, 100), L.T("bhop_disabled"))
 				end
 			end
 			net.Start("ulx_bhop")
-			net.WriteBool(active)
+			net.WriteBool(enable)
 			net.WriteUInt(speedlimit, 16)
 			net.Send(ply)
 		end
-		ulx.fancyLogAdmin(calling_ply, true, "#A 对 #T " .. (active and "开启" or "关闭") .. "了自动连跳", target_plys)
+		ulx.fancyLogKeyedSilent(calling_ply, enable and "bhop_enable_log" or "bhop_disable_log", target_plys)
 	end
-	net.Receive("ulx_bhop", function(len, ply)
-		if not ply:query("ulx bhop") then return end
-		local n = net.ReadUInt(8)
-		local targets = {}
-		for _ = 1, n do
-			local p = player.GetBySteamID64(net.ReadString())
-			if IsValid(p) then targets[#targets + 1] = p end
-		end
-		if #targets == 0 then return end
-		local a = net.ReadBool()
-		local sl = net.ReadUInt(16)
-		for _, p in ipairs(targets) do
-			local sid = p:SteamID64()
-			if a then
-				if bhopActive[sid] == nil then
-					savePhysics(p)
-					bhopCount = bhopCount + 1
-					applyCvars()
-				end
-				bhopActive[sid] = sl
-				applyPhysics(p)
-			else
-				if bhopActive[sid] ~= nil then
-					restorePhysics(p)
-					bhopActive[sid] = nil
-					restoreCvars()
-				end
-			end
-			net.Start("ulx_bhop")
-			net.WriteBool(a)
-			net.WriteUInt(sl, 16)
-			net.Send(p)
-		end
-	end)
-	hook.Add("SetupMove", "ULXBHopPhys", function(ply, mv)
-		local sl = bhopActive[ply:SteamID64()]
-		if sl == nil then return end
-		if not ply:Alive() or ply:GetMoveType() ~= MOVETYPE_WALK or ply:InVehicle() then return end
-		mv:SetMaxSpeed(10000)
-		mv:SetMaxClientSpeed(10000)
-		if sl > 0 and bit.band(ply:GetFlags(), FL_ONGROUND) == FL_ONGROUND then
-			local v = mv:GetVelocity()
-			local h = math.sqrt(v.x * v.x + v.y * v.y)
-			if h > sl then
-				local s = sl / h
-				mv:SetVelocity(Vector(v.x * s, v.y * s, v.z))
-			end
-		end
-	end)
-	hook.Add("SetupMove", "ULXBHopAuto", function(ply, mv, cmd)
-		local sl = bhopActive[ply:SteamID64()]
-		if sl == nil then return end
-		if not ply:Alive() or ply:GetMoveType() ~= MOVETYPE_WALK or ply:InVehicle() then return end
-		if not ply:IsOnGround() and bit.band(cmd:GetButtons(), IN_JUMP) ~= 0 then
-			cmd:SetButtons(bit.band(cmd:GetButtons(), bit.bnot(IN_JUMP)))
-		end
-	end)
-	local lastGround = {}
-	local lastVel = {}
-	hook.Add("SetupMove", "ULXBHopSlope", function(ply, mv)
-		local sl = bhopActive[ply:SteamID64()]
-		if sl == nil then return end
-		if not ply:Alive() or ply:GetMoveType() ~= MOVETYPE_WALK or ply:InVehicle() then return end
-		local onGround = ply:IsOnGround()
-		local wasOnGround = lastGround[ply]
-		if onGround and not wasOnGround then
-			local pos = ply:GetPos()
-			local trace = util.TraceHull({
-				start = pos,
-				endpos = Vector(pos.x, pos.y, pos.z - 256),
-				mins = ply:OBBMins(),
-				maxs = ply:OBBMaxs(),
-				mask = MASK_PLAYERSOLID_BRUSHONLY,
-				filter = ply
-			})
-			if trace.Hit and trace.HitNormal.z < 1.0 and trace.HitNormal.z >= 0.7 then
-				local lv = lastVel[ply]
-				if lv then
-					local cv = mv:GetVelocity()
-					local lh = math.sqrt(lv.x * lv.x + lv.y * lv.y)
-					local ch = math.sqrt(cv.x * cv.x + cv.y * cv.y)
-					if lh > ch and lh > 100 then
-						local ratio = math.min(lh / ch, 1.3)
-						mv:SetVelocity(Vector(cv.x * ratio, cv.y * ratio, cv.z))
-					end
+	local function validateXGUITargets(admin, steamIDs)
+		local selectors = {}
+		local seen = {}
+		for _, sid64 in ipairs(steamIDs) do
+			local ply = player.GetBySteamID64(sid64)
+			if IsValid(ply) and not seen[ply] then
+				local id = ULib.getUniqueIDForPlayer(ply)
+				if id then
+					selectors[#selectors + 1] = "$" .. id
+					seen[ply] = true
 				end
 			end
 		end
-		lastGround[ply] = onGround
-		lastVel[ply] = mv:GetVelocity()
-	end)
-	hook.Add("PlayerSpawn", "ULXBHopSpawn", function(ply)
-		if bhopActive[ply:SteamID64()] ~= nil then
-			timer.Simple(0.1, function()
-				if IsValid(ply) then applyPhysics(ply) end
-			end)
+		if #selectors == 0 then return {} end
+		local parser = ULib.cmds.PlayersArg()
+		local targets, err = parser:parseAndValidate(admin, table.concat(selectors, ","), { cmd = "ulx bhop", type = ULib.cmds.PlayersArg })
+		if not targets then
+			ULib.tsayError(admin, err or L.T("cmd_cannot_target_any"), true)
+			return {}
+		end
+		return targets
+	end
+	hook.Add("SetupMove", "ULXBHop", function(ply, mv, cmd)
+		local sid = getPlayerKey(ply)
+		local limit = active[sid]
+		if limit == nil then return end
+		if not ply:Alive() or ply:GetMoveType() ~= MOVETYPE_WALK
+			or ply:InVehicle() or ply:WaterLevel() > 1 then return end
+		mv:SetMaxSpeed(MAX_SPEED)
+		mv:SetMaxClientSpeed(MAX_SPEED)
+		if ply:OnGround() then
+			local buttons = mv:GetButtons()
+			if bit.band(buttons, IN_SPEED) ~= 0 then
+				mv:SetButtons(bit.band(buttons, bit.bnot(IN_SPEED)))
+			end
+		end
+		if limit > 0 then
+			local vel = mv:GetVelocity()
+			local h = hSpeed(vel)
+			if h > limit then
+				local scale = limit / h
+				mv:SetVelocity(Vector(vel.x * scale, vel.y * scale, vel.z))
+			end
 		end
 	end)
 	hook.Add("PlayerDisconnected", "ULXBHopDisc", function(ply)
-		local sid = ply:SteamID64()
-		if bhopActive[sid] ~= nil then
-			restoreCvars()
+		local sid = getPlayerKey(ply)
+		if active[sid] ~= nil then
+			active[sid] = nil
+			restoreGlobalCvars()
 		end
-		bhopActive[sid] = nil
-		playerPhys[sid] = nil
+		sidCache[ply] = nil
 	end)
 else
 	local bhopActive = false
-	local groundTicks = 0
 	net.Receive("ulx_bhop", function()
 		bhopActive = net.ReadBool()
 		net.ReadUInt(16)
-		if not bhopActive then groundTicks = 0 end
 	end)
 	hook.Add("CreateMove", "ULXBHopCM", function(cmd)
-		if not bhopActive then groundTicks = 0; return end
+		if not bhopActive then return end
+		if not cmd:KeyDown(IN_JUMP) then return end
 		local ply = LocalPlayer()
-		if not IsValid(ply) or not ply:Alive() then groundTicks = 0; return end
+		if not IsValid(ply) or not ply:Alive() then return end
 		if ply:GetMoveType() ~= MOVETYPE_WALK or ply:InVehicle() or ply:WaterLevel() > 1 then
-			groundTicks = 0; return
+			return
 		end
-		if not cmd:KeyDown(IN_JUMP) then groundTicks = 0; return end
-		if bit.band(ply:GetFlags(), FL_ONGROUND) == FL_ONGROUND then
-			groundTicks = groundTicks + 1
-			if groundTicks > 15 then
-				cmd:RemoveKey(IN_JUMP)
-				groundTicks = 0
-			else
-				cmd:AddKey(IN_JUMP)
-			end
+		if ply:OnGround() then
+			cmd:AddKey(IN_JUMP)
 		else
-			groundTicks = 0
 			cmd:RemoveKey(IN_JUMP)
 		end
 	end)
@@ -229,9 +154,9 @@ end
 if not ulx.bhop then function ulx.bhop() end end
 local bhopCmd = ulx.command(CAT, "ulx bhop", ulx.bhop, "!bhop")
 bhopCmd:addParam{ type = ULib.cmds.PlayersArg }
-bhopCmd:addParam{ type = ULib.cmds.NumArg, min = 0, max = 5000, default = 0, hint = "限速", ULib.cmds.optional, ULib.cmds.round }
+bhopCmd:addParam{ type = ULib.cmds.NumArg, min = 0, max = 5000, default = 0, hint = L.T("hint_speedlimit"), ULib.cmds.optional, ULib.cmds.round }
 bhopCmd:addParam{ type = ULib.cmds.BoolArg, invisible = true }
 bhopCmd:defaultAccess(ULib.ACCESS_ADMIN)
-bhopCmd:help("按住空格自动连跳")
+bhopCmd:help(L.T("cmd_bhop_help"))
 bhopCmd:setOpposite("ulx unbhop", {_, _, _, true}, "!unbhop")
-if not UltraULX_SilentReRegister then Msg("[ULX] 自动连跳已加载\n") end
+if not ulx._silentReReg then Msg(L.T("bhop_loaded") .. "\n") end

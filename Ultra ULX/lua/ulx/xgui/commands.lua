@@ -211,7 +211,7 @@ function cmds.buildArgsList( cmd )
 		zpos = zpos + 1
 		local executionCmds = { ["ulx slay"]=true, ["ulx explode"]=true, ["ulx rocket"]=true, ["ulx ignite"]=true }
 		if executionCmds[ cmd.cmd ] then
-			local revivePanel = xlib.makebutton{ label=btnLabel .. " + 复活", parent=cmds.argslist }
+			local revivePanel = xlib.makebutton{ label=btnLabel .. xgui.T("cmd_with_respawn"), parent=cmds.argslist }
 			revivePanel.xguiIgnore = true
 			revivePanel.DoClick = function()
 				cmds.runCmd( cmd.cmd )

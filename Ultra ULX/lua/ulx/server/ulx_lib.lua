@@ -4,9 +4,9 @@ end
 function ulx.getExclusive( target, ply )
 	if not target.ULXExclusive then return end
 	if target == ply then
-		return "你正处于 " .. target.ULXExclusive .. " 状态!"
+		return string.format(ULib.ulx_lang.T("exclusive_self_state"), target.ULXExclusive)
 	else
-		return target:Nick() .. " 正处于 " .. target.ULXExclusive .. " 状态!"
+		return string.format(ULib.ulx_lang.T("exclusive_other_state"), target:Nick(), target.ULXExclusive)
 	end
 end
 function ulx.clearExclusive( ply )
@@ -59,7 +59,7 @@ local function advertiseNewVersions( ply )
 			end
 		end
 		if #updatesFor > 0 then
-			ULib.tsay( ply, "[ULX] 以下插件有可用更新: " .. table.concat( updatesFor, ", " ) )
+			ULib.tsay( ply, string.format(ULib.ulx_lang.T("plugin_updates_available"), table.concat( updatesFor, ", " )) )
 		end
 		ply.ULX_UpdatesAdvertised = true
 	end

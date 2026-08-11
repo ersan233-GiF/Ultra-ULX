@@ -45,10 +45,7 @@ files["banmessage.txt"] = [[
 ; {{STEAMID}} - The banned player's Steam ID (excluding non-number characters)
 ; {{STEAMID64}} - The banned player's 64-bit Steam ID
 ; The two steam ID variables are useful for constructing URLs for appealing bans
--------===== [ BANNED ] =====-------
----= Reason =---
 {{REASON}}
----= Time Left =---
 {{TIME_LEFT}}
 ]]
 files["banreasons.txt"] =
@@ -113,13 +110,13 @@ ulx rslotsVisible 1 ; When this is 0, sv_visiblemaxplayers will be set to maxpla
 ;3 - Always keep 1 slot open for admins, kick the user with the shortest connection time if an admin joins.
 ;Difference between 1 and 2:
 ;I realize it's a bit confusing, so here's an example.
-;On mode 1--
+;On mode 1
 ;	You have maxplayers set to 10, rslots set to 2, and there are currently 8 non-admins connected.
 ;	If a non-admin tries to join, they'll be kicked to keep the reserved slots open. Two admins join
 ;	and fill the two reserved slots. When non-admins leave, the two admins will still be filling the
 ;	two reserved slots, so another regular player can join and fill the server up again without being
 ;	kicked by the slots system
-;On mode 2--
+;On mode 2
 ;	Same setup as mode 1, you have the two admins in the server and the server is full. Now, when a
 ;	non-admin leaves the server, reserved slots will pick up the slot again as reserved. If a regular
 ;	player tries to join and fill the server again, even though there are two admins connected, it will
@@ -155,21 +152,65 @@ files["downloads.txt"] =
 ; You can add a folder to add all files inside that folder recursively.
 ; Any line starting with ';' is a comment and WILL NOT be processed!!!
 ; Examples:
-;sound/cheeseman.mp3 <-- Adds the file 'cheeseman.mp3' under the sound folder
-;sound/my_music <-- Adds all files within the my_music folder, inside the sound folder
+;sound/cheeseman.mp3 <
+;sound/my_music <
 ]]
 files["gimps.txt"] =
-[[; Add gimp says in this file, one per line.
-; Any line starting with a ';' is a comment
-I'm a llama.
-How do you fly?
-baaaaaaaaaah.
-Llama power!
-Llamas are the coolest!
-What's that gun to move stuff?
-I'm a soulless approximation of a cheese danish!
-Hold up guys, I'm watching The Powerpuff Girls.
-Not yet, I'm being attacked by an... OH CRAP!
+[[; 胡言乱语词库 — 每行一条，; 开头为注释
+; 被 !gimp 的玩家每次发言会随机替换为下面的一条
+我测，蒸馍泥不扶起？
+啊米诺斯！一格格拉米诺斯！
+哈基米~ 哈基米~ 胖宝宝~
+不是哥们，这不对吧
+你说的对，但是原神是一款...
+家人们谁懂啊
+那很有生活了
+典，太典了
+破防了家人们
+急了急了
+小丑竟是我自己
+6，太6了
+V我50，今天是疯狂星期四
+你是来拉屎的吧
+这好吗？这不好
+我劝你耗子尾汁
+不讲武德
+偷袭我69岁的老同志
+发生什么事了？发生什么事了？
+牢大！我想你了！
+坤坤，你干嘛~哎哟~
+小黑子，露出鸡脚了吧
+一眼丁真，鉴定为假
+芝士雪豹
+我勒个骚刚啊
+绷不住了
+真的假的？不会吧？
+你就说是不是吧
+你说的都对，但是...
+咱就是说，一整个大无语
+栓Q，我真的会谢
+太好了是XX我们有救了
+那咋了
+包的呀老弟
+我直接一个滑铲
+尊嘟假嘟？O.o
+绝绝子
+啊对对对
+泰裤辣！
+我不要你觉得，我要我觉得
+注意看，这个男人叫小帅
+鸡你太美
+你干嘛~哈哈哎哟~
+恐龙扛狼扛狼扛
+我没K，恐龙扛狼
+布鲁biu布鲁biu~
+买了否冷
+你为什么推人那小女孩
+退🤜退🤜退🤜
+I can't breathe!
+This is fine. 🔥🐶
+能叫我一声那个吗.jpg
+我不造啊，我打Apex的
 ]]
 files["sbox_limits.txt"] =
 [[;The number by each cvar indicates the maximum value for the slider in XGUI.

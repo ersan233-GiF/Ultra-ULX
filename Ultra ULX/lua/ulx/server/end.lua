@@ -11,7 +11,17 @@ local function processLineConfig( path, noMount, clearFn, addFn, useStripQuotes 
 	end
 end
 local function doMainCfg( path, noMount )
-	ULib.execStringULib( ULib.stripComments( ULib.fileRead( path, noMount ), ";" ), true )
+	local content = ULib.fileRead( path, noMount )
+	if not content then return end
+	local filtered = {}
+	for line in ( content .. "\n" ):gmatch( "([^\n]*)\n" ) do
+		local cmd = ( line:match( "^(.-)%s*;" ) or line ):lower()
+		local isObsolete = cmd:match( "^%s*ulx%s+discord%s+" ) or cmd:match( "^%s*ulx%s+language%s+" )
+		if not isObsolete then
+			table.insert( filtered, line )
+		end
+	end
+	ULib.execStringULib( ULib.stripComments( table.concat( filtered, "\n" ), ";" ), true )
 end
 local function doDownloadCfg( path, noMount )
 	if not ulx.addForcedDownload then return end
@@ -24,17 +34,17 @@ end
 local function doAdvertCfg( path, noMount )
 	if not ulx.addAdvert then return end
 	local data_root, err = ULib.parseKeyValues( ULib.stripComments( ULib.fileRead( path, noMount ), ";" ) )
-	if not data_root then Msg( "[ULX] 广告配置错误: " .. err .. "\n" ) return end
+	if not data_root then Msg( "[ULX] " .. ULib.ulx_lang.T("config_advert_error"):format(err) .. "\n" ) return end
 	for group_name, row in pairs( data_root ) do
 		if type( group_name ) == "number" then
 			local color = Color( tonumber( row.red ) or ULib.DEFAULT_TSAY_COLOR.r, tonumber( row.green ) or ULib.DEFAULT_TSAY_COLOR.g, tonumber( row.blue ) or ULib.DEFAULT_TSAY_COLOR.b )
-			ulx.addAdvert( row.text or "NO TEXT SUPPLIED FOR THIS ADVERT", tonumber( row.time ) or 300, _, color, tonumber( row.time_on_screen ) )
+			ulx.addAdvert( row.text or ULib.ulx_lang.T("config_advert_no_text"), tonumber( row.time ) or 300, _, color, tonumber( row.time_on_screen ) )
 		else
-			if type( row ) ~= "table" then Msg( "[ULX] 广告配置错误: 格式不正确!\n" ) return end
+			if type( row ) ~= "table" then Msg( "[ULX] " .. ULib.ulx_lang.T("config_advert_bad_format") .. "\n" ) return end
 			for i = 1, #row do
 				local row2 = row[ i ]
 				local color = Color( tonumber( row2.red ) or 151, tonumber( row2.green ) or 211, tonumber( row2.blue ) or 255 )
-				ulx.addAdvert( row2.text or "NO TEXT SUPPLIED FOR THIS ADVERT", tonumber( row2.time ) or 300, group_name, color, tonumber( row2.time_on_screen ) )
+				ulx.addAdvert( row2.text or ULib.ulx_lang.T("config_advert_no_text"), tonumber( row2.time ) or 300, group_name, color, tonumber( row2.time_on_screen ) )
 			end
 		end
 	end
@@ -50,9 +60,9 @@ end
 local function doMotdCfg( path, noMount )
 	if not ulx.motd then return end
 	local data_root, err = ULib.parseKeyValues( ULib.stripComments( ULib.fileRead( path, noMount ), ";" ) )
-	if not data_root then Msg( "[ULX] MOTD 配置错误: " .. err .. "\n" ) return end
+	if not data_root then Msg( "[ULX] " .. ULib.ulx_lang.T("config_motd_error"):format(err) .. "\n" ) return end
 	ulx.motdSettings = data_root
-	ulx.populateMotdData()
+	if ulx.populateMotdData then ulx.populateMotdData() end
 end
 local function doMessageCfg( path, noMount )
 	local message = ULib.stripComments( ULib.fileRead( path, noMount ), ";" ):Trim()

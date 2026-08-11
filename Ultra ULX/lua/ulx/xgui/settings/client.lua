@@ -77,7 +77,7 @@ genpnl.pickupplayers = xlib.makecheckbox{ x=10, y=10, w=150, label=xgui.T("ui_ph
 local ckClickOut = xlib.makecheckbox{ x=10, y=30, w=150, label=xgui.T("ui_click_out_close"), value=xgui.settings.clickOutClose, parent=genpnl }
 ckClickOut.OnChange = function( self, bVal ) xgui.settings.clickOutClose = bVal end
 local L = ULib.ulx_lang
-local lblLang = xlib.makelabel{ x=10, y=55, label=L.T("set_language_desc") .. ":", parent=genpnl }
+local lblLang = xlib.makelabel{ x=10, y=55, label=L.T("set_language_desc") .. "：", parent=genpnl }
 local langCombo = xlib.makecombobox{ x=10, y=70, w=150, parent=genpnl, choices={} }
 for _, lang in ipairs( L.available ) do langCombo:AddChoice( L.names[lang], lang ) end
 langCombo:SetValue( L.names[L.current] or L.names["zh-cn"] )

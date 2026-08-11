@@ -1,5 +1,5 @@
-local CATEGORY_NAME = "传送"
-local L = ULib.ulx_lang or {}
+local L = ULib.ulx_lang
+local CATEGORY_NAME = "cat_teleport"
 local function spiralGrid(rings)
 	local grid = {}
 	local col, row
@@ -60,7 +60,7 @@ end
 function ulx.bring( calling_ply, target_plys )
 	local cell_size = 50
   if not calling_ply:IsValid() then
-    Msg( "If you brought someone to you, they would instantly be destroyed by the awesomeness that is console.\n" )
+    Msg( "如果你把某人带到控制台, 他们会被控制台的威严瞬间毁灭.\n" )
     return
   end
   if ulx.getExclusive( calling_ply, calling_ply ) then
@@ -91,7 +91,7 @@ function ulx.bring( calling_ply, target_plys )
     if ulx.getExclusive( v, calling_ply ) then
       ULib.tsayError( calling_ply, ulx.getExclusive( v, calling_ply ), true )
     elseif not v:Alive() then
-      ULib.tsayError( calling_ply, v:Nick() .. " is dead!", true )
+      ULib.tsayError( calling_ply, v:Nick() .. L.T("tele_retrn_dead"), true )
     else
       table.insert( teleportable_plys, v )
     end
@@ -128,7 +128,7 @@ function ulx.bring( calling_ply, target_plys )
     ULib.tsayError( calling_ply, L.T("tele_bring_nospace"), true )
   end
 	if #affected_plys > 0 then
-  	ulx.fancyLogAdmin( calling_ply, L.T("tele_bring_log"), affected_plys )
+  	ulx.fancyLogKeyed(calling_ply, "tele_bring_log", affected_plys )
 	end
 end
 local bring = ulx.command( CATEGORY_NAME, "ulx bring", ulx.bring, "!bring" )
@@ -137,7 +137,7 @@ bring:defaultAccess( ULib.ACCESS_ADMIN )
 bring:help( L.T("tele_bring_help") )
 function ulx.gotoTp( calling_ply, target_ply )
 	if not calling_ply:IsValid() then
-		Msg( "You may not step down into the mortal world from console.\n" )
+		Msg( "你无法从控制台降临到凡人的世界.\n" )
 		return
 	end
 	if ulx.getExclusive( calling_ply, calling_ply ) then
@@ -145,7 +145,7 @@ function ulx.gotoTp( calling_ply, target_ply )
 		return
 	end
 	if not target_ply:Alive() then
-		ULib.tsayError( calling_ply, target_ply:Nick() .. " is dead!", true )
+		ULib.tsayError( calling_ply, target_ply:Nick() .. L.T("tele_retrn_dead"), true )
 		return
 	end
 	if not calling_ply:Alive() then
@@ -168,7 +168,7 @@ function ulx.gotoTp( calling_ply, target_ply )
 	calling_ply:SetPos( newpos )
 	calling_ply:SetEyeAngles( newang )
 	calling_ply:SetLocalVelocity( Vector( 0, 0, 0 ) )
-	ulx.fancyLogAdmin( calling_ply, L.T("tele_goto_log"), target_ply )
+	ulx.fancyLogKeyed(calling_ply, "tele_goto_log", target_ply )
 end
 local gotoCmd = ulx.command( CATEGORY_NAME, "ulx goto", ulx.gotoTp, "!goto" )
 gotoCmd:addParam{ type=ULib.cmds.PlayerArg, target="!^", ULib.cmds.ignoreCanTarget }
@@ -192,7 +192,7 @@ function ulx.send( calling_ply, target_from, target_to )
 		if not target_to:Alive() then
 			nick = target_to:Nick()
 		end
-		ULib.tsayError( calling_ply, nick .. " is dead!", true )
+		ULib.tsayError( calling_ply, nick .. L.T("tele_retrn_dead"), true )
 		return
 	end
 	if target_to:InVehicle() and target_from:GetMoveType() ~= MOVETYPE_NOCLIP then
@@ -211,7 +211,7 @@ function ulx.send( calling_ply, target_from, target_to )
 	target_from:SetPos( newpos )
 	target_from:SetEyeAngles( newang )
 	target_from:SetLocalVelocity( Vector( 0, 0, 0 ) )
-	ulx.fancyLogAdmin( calling_ply, L.T("tele_send_log"), target_from, target_to )
+	ulx.fancyLogKeyed(calling_ply, "tele_send_log", target_from, target_to )
 end
 local send = ulx.command( CATEGORY_NAME, "ulx send", ulx.send, "!send" )
 send:addParam{ type=ULib.cmds.PlayerArg, target="!^" }
@@ -228,10 +228,15 @@ function ulx.teleport( calling_ply, target_ply )
 		return
 	end
 	if not target_ply:Alive() then
-		ULib.tsayError( calling_ply, target_ply:Nick() .. " is dead!", true )
+		ULib.tsayError( calling_ply, target_ply:Nick() .. L.T("tele_retrn_dead"), true )
 		return
 	end
- 	local pos = calling_ply:GetEyeTrace().HitPos
+	local tr = util.TraceLine( {
+		start  = calling_ply:GetShootPos(),
+		endpos = calling_ply:GetShootPos() + calling_ply:GetAimVector() * 32768,
+		filter = { calling_ply, target_ply },
+	} )
+	local pos = tr.HitPos + tr.HitNormal * 16
 	if target_ply == calling_ply and pos:Distance( target_ply:GetPos() ) < 64 then
 		return
 	end
@@ -243,7 +248,7 @@ function ulx.teleport( calling_ply, target_ply )
 	target_ply:SetPos( pos )
 	target_ply:SetLocalVelocity( Vector( 0, 0, 0 ) )
 	if target_ply ~= calling_ply then
-		ulx.fancyLogAdmin( calling_ply, L.T("tele_tp_log"), target_ply )
+		ulx.fancyLogKeyed(calling_ply, "tele_tp_log", target_ply )
 	end
 end
 local teleport = ulx.command( CATEGORY_NAME, "ulx teleport", ulx.teleport, {"!tp", "!teleport"} )
@@ -252,10 +257,15 @@ teleport:defaultAccess( ULib.ACCESS_ADMIN )
 teleport:help( L.T("tele_tp_help") )
 function ulx.tpto( calling_ply, target_plys, x, y, z )
 	if not calling_ply:IsValid() then
-		Msg( "Console may not wander the mortal realm.\n" )
+		Msg( "控制台无法在凡人世界游荡.\n" )
 		return
 	end
-	local pos = Vector( tonumber( x ) or 0, tonumber( y ) or 0, tonumber( z ) or 0 )
+	local nx, ny, nz = tonumber( x ), tonumber( y ), tonumber( z )
+	if not nx or not ny or not nz then
+		ULib.tsayError( calling_ply, L.T("tele_tpto_badcoord"), true )
+		return
+	end
+	local pos = Vector( nx, ny, nz )
 	for _, ply in ipairs( target_plys ) do
 		if ulx.getExclusive( ply, calling_ply ) then
 			ULib.tsayError( calling_ply, ulx.getExclusive( ply, calling_ply ), true )
@@ -269,18 +279,18 @@ function ulx.tpto( calling_ply, target_plys, x, y, z )
 			ply:SetLocalVelocity( Vector( 0, 0, 0 ) )
 		end
 	end
-	ulx.fancyLogAdmin( calling_ply, L.T("tele_tpto_log"), target_plys )
+	ulx.fancyLogKeyed(calling_ply, "tele_tpto_log", target_plys )
 end
 local tpto = ulx.command( CATEGORY_NAME, "ulx tpto", ulx.tpto, "!tpto" )
 tpto:addParam{ type=ULib.cmds.PlayersArg }
-tpto:addParam{ type=ULib.cmds.StringArg, hint="X坐标" }
-tpto:addParam{ type=ULib.cmds.StringArg, hint="Y坐标" }
-tpto:addParam{ type=ULib.cmds.StringArg, hint="Z坐标" }
+tpto:addParam{ type=ULib.cmds.StringArg, hint="x" }
+tpto:addParam{ type=ULib.cmds.StringArg, hint="y" }
+tpto:addParam{ type=ULib.cmds.StringArg, hint="z" }
 tpto:defaultAccess( ULib.ACCESS_ADMIN )
 tpto:help( L.T("tele_tpto_help") )
 function ulx.retrn( calling_ply, target_ply )
 	if not target_ply:IsValid() then
-		Msg( "Return where? The console may never return to the mortal realm.\n" )
+		Msg( "返回哪里? 控制台永远无法返回凡人世界.\n" )
 		return
 	end
 	if not target_ply.ulx_prevpos then
@@ -292,7 +302,7 @@ function ulx.retrn( calling_ply, target_ply )
 		return
 	end
 	if not target_ply:Alive() then
-		ULib.tsayError( calling_ply, target_ply:Nick() .. " " .. (L.T and L.T("tele_retrn_dead") or "is dead!"), true )
+		ULib.tsayError( calling_ply, target_ply:Nick() .. " " .. (L.T and L.T("tele_retrn_dead") or "已死亡!"), true )
 		return
 	end
 	if target_ply:InVehicle() then
@@ -303,11 +313,11 @@ function ulx.retrn( calling_ply, target_ply )
 	target_ply.ulx_prevpos = nil
 	target_ply.ulx_prevang = nil
 	target_ply:SetLocalVelocity( Vector( 0, 0, 0 ) )
-	ulx.fancyLogAdmin( calling_ply, L.T and L.T("tele_retrn_log") or "#A returned #T to their original position", target_ply )
+	ulx.fancyLogKeyed( calling_ply, "tele_retrn_log", target_ply )
 end
 local retrn = ulx.command( CATEGORY_NAME, "ulx retrn", ulx.retrn, "!return" )
 retrn.opposite = nil
 local returnAlias = ulx.command( CATEGORY_NAME, "ulx return", ulx.retrn, nil )
 retrn:addParam{ type=ULib.cmds.PlayerArg, ULib.cmds.optional }
 retrn:defaultAccess( ULib.ACCESS_ADMIN )
-retrn:help( L.T and L.T("tele_retrn_help") or "返回传送之前的位置。" )
+retrn:help( L.T("tele_retrn_help") )

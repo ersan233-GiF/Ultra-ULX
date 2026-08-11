@@ -1,5 +1,10 @@
 ULib.cmds = ULib.cmds or {}
 local cmds = ULib.cmds
+local function T(key, ...)
+	if ULib.ulx_lang then return ULib.ulx_lang.T(key, ...) end
+	if ... then return string.format(key, ...) end
+	return key
+end
 cmds.optional = cmds.optional or {}
 cmds.restrictToCompletes = cmds.restrictToCompletes or {}
 cmds.takeRestOfLine = cmds.takeRestOfLine or {}
@@ -68,18 +73,18 @@ function cmds.NumArg:parseAndValidate( ply, arg, cmdInfo, plyRestrictions )
 	end
 	local typeString
 	if not allowTimeString then
-		typeString = "number"
+		typeString = T("type_number")
 	else
-		typeString = "number or time string"
+		typeString = T("type_number_or_time")
 	end
 	if not num then
-		return nil, string.format( "invalid " .. typeString .. " \"%s\" specified", tostring( arg ) )
+		return nil, T("cmd_invalid_number", typeString, tostring(arg))
 	end
 	if self.min and num < self.min then
-		return nil, string.format( "specified " .. typeString .. " (%s) was below your allowed minimum value of %g", arg, self.min )
+		return nil, T("cmd_number_below_min", typeString, arg, self.min)
 	end
 	if self.max and num > self.max then
-		return nil, string.format( "specified " .. typeString .. " (%s) was above your allowed maximum value of %g", arg, self.max )
+		return nil, T("cmd_number_above_max", typeString, arg, self.max)
 	end
 	if table.HasValue( cmdInfo, cmds.round ) then
 		return math.Round( num )
@@ -136,7 +141,7 @@ function cmds.BoolArg:parseAndValidate( ply, arg, cmdInfo, plyRestrictions )
 	end
 	local desired = ULib.toBool( arg )
 	if self.restrictedTo ~= nil and desired ~= self.restrictedTo then
-		return nil, "you are not allowed to specify " .. tostring( desired ) .. " here"
+		return nil, T("cmd_bool_not_allowed", tostring(desired))
 	end
 	return desired
 end
@@ -216,21 +221,21 @@ function cmds.PlayerArg:parseAndValidate( ply, arg, cmdInfo, plyRestrictions )
 	self:processRestrictions( ply, cmdInfo, plyRestrictions )
 	if not arg and table.HasValue( cmdInfo, cmds.optional ) then
 		if not cmdInfo.default and not ply:IsValid() then
-			return nil, "target must be specified"
+			return nil, T("cmd_target_required")
 		end
 		arg = cmdInfo.default or "$" .. ULib.getUniqueIDForPlayer( ply )
 	end
 	local target, err_msg1 = ULib.getUser( arg, true, ply )
 	local return_value, err_msg2 = hook.Call( ULib.HOOK_PLAYER_TARGET, _, ply, cmdInfo.cmd, target )
 	if return_value == false then
-		return nil, err_msg2 or "you cannot target this person"
+		return nil, err_msg2 or T("cmd_cannot_target")
 	elseif type( return_value ) == "Player" then
 		target = return_value
 	end
 	if return_value ~= true then
-		if not target then return nil, err_msg1 or "no target found" end
+		if not target then return nil, err_msg1 or T("cmd_no_target_found") end
 		if self.restrictedTargets == false or (self.restrictedTargets and not table.HasValue( self.restrictedTargets, target )) then
-			return nil, "you cannot target this person"
+			return nil, T("cmd_cannot_target")
 		end
 	end
 	return target
@@ -282,23 +287,23 @@ function cmds.PlayersArg:parseAndValidate( ply, arg, cmdInfo, plyRestrictions )
 	self:processRestrictions( ply, cmdInfo, plyRestrictions )
 	if not arg and table.HasValue( cmdInfo, cmds.optional ) then
 		if not cmdInfo.default and not ply:IsValid() then
-			return nil, "target must be specified"
+			return nil, T("cmd_target_required")
 		end
 		arg = cmdInfo.default or "$" .. ULib.getUniqueIDForPlayer( ply )
 	end
 	local targets = ULib.getUsers( arg, true, ply )
 	local return_value, err_msg = hook.Call( ULib.HOOK_PLAYER_TARGETS, _, ply, cmdInfo.cmd, targets )
 	if return_value == false then
-		return nil, err_msg or "you cannot target this person or these persons"
+		return nil, err_msg or T("cmd_cannot_target_any")
 	elseif type( return_value ) == "table" then
 		if #return_value == 0 then
-			return nil, err_msg or "you cannot target this person or these persons"
+			return nil, err_msg or T("cmd_cannot_target_any")
 		else
 			targets = return_value
 		end
 	end
 	if return_value ~= true then
-		if not targets then return nil, "no targets found" end
+		if not targets then return nil, T("cmd_no_targets_found") end
 		if self.restrictedTargets then
 			local i = 1
 			while targets[ i ] do
@@ -310,7 +315,7 @@ function cmds.PlayersArg:parseAndValidate( ply, arg, cmdInfo, plyRestrictions )
 			end
 		end
 		if self.restrictedTargets == false or #targets == 0 then
-			return nil, "you cannot target this person or these persons"
+			return nil, T("cmd_cannot_target_any")
 		end
 	end
 	return targets
@@ -453,19 +458,19 @@ local function translateCmdCallback( ply, commandName, argv )
 			if not argInfo.repeat_min then
 				local ret, err = argInfo.type:parseAndValidate( ply, arg, argInfo, accessPieces[ argNum ] )
 				if ret == nil then
-					ULib.tsayError( ply, string.format( "Command \"%s\", argument #%i: %s", commandName, argNum, err ), true )
+					ULib.tsayError( ply, string.format( T("cmd_error_format"), commandName, argNum, err ), true )
 					return
 				end
 				table.insert( args, ret )
 			else
 				if #argv - argNum + 1 < argInfo.repeat_min then
-					ULib.tsayError( ply, string.format( "Command \"%s\", argument #%i: %s", commandName, #argv+1, "expected additional argument(s)" ), true )
+					ULib.tsayError( ply, string.format( T("cmd_error_format"), commandName, #argv+1, T("cmd_expected_more_args") ), true )
 					return
 				end
 				for i=argNum, #argv do
 					local ret, err = argInfo.type:parseAndValidate( ply, argv[ i ], argInfo, accessPieces[ argNum ] )
 					if ret == nil then
-						ULib.tsayError( ply, string.format( "Command \"%s\", argument #%i: %s", commandName, i, err ), true )
+						ULib.tsayError( ply, string.format( T("cmd_error_format"), commandName, i, err ), true )
 						return
 					end
 					table.insert( args, ret )

@@ -1,8 +1,5 @@
 ULib.BanMessage = [[
--------===== [ BANNED ] =====-------
----= Reason =---
 {{REASON}}
----= Time Left =---
 {{TIME_LEFT}} ]]
 function ULib.getBanMessage( steamid, banData, templateMessage )
 	banData = banData or ULib.bans[ steamid ]
@@ -39,7 +36,7 @@ local function checkBan( steamid64, ip, password, clpassword, name )
 	if not banData then return end
 	if not banData.admin and not banData.reason and not banData.unban and not banData.time then return end
 	local message = ULib.getBanMessage( steamid )
-	Msg(string.format("%s (%s)<%s> was kicked by ULib because they are on the ban list\n", name, steamid, ip))
+	Msg(string.format("%s (%s)<%s> " .. ULib.ulx_lang.T("ban_kicked_on_banlist") .. "\n", name, steamid, ip))
 	return false, message
 end
 hook.Add( "CheckPassword", "ULibBanCheck", checkBan, HOOK_LOW )
@@ -50,7 +47,7 @@ function ULib.ban( ply, time, reason, admin )
 	if ply:IsListenServerHost() then
 		return
 	end
-	ULib.addBan( ply:SteamID(), time, reason, ply:Name(), admin )
+	ULib.addBan( ply:SteamID(), time, reason, ply:Name(), admin or ply )
 end
 ULib.kickban = ULib.ban
 local function escapeOrNull( str )

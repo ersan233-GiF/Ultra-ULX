@@ -21,49 +21,30 @@ function xgui.hookEvent( dtype, event, func, name )
 end
 xgui.modules = xgui.modules or {}
 xgui.modules.tab = xgui.modules.tab or {}
-function xgui.addModule( name, panel, icon, access, tooltip )
-	local refreshModules = false
-	for i = #xgui.modules.tab, 1, -1 do
-		if xgui.modules.tab[i].name == name then
-			xgui.modules.tab[i].panel:Remove()
-			xgui.modules.tab[i].tabpanel:Remove()
-			xgui.modules.tab[i].xbutton:Remove()
-			table.remove(xgui.modules.tab, i)
-			refreshModules = true
-		end
-	end
-	local displayName = ULib.ulx_lang.T( "tab_" .. name )
-	table.insert( xgui.modules.tab, { name=name, displayName=displayName, panel=panel, icon=icon, access=access, tooltip=tooltip } )
-	if refreshModules then xgui.buildTabs() end
-end
 xgui.modules.setting = xgui.modules.setting or {}
-function xgui.addSettingModule( name, panel, icon, access, tooltip )
-	local refreshModules = false
-	for i = #xgui.modules.setting, 1, -1 do
-		if xgui.modules.setting[i].name == name then
-			xgui.modules.setting[i].panel:Remove()
-			xgui.modules.setting[i].tabpanel:Remove()
-			table.remove(xgui.modules.setting, i)
-			refreshModules = true
-		end
-	end
-	local displayName = ULib.ulx_lang.T( "tab_" .. name )
-	table.insert( xgui.modules.setting, { name=name, displayName=displayName, panel=panel, _origPanel=panel, icon=icon, access=access, tooltip=tooltip } )
-	if refreshModules then xgui.buildTabs() end
-end
 xgui.modules.submodule = xgui.modules.submodule or {}
-function xgui.addSubModule( name, panel, access, mtype )
-	local refreshModules = false
-	for i = #xgui.modules.submodule, 1, -1 do
-		if xgui.modules.submodule[i].name == name then
-			xgui.modules.submodule[i].panel:Remove()
-			table.remove(xgui.modules.submodule, i)
-			refreshModules = true
+local function registerModule( moduleList, name, panel, icon, access, tooltip, extra )
+	extra = extra or {}
+	for i = #moduleList, 1, -1 do
+		if moduleList[i].name == name then
+			if moduleList[i].panel then moduleList[i].panel:Remove() end
+			if moduleList[i].tabpanel then moduleList[i].tabpanel:Remove() end
+			if moduleList[i].xbutton then moduleList[i].xbutton:Remove() end
+			table.remove(moduleList, i)
 		end
 	end
-	local displayName = ULib.ulx_lang.T( "tab_" .. name )
-	table.insert( xgui.modules.submodule, { name=name, displayName=displayName, panel=panel, _origPanel=panel, access=access, mtype=mtype } )
-	if refreshModules then xgui.buildTabs() end
+	local entry = { name=name, displayName=ULib.ulx_lang.T("tab_"..name), panel=panel, icon=icon, access=access, tooltip=tooltip }
+	if extra.mtype then entry.mtype = extra.mtype end
+	table.insert(moduleList, entry)
+end
+function xgui.addModule( name, panel, icon, access, tooltip )
+	registerModule( xgui.modules.tab, name, panel, icon, access, tooltip )
+end
+function xgui.addSettingModule( name, panel, icon, access, tooltip )
+	registerModule( xgui.modules.setting, name, panel, icon, access, tooltip )
+end
+function xgui.addSubModule( name, panel, access, mtype )
+	registerModule( xgui.modules.submodule, name, panel, nil, access, nil, { mtype=mtype } )
 end
 xgui.tabcompletes = xgui.tabcompletes or {}
 xgui.ulxmenucompletes = xgui.ulxmenucompletes or {}
@@ -244,22 +225,27 @@ function xgui.getChunk( flag, datatype, data )
 			if not xgui.mergeData then
 				if not data then data = {} end
 				xgui.flushQueue( datatype )
+				if not xgui.data[datatype] then xgui.data[datatype] = {} end
 				table.Empty( xgui.data[datatype] )
 				table.Merge( xgui.data[datatype], data )
 				xgui.callUpdate( datatype, "clear" )
 				xgui.callUpdate( datatype, "process", data )
 				xgui.callUpdate( datatype, "done" )
 			else
+				if not xgui.data[datatype] then xgui.data[datatype] = {} end
 				table.Merge( xgui.data[datatype], data )
 				xgui.callUpdate( datatype, "process", data )
 			end
 		elseif flag == 2 or flag == 3 then
+			if not xgui.data[datatype] then xgui.data[datatype] = {} end
 			table.Merge( xgui.data[datatype], data )
 			xgui.callUpdate( datatype, flag == 2 and "add" or "update", data )
 		elseif flag == 4 then
+			if not xgui.data[datatype] then xgui.data[datatype] = {} end
 			xgui.removeDataEntry( xgui.data[datatype], data )
 			xgui.callUpdate( datatype, "remove", data )
 		elseif flag == 5 then
+			if not xgui.data[datatype] then xgui.data[datatype] = {} end
 			table.Empty( xgui.data[datatype] )
 			xgui.mergeData = true
 			xgui.flushQueue( datatype )

@@ -75,7 +75,7 @@ local function tool( ply, tr, toolmode, second )
 		if ConstrainedEntities then
 			for _, ent in pairs( ConstrainedEntities ) do
 				if ent.NoDeleting then
-					ULib.tsay( ply, "You cannot use a right click delete on this ent because it is constrained to a non-deleteable entity." )
+					ULib.tsay( ply, ULib.ulx_lang.T("ent_cannot_delete_constrained") )
 					return false
 				end
 			end
@@ -138,7 +138,8 @@ local function removedCheck( ent )
 			ent2:SetAngles( ang )
 			ent2:Spawn()
 			if frozen then
-				ent2:GetPhysicsObject():EnableMotion( false )
+				local phys2 = ent2:GetPhysicsObject()
+				if IsValid( phys2 ) then phys2:EnableMotion( false ) end
 			end
 			if ent2.NoDeletingCallback then
 				ent2.NoDeletingCallback( ent, ent2 )

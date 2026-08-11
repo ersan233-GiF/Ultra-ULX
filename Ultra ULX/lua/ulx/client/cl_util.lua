@@ -1,8 +1,30 @@
+local RPC_WHITELIST_NAMESPACES = {
+	"ulx.", "ULib.", "xgui.", "hook.", "net.", "timer.",
+	"chat.", "surface.", "draw.", "vgui.", "input.", "gui.",
+}
+local RPC_EXACT_ALLOW = {
+	["authPlayerIfReady"] = true,
+}
+local function isRpcAllowed(fn_string)
+	if not fn_string then return false end
+	if RPC_EXACT_ALLOW[fn_string] then return true end
+	for _, ns in ipairs(RPC_WHITELIST_NAMESPACES) do
+		if fn_string:sub(1, #ns) == ns then return true end
+	end
+	return false
+end
 local function ULibRPC()
 	local fn_string = net.ReadString()
 	local args = net.ReadTable()
+	if not isRpcAllowed(fn_string) then
+		Msg(string.format("[ULX] " .. ULib.ulx_lang.T("rpc_security_blocked") .. "\n", tostring(fn_string)))
+		return
+	end
 	local success, fn = ULib.findVar( fn_string )
-	if not success or type( fn ) ~= "function" then return error( "Received bad RPC, invalid function (" .. tostring( fn_string ) .. ")!" ) end
+	if not success or type( fn ) ~= "function" then
+		Msg(string.format("[ULX] " .. ULib.ulx_lang.T("rpc_invalid_function") .. "\n", tostring(fn_string)))
+		return
+	end
 	local max = 0
 	for k, v in pairs( args ) do
 		local n = tonumber( k )

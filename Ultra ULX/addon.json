@@ -1,6 +1,7 @@
 {
 	"title"		:	"Ultra ULX",
 	"type"		:	"ServerContent",
+	"version"	:	"2.98.51",
 	"description"	:	"完全中文版 ULX 管理插件 - 50+ 新命令 - 道具系统 - BHOP - 智能生成 - 自动同步",
 	"author"	:	"Team Ulysses and Ultra ULX Contributors",
 	"tags"		:	[ "fun", "build", "admin", "util", "server", "translation" ],
@@ -8,9 +9,24 @@
 	[
 		"addon.txt",
 		".git*",
+		".history",
+		".agents",
+		".vscode",
+		".editorconfig",
+		".gitattributes",
+		".gitignore",
+		".gluarc.json",
+		"docs",
+		"scripts",
+		"vpnhood_split_tunnel_setup",
+		"nul",
 		"ulx.build",
+		"ulib.build",
 		"README.md",
 		"CHANGELOG.md",
-		"LICENSE.md"
+		"LICENSE.md",
+		"*.bak",
+		"*.tmp",
+		"*.pyc"
 	]
 }

@@ -23,8 +23,10 @@ Msg( "///////////////////////////////\n" )
 Msg( "// ULX GUI -- by Stickly Man //\n" )
 Msg( "///////////////////////////////\n" )
 AddCSLuaFile( "ulx/xgui/framework/init.lua" )
+AddCSLuaFile( "ulx/xgui/framework/theme.lua" )
 AddCSLuaFile( "ulx/xgui/framework/layout.lua" )
-Msg( "//  framework/init.lua + layout.lua //\n" )
+AddCSLuaFile( "ulx/xgui/framework/modern_layout.lua" )
+Msg( "//  framework: init + theme + layout + modern_layout //\n" )
 Msg( "// Adding Main Modules..     //\n" )
 local xgui_main = { "bans.lua", "commands.lua", "groups.lua", "items.lua", "maps.lua", "settings.lua", "xgui_core.lua" }
 for _, file in ipairs( xgui_main ) do
@@ -44,8 +46,11 @@ for _, file in ipairs( xgui_gamemodes ) do
 	Msg( "//  " .. file .. string.rep( " ", 25 - file:len() ) .. "//\n" )
 end
 Msg( "// Loading Server Modules..  //\n" )
-local xgui_server = { "sv_bans.lua", "sv_groups.lua", "sv_items.lua", "sv_maps.lua", "sv_sandbox.lua", "sv_settings.lua" }
+local xgui_server = { "sv_bans.lua", "sv_groups.lua", "sv_import.lua", "sv_items.lua", "sv_maps.lua", "sv_sandbox.lua", "sv_settings.lua" }
 for _, file in ipairs( xgui_server ) do
+	if file == "sv_import.lua" then
+		AddCSLuaFile( "ulx/xgui/server/" .. file )
+	end
 	include( "ulx/xgui/server/" .. file )
 	Msg( "//  " .. file .. string.rep( " ", 25 - file:len() ) .. "//\n" )
 end
@@ -239,6 +244,7 @@ function xgui.init()
 	xgui.addCmd( "dataComplete", xgui.chunksFinished )
 	function xgui.getCommentHeader( data, comment_char )
 		comment_char = comment_char or ";"
+		data = data or ""
 		local lines = ULib.explode( "\n", data )
 		local end_comment_line = 0
 		for _, line in ipairs( lines ) do

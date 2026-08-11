@@ -1,20 +1,28 @@
-local CAT, CAT_T, CAT_C, CAT_M, CAT_A = "娱乐", "工具", "聊天", "移动", "管理"
+local L = ULib.ulx_lang
+local CAT, CAT_T, CAT_C, CAT_M, CAT_A = "cat_fun", "cat_utility", "cat_chat", "cat_movement", "cat_admin"
+local string = string
+local table = table
+local math = math
+local net = net
+local hook = hook
+local Color = Color
+local IsValid = IsValid
+local Msg = Msg
 if SERVER then
 	util.AddNetworkString("ulx_community_esp")
 	util.AddNetworkString("ulx_coord_display")
 	util.AddNetworkString("ulx_coord_data")
 	util.AddNetworkString("ulx_community_halo")
 	util.AddNetworkString("ulx_community_trail")
-	util.AddNetworkString("ulx_community_thirdperson")
 	util.AddNetworkString("ulx_community_toggleview")
 	util.AddNetworkString("ulx_community_color")
 	util.AddNetworkString("ulx_community_stopsound")
 	util.AddNetworkString("ulx_community_url")
 	util.AddNetworkString("ulx_community_deafen")
-	util.AddNetworkString("ulx_community_silence")
 	util.AddNetworkString("ulx_community_rocket")
 	util.AddNetworkString("ulx_community_explode")
 	util.AddNetworkString("ulx_community_cleardecals")
+	util.AddNetworkString("ulx_community_profile")
 end
 if SERVER then
 	function ulx.launch(calling_ply, target_plys, power)
@@ -24,14 +32,14 @@ if SERVER then
 				ply:SetVelocity(Vector(0, 0, power))
 			end
 		end
-		ulx.fancyLogAdmin(calling_ply, "#A 将 #T 弹射到空中", target_plys)
+		ulx.fancyLogKeyed(calling_ply, "comm_launch_log", target_plys)
 	end
 end
 local launchCmd = ulx.command(CAT, "ulx launch", ulx.launch, "!launch")
 launchCmd:addParam{type=ULib.cmds.PlayersArg}
-launchCmd:addParam{type=ULib.cmds.NumArg, min=100, max=5000, default=500, hint="力度", ULib.cmds.optional, ULib.cmds.round}
+launchCmd:addParam{type=ULib.cmds.NumArg, min=100, max=5000, default=500, hint="power", ULib.cmds.optional, ULib.cmds.round}
 launchCmd:defaultAccess(ULib.ACCESS_ADMIN)
-launchCmd:help( "将目标弹射到空中" )
+launchCmd:help( L.T("comm_launch_help") )
 if SERVER then
 	function ulx.rocket(calling_ply, target_plys)
 		for _, ply in ipairs(target_plys) do
@@ -43,13 +51,13 @@ if SERVER then
 				timer.Simple(0.1, function() if ply:IsValid() then ply:Ignite(5, 0) end end)
 			end
 		end
-		ulx.fancyLogAdmin(calling_ply, "#A 将 #T 发射升空!", target_plys)
+		ulx.fancyLogKeyed(calling_ply, "comm_rocket_log", target_plys)
 	end
 end
 local rocketCmd = ulx.command(CAT, "ulx rocket", ulx.rocket, "!rocket")
 rocketCmd:addParam{type=ULib.cmds.PlayersArg}
 rocketCmd:defaultAccess(ULib.ACCESS_ADMIN)
-rocketCmd:help( "将目标像火箭一样发射升空" )
+rocketCmd:help( L.T("comm_rocket_help") )
 if SERVER then
 	function ulx.explode(calling_ply, target_plys)
 		for _, ply in ipairs(target_plys) do
@@ -62,15 +70,18 @@ if SERVER then
 				boom:SetKeyValue("iMagnitude", "50")
 				boom:Fire("Explode", 0, 0)
 				ply:Kill()
+				net.Start("ulx_community_explode")
+				net.WriteEntity(ply)
+				net.Broadcast()
 			end
 		end
-		ulx.fancyLogAdmin(calling_ply, "#A 引爆了 #T", target_plys)
+		ulx.fancyLogKeyed(calling_ply, "comm_explode_log", target_plys)
 	end
 end
 local explodeCmd = ulx.command(CAT, "ulx explode", ulx.explode, "!explode")
 explodeCmd:addParam{type=ULib.cmds.PlayersArg}
 explodeCmd:defaultAccess(ULib.ACCESS_SUPERADMIN)
-explodeCmd:help( "引爆目标玩家" )
+explodeCmd:help( L.T("comm_explode_help") )
 if SERVER then
 	local playerColors = {}
 	local function applyColor( ply, vec )
@@ -89,7 +100,7 @@ if SERVER then
 			end
 			applyColor(ply, vec)
 		end
-		ulx.fancyLogAdmin(calling_ply, "#A 设置了 #T 的颜色为 (#i,#i,#i)", target_plys, r, g, b)
+		ulx.fancyLogKeyed(calling_ply, "comm_color_log", target_plys, r, g, b)
 	end
 	hook.Add("PlayerSpawn", "ULX_ColorRestore", function(ply)
 		if playerColors[ply] then
@@ -107,11 +118,11 @@ if SERVER then
 end
 local colorCmd = ulx.command(CAT, "ulx color", ulx.color, "!color")
 colorCmd:addParam{type=ULib.cmds.PlayersArg}
-colorCmd:addParam{type=ULib.cmds.NumArg, min=0, max=255, default=255, hint="红", ULib.cmds.round}
-colorCmd:addParam{type=ULib.cmds.NumArg, min=0, max=255, default=255, hint="绿", ULib.cmds.round}
-colorCmd:addParam{type=ULib.cmds.NumArg, min=0, max=255, default=255, hint="蓝", ULib.cmds.round}
+colorCmd:addParam{type=ULib.cmds.NumArg, min=0, max=255, default=255, hint="red", ULib.cmds.round}
+colorCmd:addParam{type=ULib.cmds.NumArg, min=0, max=255, default=255, hint="green", ULib.cmds.round}
+colorCmd:addParam{type=ULib.cmds.NumArg, min=0, max=255, default=255, hint="blue", ULib.cmds.round}
 colorCmd:defaultAccess(ULib.ACCESS_ADMIN)
-colorCmd:help( "设置目标玩家的渲染颜色 RGB" )
+colorCmd:help( L.T("comm_color_help") )
 if SERVER then
 	function ulx.halo(calling_ply, target_plys, should_remove)
 		for _, ply in ipairs(target_plys) do
@@ -122,9 +133,9 @@ if SERVER then
 			ply:SetNWBool("ulx_has_halo", not should_remove)
 		end
 		if should_remove then
-			ulx.fancyLogAdmin(calling_ply, "#A 移除了 #T 的发光轮廓", target_plys)
+			ulx.fancyLogKeyed(calling_ply, "comm_halo_remove", target_plys)
 		else
-			ulx.fancyLogAdmin(calling_ply, "#A 为目标 #T 添加了发光轮廓", target_plys)
+			ulx.fancyLogKeyed(calling_ply, "comm_halo_add", target_plys)
 		end
 	end
 end
@@ -132,7 +143,7 @@ local haloCmd = ulx.command(CAT, "ulx halo", ulx.halo, "!halo")
 haloCmd:addParam{type=ULib.cmds.PlayersArg}
 haloCmd:addParam{type=ULib.cmds.BoolArg, invisible=true}
 haloCmd:defaultAccess(ULib.ACCESS_ADMIN)
-haloCmd:help( "切换目标发光轮廓，!removehalo 关闭" )
+haloCmd:help( L.T("comm_halo_help") )
 haloCmd:setOpposite("ulx removehalo", {_, _, true}, "!removehalo")
 if SERVER then
 	function ulx.trail(calling_ply, target_plys, should_remove)
@@ -144,9 +155,9 @@ if SERVER then
 			ply:SetNWBool("ulx_has_trail", not should_remove)
 		end
 		if should_remove then
-			ulx.fancyLogAdmin(calling_ply, "#A 移除了 #T 的拖尾特效", target_plys)
+			ulx.fancyLogKeyed(calling_ply, "comm_trail_remove", target_plys)
 		else
-			ulx.fancyLogAdmin(calling_ply, "#A 为目标 #T 添加了拖尾特效", target_plys)
+			ulx.fancyLogKeyed(calling_ply, "comm_trail_add", target_plys)
 		end
 	end
 end
@@ -154,7 +165,7 @@ local trailCmd = ulx.command(CAT, "ulx trail", ulx.trail, "!trail")
 trailCmd:addParam{type=ULib.cmds.PlayersArg}
 trailCmd:addParam{type=ULib.cmds.BoolArg, invisible=true}
 trailCmd:defaultAccess(ULib.ACCESS_ADMIN)
-trailCmd:help( "切换目标拖尾特效，!removetrail 关闭" )
+trailCmd:help( L.T("comm_trail_help") )
 trailCmd:setOpposite("ulx removetrail", {_, _, true}, "!removetrail")
 if SERVER then
 	function ulx.cleardecals(calling_ply, target_plys)
@@ -162,13 +173,13 @@ if SERVER then
 			net.Start("ulx_community_cleardecals")
 			net.Send(ply)
 		end
-		ulx.fancyLogAdmin(calling_ply, "#A 清除了 #T 的弹孔贴花", target_plys)
+		ulx.fancyLogKeyed(calling_ply, "comm_cleardecals_log", target_plys)
 	end
 end
 local cdCmd = ulx.command(CAT_T, "ulx cleardecals", ulx.cleardecals, "!cleardecals")
 cdCmd:addParam{type=ULib.cmds.PlayersArg}
 cdCmd:defaultAccess(ULib.ACCESS_ADMIN)
-cdCmd:help( "清除目标客户端的弹孔和贴花" )
+cdCmd:help( L.T("comm_cleardecals_help") )
 function ulx.profile(calling_ply, target_ply)
 	local sid64 = target_ply:SteamID64()
 	if SERVER then
@@ -180,59 +191,81 @@ end
 local profileCmd = ulx.command(CAT_T, "ulx profile", ulx.profile, "!profile")
 profileCmd:addParam{type=ULib.cmds.PlayerArg}
 profileCmd:defaultAccess(ULib.ACCESS_ALL)
-profileCmd:help( "在浏览器中打开目标的 Steam 资料页" )
+profileCmd:help( L.T("comm_profile_help") )
 if SERVER then
 	function ulx.redirect(calling_ply, target_plys, hostname)
 		for _, ply in ipairs(target_plys) do
 			ply:ConCommand("connect " .. hostname)
 		end
-		ulx.fancyLogAdmin(calling_ply, "#A 将 #T 重定向到服务器 #s", target_plys, hostname)
+		ulx.fancyLogKeyed(calling_ply, "comm_redirect_log", target_plys, hostname)
 	end
 end
 local redirectCmd = ulx.command(CAT_T, "ulx redirect", ulx.redirect, "!redirect")
 redirectCmd:addParam{type=ULib.cmds.PlayersArg}
-redirectCmd:addParam{type=ULib.cmds.StringArg, hint="服务器IP:端口", ULib.cmds.takeRestOfLine}
+redirectCmd:addParam{type=ULib.cmds.StringArg, hint="server_ip", ULib.cmds.takeRestOfLine}
 redirectCmd:defaultAccess(ULib.ACCESS_SUPERADMIN)
-redirectCmd:help( "将目标重定向到另一台服务器" )
+redirectCmd:help( L.T("comm_redirect_help") )
 if SERVER then
 	function ulx.stopsound(calling_ply, target_plys)
 		for _, ply in ipairs(target_plys) do
 			net.Start("ulx_community_stopsound")
 			net.Send(ply)
 		end
-		ulx.fancyLogAdmin(calling_ply, "#A 停止了 #T 的所有音效", target_plys)
+		ulx.fancyLogKeyed(calling_ply, "comm_stopsound_log", target_plys)
 	end
 end
 local ssCmd = ulx.command(CAT_T, "ulx stopsound", ulx.stopsound, "!stopsound")
 ssCmd:addParam{type=ULib.cmds.PlayersArg}
 ssCmd:defaultAccess(ULib.ACCESS_ADMIN)
-ssCmd:help( "停止目标客户端的所有音效" )
+ssCmd:help( L.T("comm_stopsound_help") )
 if SERVER then
 	function ulx.timescale(calling_ply, scale)
 		scale = math.Clamp(scale, 0.01, 5)
 		game.SetTimeScale(scale)
-		ulx.fancyLogAdmin(calling_ply, "#A 将游戏时间倍速设为 #i", scale)
+		ulx.fancyLogKeyed(calling_ply, "comm_timescale_log", scale)
 	end
 end
 local tsCmd = ulx.command(CAT_T, "ulx timescale", ulx.timescale, "!timescale")
-tsCmd:addParam{type=ULib.cmds.NumArg, min=0.01, max=5, default=1, hint="倍速"}
+tsCmd:addParam{type=ULib.cmds.NumArg, min=0.01, max=5, default=1, hint="timescale"}
 tsCmd:defaultAccess(ULib.ACCESS_SUPERADMIN)
-tsCmd:help( "设置游戏全局时间倍速 0.01~5" )
+tsCmd:help( L.T("comm_timescale_help") )
 if SERVER then
+	local URL_WHITELIST = {
+		"^https?://[%w%.%-]*steampowered%.com/",
+		"^https?://[%w%.%-]*steamcommunity%.com/",
+		"^https?://[%w%.%-]*github%.com/",
+		"^https?://[%w%.%-]*google%.com/",
+		"^https?://[%w%.%-]*youtube%.com/",
+		"^https?://[%w%.%-]*bilibili%.com/",
+		"^https?://[%w%.%-]*wikipedia%.org/",
+		"^https?://[%w%.%-]*facepunch%.com/",
+		"^https?://[%w%.%-]*gmod%.com/",
+	}
+	local function isUrlAllowed(url)
+		local lowerUrl = url:lower()
+		for _, pattern in ipairs(URL_WHITELIST) do
+			if lowerUrl:match(pattern) then return true end
+		end
+		return false
+	end
 	function ulx.url(calling_ply, target_plys, weburl)
+		if not isUrlAllowed(weburl) then
+			ULib.tsayError(calling_ply, L.T("comm_url_invalid"), true)
+			return
+		end
 		for _, ply in ipairs(target_plys) do
 			net.Start("ulx_community_url")
 			net.WriteString(weburl)
 			net.Send(ply)
 		end
-		ulx.fancyLogAdmin(calling_ply, "#A 对 #T 打开了网页", target_plys)
+		ulx.fancyLogKeyed(calling_ply, "comm_url_log", target_plys, weburl)
 	end
 end
 local urlCmd = ulx.command(CAT_T, "ulx url", ulx.url, "!url")
 urlCmd:addParam{type=ULib.cmds.PlayersArg}
-urlCmd:addParam{type=ULib.cmds.StringArg, hint="网址", ULib.cmds.takeRestOfLine}
+urlCmd:addParam{type=ULib.cmds.StringArg, hint="url", ULib.cmds.takeRestOfLine}
 urlCmd:defaultAccess(ULib.ACCESS_SUPERADMIN)
-urlCmd:help( "在目标客户端打开指定网页" )
+urlCmd:help( L.T("comm_url_help") )
 if SERVER then
 	function ulx.aliases(calling_ply, target_plys)
 		for _, ply in ipairs(target_plys) do
@@ -240,49 +273,42 @@ if SERVER then
 			ULib.console(calling_ply, "  UniqueID: " .. ply:UniqueID())
 			ULib.console(calling_ply, "  IP: " .. ply:IPAddress())
 		end
-		ulx.fancyLogAdmin(calling_ply, "#A 查看了 #T 的身份信息", target_plys)
+		ulx.fancyLogKeyed(calling_ply, "comm_profile_log", target_plys)
 	end
 end
 local aliasesCmd = ulx.command(CAT_T, "ulx aliases", ulx.aliases, "!aliases")
 aliasesCmd:addParam{type=ULib.cmds.PlayersArg}
 aliasesCmd:defaultAccess(ULib.ACCESS_ADMIN)
-aliasesCmd:help( "查看目标的 SteamID 和 IP 信息" )
+aliasesCmd:help( L.T("comm_aliases_help") )
 if SERVER then
 	function ulx.removeragdolls(calling_ply)
 		local ragdolls = ents.FindByClass("prop_ragdoll")
 		for _, rag in ipairs(ragdolls) do
 			if rag:IsValid() then rag:Remove() end
 		end
-		ulx.fancyLogAdmin(calling_ply, "#A 清除了所有可见的布娃娃")
+		ulx.fancyLogKeyed(calling_ply, "comm_clearragdolls_log")
 	end
 end
 local rrCmd = ulx.command(CAT_T, "ulx removeragdolls", ulx.removeragdolls, "!removeragdolls")
 rrCmd:defaultAccess(ULib.ACCESS_ADMIN)
-rrCmd:help( "清除地图上所有布娃娃" )
+rrCmd:help( L.T("comm_clearragdolls_help") )
 if SERVER then
 	function ulx.deafen(calling_ply, target_plys, should_undeafen)
 		for _, ply in ipairs(target_plys) do
-			ply.ulx_deafened = not should_undeafen
 			ply:SetNWBool("ulx_deafened", not should_undeafen)
 		end
 		if should_undeafen then
-			ulx.fancyLogAdmin(calling_ply, "#A 解除了 #T 的聊天语音屏蔽", target_plys)
+			ulx.fancyLogKeyed(calling_ply, "comm_deafen_remove", target_plys)
 		else
-			ulx.fancyLogAdmin(calling_ply, "#A 屏蔽了 #T 的聊天和语音", target_plys)
+			ulx.fancyLogKeyed(calling_ply, "comm_deafen_add", target_plys)
 		end
 	end
-	hook.Add("PlayerSay", "ULXDeafenSay", function(ply)
-		if ply.ulx_deafened then return "" end
-	end)
-	hook.Add("PlayerCanHearPlayersVoice", "ULXDeafenVoice", function(_, talker)
-		if talker.ulx_deafened then return false end
-	end)
 end
 local deafenCmd = ulx.command(CAT_C, "ulx deafen", ulx.deafen, "!deafen")
 deafenCmd:addParam{type=ULib.cmds.PlayersArg}
 deafenCmd:addParam{type=ULib.cmds.BoolArg, invisible=true}
 deafenCmd:defaultAccess(ULib.ACCESS_ADMIN)
-deafenCmd:help( "屏蔽目标的聊天和语音，!undeafen 解除" )
+deafenCmd:help( L.T("comm_deafen_help") )
 deafenCmd:setOpposite("ulx undeafen", {_, _, true}, "!undeafen")
 function ulx.rsay(calling_ply, message)
 	local colors = {
@@ -298,51 +324,35 @@ function ulx.rsay(calling_ply, message)
 	end
 end
 local rsayCmd = ulx.command(CAT_C, "ulx rsay", ulx.rsay, {"§", "!rsay"}, true, true)
-rsayCmd:addParam{type=ULib.cmds.StringArg, hint="消息", ULib.cmds.takeRestOfLine}
+rsayCmd:addParam{type=ULib.cmds.StringArg, hint="message", ULib.cmds.takeRestOfLine}
 rsayCmd:defaultAccess(ULib.ACCESS_ADMIN)
-rsayCmd:help( "向所有人发送彩色广播消息" )
-if SERVER then
-	function ulx.silence(calling_ply, target_plys, should_unsilence)
-		for _, ply in ipairs(target_plys) do
-			ply:SetNWBool("ulx_silenced", not should_unsilence)
-		end
-		if should_unsilence then
-			ulx.fancyLogAdmin(calling_ply, "#A 解除了 #T 的禁言状态", target_plys)
-		else
-			ulx.fancyLogAdmin(calling_ply, "#A 禁言了 #T (聊天+语音)", target_plys)
-		end
-	end
-end
-local silenceCmd = ulx.command(CAT_C, "ulx silence", ulx.silence, "!silence")
-silenceCmd:addParam{type=ULib.cmds.PlayersArg}
-silenceCmd:addParam{type=ULib.cmds.BoolArg, invisible=true}
-silenceCmd:defaultAccess(ULib.ACCESS_ADMIN)
-silenceCmd:help( "完全禁言目标和语音，!unsilence 解除" )
-silenceCmd:setOpposite("ulx unsilence", {_, _, true}, "!unsilence")
+rsayCmd:help( L.T("comm_rsay_help") )
 if SERVER then
 	function ulx.jumppower(calling_ply, target_plys, power)
 		power = math.Clamp(power, 0, 1000)
 		for _, ply in ipairs(target_plys) do
 			ply:SetJumpPower(power)
 		end
-		ulx.fancyLogAdmin(calling_ply, "#A 设置了 #T 的跳跃力为 #i", target_plys, power)
+		ulx.fancyLogKeyed(calling_ply, "comm_jumppower_log", target_plys, power)
 	end
 end
 local jpCmd = ulx.command(CAT_M, "ulx jumppower", ulx.jumppower, "!jumppower")
 jpCmd:addParam{type=ULib.cmds.PlayersArg}
-jpCmd:addParam{type=ULib.cmds.NumArg, min=0, max=1000, default=200, hint="力度", ULib.cmds.round}
+jpCmd:addParam{type=ULib.cmds.NumArg, min=0, max=1000, default=200, hint="power", ULib.cmds.round}
 jpCmd:defaultAccess(ULib.ACCESS_ADMIN)
-jpCmd:help( "设置目标的跳跃力度" )
+jpCmd:help( L.T("comm_jumppower_help") )
+ulx.DEF_RUNSPEED  = ulx.DEF_RUNSPEED or 400
+ulx.DEF_WALKSPEED = ulx.DEF_WALKSPEED or 200
+ulx.DEF_JUMPSPEED = ulx.DEF_JUMPSPEED or 200
+ulx.DEF_CROUCHSPEED = ulx.DEF_CROUCHSPEED or 100
 if SERVER then
-	ulx.DEF_RUNSPEED  = 400
-	ulx.DEF_WALKSPEED = 200
-	ulx.DEF_JUMPSPEED = 200
 	hook.Add("PlayerInitialSpawn", "ULXDetectDefaults", function(ply)
 		if not ulx._defaultsDetected and IsValid(ply) and not ply:IsBot() then
 			ulx._defaultsDetected = true
 			ulx.DEF_RUNSPEED  = ply:GetRunSpeed()
 			ulx.DEF_WALKSPEED = ply:GetWalkSpeed()
 			ulx.DEF_JUMPSPEED = ply:GetJumpPower()
+			ulx.DEF_CROUCHSPEED = ply:GetCrouchedWalkSpeed()
 		end
 	end)
 end
@@ -350,89 +360,104 @@ if SERVER then
 	function ulx.runspeed(calling_ply, target_plys, speed)
 		speed = math.Clamp(speed or ulx.DEF_RUNSPEED, 0, 1000)
 		for _, ply in ipairs(target_plys) do ply:SetRunSpeed(speed) end
-		ulx.fancyLogAdmin(calling_ply, "#A 设置了 #T 的奔跑速度为 #i", target_plys, speed)
+		ulx.fancyLogKeyed(calling_ply, "comm_runspeed_log", target_plys, speed)
 	end
 end
 local rsCmd = ulx.command(CAT_M, "ulx runspeed", ulx.runspeed, "!runspeed")
 rsCmd:addParam{type=ULib.cmds.PlayersArg}
-rsCmd:addParam{type=ULib.cmds.NumArg, min=0, max=1000, hint="速度", ULib.cmds.optional, ULib.cmds.round}
+rsCmd:addParam{type=ULib.cmds.NumArg, min=0, max=1000, hint="speed", ULib.cmds.optional, ULib.cmds.round}
 rsCmd:defaultAccess(ULib.ACCESS_ADMIN)
-rsCmd:help( "设置目标的奔跑速度，不加参数恢复默认" )
+rsCmd:help( L.T("comm_runspeed_help") )
 if SERVER then
 	function ulx.walkspeed(calling_ply, target_plys, speed)
 		speed = math.Clamp(speed or ulx.DEF_WALKSPEED, 0, 1000)
 		for _, ply in ipairs(target_plys) do ply:SetWalkSpeed(speed) end
-		ulx.fancyLogAdmin(calling_ply, "#A 设置了 #T 的行走速度为 #i", target_plys, speed)
+		ulx.fancyLogKeyed(calling_ply, "comm_walkspeed_log", target_plys, speed)
 	end
 end
 local wsCmd = ulx.command(CAT_M, "ulx walkspeed", ulx.walkspeed, "!walkspeed")
 wsCmd:addParam{type=ULib.cmds.PlayersArg}
-wsCmd:addParam{type=ULib.cmds.NumArg, min=0, max=1000, hint="速度", ULib.cmds.optional, ULib.cmds.round}
+wsCmd:addParam{type=ULib.cmds.NumArg, min=0, max=1000, hint="speed", ULib.cmds.optional, ULib.cmds.round}
 wsCmd:defaultAccess(ULib.ACCESS_ADMIN)
-wsCmd:help( "设置目标的行走速度，不加参数恢复默认" )
+wsCmd:help( L.T("comm_walkspeed_help") )
+if SERVER then
+	function ulx.crouchspeed(calling_ply, target_plys, speed)
+		speed = math.Clamp(speed or ulx.DEF_CROUCHSPEED, 0, 1000)
+		for _, ply in ipairs(target_plys) do ply:SetCrouchedWalkSpeed(speed) end
+		ulx.fancyLogKeyed(calling_ply, "comm_crouchspeed_log", target_plys, speed)
+	end
+end
+local crsCmd = ulx.command(CAT_M, "ulx crouchspeed", ulx.crouchspeed, "!crouchspeed")
+crsCmd:addParam{type=ULib.cmds.PlayersArg}
+crsCmd:addParam{type=ULib.cmds.NumArg, min=0, max=1000, hint="speed", ULib.cmds.optional, ULib.cmds.round}
+crsCmd:defaultAccess(ULib.ACCESS_ADMIN)
+crsCmd:help( L.T("comm_crouchspeed_help") )
 if SERVER then
 	function ulx.speed(calling_ply, target_plys, speed)
 		local w = speed or ulx.DEF_WALKSPEED
 		local r = speed and (speed * 2.0) or ulx.DEF_RUNSPEED
 		w = math.Clamp(w, 0, 1000); r = math.Clamp(r, 0, 1000)
 		for _, ply in ipairs(target_plys) do ply:SetWalkSpeed(w); ply:SetRunSpeed(r) end
-		ulx.fancyLogAdmin(calling_ply, "#A 设置了 #T 的移动速度 (走#i 跑#i)", target_plys, w, r)
+		ulx.fancyLogKeyed(calling_ply, "comm_speed_log", target_plys, w, r)
 	end
 end
 local speedCmd = ulx.command(CAT_M, "ulx speed", ulx.speed, "!speed")
 speedCmd:addParam{type=ULib.cmds.PlayersArg}
-speedCmd:addParam{type=ULib.cmds.NumArg, min=0, max=1000, hint="走速", ULib.cmds.optional, ULib.cmds.round}
+speedCmd:addParam{type=ULib.cmds.NumArg, min=0, max=1000, hint="walkspeed", ULib.cmds.optional, ULib.cmds.round}
 speedCmd:defaultAccess(ULib.ACCESS_ADMIN)
-speedCmd:help( "统一设置行走和奔跑速度，不加参数恢复默认" )
+speedCmd:help( L.T("comm_speed_help") )
 if SERVER then
 	function ulx.stepsize(calling_ply, target_plys, stepsize)
 		stepsize = math.Clamp(stepsize, 0, 500)
 		for _, ply in ipairs(target_plys) do
 			ply:SetStepSize(stepsize)
 		end
-		ulx.fancyLogAdmin(calling_ply, "#A 设置了 #T 的跨步高度为 #i", target_plys, stepsize)
+		ulx.fancyLogKeyed(calling_ply, "comm_stepsize_log", target_plys, stepsize)
 	end
 end
 local ssCmd = ulx.command(CAT_M, "ulx stepsize", ulx.stepsize, "!stepsize")
 ssCmd:addParam{type=ULib.cmds.PlayersArg}
-ssCmd:addParam{type=ULib.cmds.NumArg, min=0, max=500, default=18, hint="高度", ULib.cmds.round}
+ssCmd:addParam{type=ULib.cmds.NumArg, min=0, max=500, default=18, hint="height", ULib.cmds.round}
 ssCmd:defaultAccess(ULib.ACCESS_ADMIN)
-ssCmd:help( "设置目标的最大跨步高度" )
+ssCmd:help( L.T("comm_stepsize_help") )
 if SERVER then
 	function ulx.toggleview(calling_ply, target_plys)
 		for _, ply in ipairs(target_plys) do
 			net.Start("ulx_community_toggleview")
 			net.Send(ply)
 		end
-		ulx.fancyLogAdmin(calling_ply, "#A 切换了 #T 的视角", target_plys)
+		ulx.fancyLogKeyed(calling_ply, "comm_view_log", target_plys)
 	end
 end
 local viewCmd = ulx.command(CAT_T, "ulx view", ulx.toggleview, "!view")
 viewCmd:addParam{type=ULib.cmds.PlayersArg}
-viewCmd:defaultAccess(ULib.ACCESS_ADMIN)
-viewCmd:help( "切换目标的第一/第三人称视角" )
+viewCmd:defaultAccess(ULib.ACCESS_OPERATOR)
+viewCmd:help( L.T("comm_view_help") )
 if SERVER then
 	function ulx.banip(calling_ply, ip, minutes, reason)
 		minutes = minutes or 0
-		local name = "<IP封禁>"
+		local name = "<" .. L.T("punish_type_banip") .. ">"
 		ULib.addBan(ip, minutes, reason, name, calling_ply)
-		ulx.fancyLogAdmin(calling_ply, "#A 封禁了 IP #s", ip)
+		if ulx.recordBanIP then
+			ulx.recordBanIP(calling_ply, ip, minutes, reason)
+		end
+		ulx.fancyLogKeyed(calling_ply, "comm_banip_log", ip)
 	end
 end
 local banipCmd = ulx.command(CAT_A, "ulx banip", ulx.banip, "!banip")
-banipCmd:addParam{type=ULib.cmds.StringArg, hint="IP地址"}
-banipCmd:addParam{type=ULib.cmds.NumArg, min=0, default=0, hint="分钟,0=永久", ULib.cmds.optional, ULib.cmds.allowTimeString}
-banipCmd:addParam{type=ULib.cmds.StringArg, hint="原因", ULib.cmds.optional, ULib.cmds.takeRestOfLine}
+banipCmd:addParam{type=ULib.cmds.StringArg, hint="ip"}
+banipCmd:addParam{type=ULib.cmds.NumArg, min=0, default=0, hint="ban_minutes", ULib.cmds.optional, ULib.cmds.allowTimeString}
+banipCmd:addParam{type=ULib.cmds.StringArg, hint="reason", ULib.cmds.optional, ULib.cmds.takeRestOfLine}
 banipCmd:defaultAccess(ULib.ACCESS_SUPERADMIN)
-banipCmd:help( "通过 IP 地址封禁玩家" )
+banipCmd:help( L.T("comm_banip_help") )
 if SERVER then
 	function ulx.bot(calling_ply, amount, should_kick)
 		if should_kick then
 			local count = 0
 			for _, ply in ipairs(player.GetAll()) do
-				if ply:IsBot() then ply:Kick("BOT已被管理员移除"); count = count + 1 end
+				if ply:IsBot() then ply:Kick(L.T("community_bot_removed")); count = count + 1 end
 			end
-			ulx.fancyLogAdmin(calling_ply, "#A 移除了 #i 个BOT", count)
+			ulx.fancyLogKeyed(calling_ply, "comm_kickbots_log", count)
 			return
 		end
 		amount = math.Clamp(amount, 1, 32)
@@ -448,54 +473,78 @@ if SERVER then
 		end
 		local allowed = (gmName == "sandbox" or gmName == "terrortown" or gmName == "murder" or gmDerived)
 		if not allowed then
-			ULib.tsayError(calling_ply, "当前游戏模式不支持生成BOT。", true); return
+			ULib.tsayError(calling_ply, L.T("comm_bot_nosupport"), true); return
 		end
+		local success = 0
 		for i = 1, amount do
-			timer.Simple(0.05 * (i - 1), function() RunConsoleCommand("bot") end)
+			if pcall(RunConsoleCommand, "bot") then success = success + 1 end
+			if i < amount then timer.Simple(0.05 * i, function() end) end
 		end
-		ulx.fancyLogAdmin(calling_ply, "#A 已请求生成 #i 个BOT", amount)
+		if success > 0 then ulx.fancyLogKeyed(calling_ply, "comm_bot_spawn_log", success)
+		else ULib.tsayError(calling_ply, L.T("comm_bot_fail"), true) end
 	end
 end
 local botCmd = ulx.command(CAT_A, "ulx bot", ulx.bot, "!bot")
-botCmd:addParam{type=ULib.cmds.NumArg, min=1, max=32, default=1, hint="数量", ULib.cmds.round, ULib.cmds.optional}
+botCmd:addParam{type=ULib.cmds.NumArg, min=1, max=32, default=1, hint="count", ULib.cmds.round, ULib.cmds.optional}
 botCmd:addParam{type=ULib.cmds.BoolArg, invisible=true}
 botCmd:defaultAccess(ULib.ACCESS_SUPERADMIN)
-botCmd:help( "生成 BOT 玩家，!kickbots 全部移除" )
+botCmd:help( L.T("comm_bot_help") )
 botCmd:setOpposite("ulx kickbots", {_, _, true}, "!kickbots")
+if SERVER and not ulx.warn and not ulx.unwarn then
+	ulx.warns = ulx.warns or {}
+	hook.Add("PlayerDisconnected", "ULXWarnCleanup", function(ply) ulx.warns[ply:SteamID()] = nil end)
+	function ulx.warn(calling_ply, target_ply, reason)
+		local sid = target_ply:SteamID()
+		ulx.warns[sid] = (ulx.warns[sid] or 0) + 1
+		local count = ulx.warns[sid]
+		ULib.tsayError(target_ply, string.format(L.T("comm_warn_msg"), count, reason or L.T("comm_warn_unspec")), true)
+		ulx.fancyLogKeyed(calling_ply, "comm_warn_log", target_ply, count, reason or "未指定")
+		if count >= 3 then
+			ULib.kickban(target_ply, 60, L.T("community_auto_ban_3warn"), calling_ply)
+			ulx.warns[sid] = 0
+			ulx.fancyLogKeyed(calling_ply, "comm_warn_autoban", target_ply)
+		end
+	end
+	function ulx.unwarn(calling_ply, target_ply)
+		local sid = target_ply:SteamID()
+		ulx.warns[sid] = math.max(0, (ulx.warns[sid] or 0) - 1)
+		ulx.fancyLogKeyed(calling_ply, "comm_unwarn_log", target_ply, ulx.warns[sid])
+	end
+end
 if SERVER then
-	local disguisedPlayers = {}
+	local disguisedNames = {}
+	hook.Add("GetPlayerName", "ULXDisguiseName", function(ply)
+		local name = disguisedNames[ply:SteamID()]
+		if name then return name end
+	end)
 	function ulx.disguise(calling_ply, target_ply, disguise_target, should_restore)
+		local sid = target_ply:SteamID()
 		if should_restore then
-			local sid = target_ply:SteamID()
-			if disguisedPlayers[sid] then
-				target_ply:SetName(disguisedPlayers[sid])
-				disguisedPlayers[sid] = nil
-				ulx.fancyLogAdmin(calling_ply, "#A 恢复了 #T 的原始名称", target_ply)
+			if disguisedNames[sid] then
+				disguisedNames[sid] = nil
+				ulx.fancyLogKeyed(calling_ply, "comm_disguise_restore", target_ply)
 			else
-				ULib.tsayError(calling_ply, target_ply:Nick() .. " 没有被伪装。", true)
+				ULib.tsayError(calling_ply, target_ply:Nick() .. L.T("comm_disguise_none"), true)
 			end
 			return
 		end
 		if not disguise_target:IsValid() then
-			ULib.tsayError(calling_ply, "伪装目标无效。", true)
+			ULib.tsayError(calling_ply, L.T("community_invalid_disguise"), true)
 			return
 		end
-		local sid = target_ply:SteamID()
-		if not disguisedPlayers[sid] then disguisedPlayers[sid] = target_ply:Nick() end
-		target_ply:SetName(disguise_target:Nick())
-		ulx.fancyLogAdmin(calling_ply, "#A 将 #T 伪装成了目标玩家", target_ply)
+		disguisedNames[sid] = disguise_target:Nick()
+		ulx.fancyLogKeyed(calling_ply, "comm_disguise_log", target_ply)
 	end
 	hook.Add("PlayerDisconnected", "ULXDisguiseRestore", function(ply)
-		local sid = ply:SteamID()
-		if disguisedPlayers[sid] then ply:SetName(disguisedPlayers[sid]); disguisedPlayers[sid] = nil end
+		disguisedNames[ply:SteamID()] = nil
 	end)
 end
 local disguiseCmd = ulx.command(CAT_A, "ulx disguise", ulx.disguise, "!disguise")
 disguiseCmd:addParam{type=ULib.cmds.PlayerArg}
-disguiseCmd:addParam{type=ULib.cmds.PlayerArg, hint="伪装目标", ULib.cmds.optional}
+disguiseCmd:addParam{type=ULib.cmds.PlayerArg, hint="disguise_target", ULib.cmds.optional}
 disguiseCmd:addParam{type=ULib.cmds.BoolArg, invisible=true}
 disguiseCmd:defaultAccess(ULib.ACCESS_SUPERADMIN)
-disguiseCmd:help( "将目标伪装成另一个玩家的名字，!undisguise 恢复" )
+disguiseCmd:help( L.T("comm_disguise_help") )
 disguiseCmd:setOpposite("ulx undisguise", {_, _, _, true}, "!undisguise")
 if SERVER then
 	function ulx.esp(calling_ply, target_plys, should_disable)
@@ -506,9 +555,9 @@ if SERVER then
 			net.Send(calling_ply)
 		end
 		if should_disable then
-			ulx.fancyLogAdmin(calling_ply, "#A 关闭了 #T 的透视", target_plys)
+			ulx.fancyLogKeyed(calling_ply, "comm_esp_disable", target_plys)
 		else
-			ulx.fancyLogAdmin(calling_ply, "#A 开启了 #T 的透视", target_plys)
+			ulx.fancyLogKeyed(calling_ply, "comm_esp_enable", target_plys)
 		end
 	end
 end
@@ -516,11 +565,12 @@ local espCmd = ulx.command(CAT, "ulx esp", ulx.esp, "!esp")
 espCmd:addParam{type=ULib.cmds.PlayersArg}
 espCmd:addParam{type=ULib.cmds.BoolArg, invisible=true}
 espCmd:defaultAccess(ULib.ACCESS_SUPERADMIN)
-espCmd:help( "透视目标显示名称/血量/距离，!unesp 关闭" )
+espCmd:help( L.T("comm_esp_help") )
 espCmd:setOpposite("ulx unesp", {_, _, true}, "!unesp")
 if CLIENT then
 	local espTargets = {}
 	local espHookActive = false
+	local espDraw
 	local function espUpdateHook()
 		if next(espTargets) and not espHookActive then
 			hook.Add("HUDPaint", "ULXCommunityESP", espDraw)
@@ -530,7 +580,7 @@ if CLIENT then
 			espHookActive = false
 		end
 	end
-	local function espDraw()
+	function espDraw()
 		local lp = LocalPlayer()
 		if not lp:IsValid() then return end
 		for ent, _ in pairs(espTargets) do
@@ -582,10 +632,10 @@ if CLIENT then
 		net.Receive("ulx_community_stopsound", function() RunConsoleCommand("stopsound") end)
 	net.Receive("ulx_community_url", function()
 		local url = net.ReadString()
-		Derma_Query("管理员想在你浏览器中打开以下网址:\n" .. url .. "\n\n是否允许？",
-			"ULX - 网址确认",
-			"是", function() gui.OpenURL(url) end,
-			"否")
+		Derma_Query(L.T("community_url_prompt") .. "\n" .. url .. "\n\n" .. L.T("community_url_confirm"),
+			"ULX - " .. L.T("community_url_title"),
+			L.T("ui_yes"), function() gui.OpenURL(url) end,
+			L.T("ui_no"))
 	end)
 	net.Receive("ulx_community_rocket", function()
 		local ent = net.ReadEntity()
@@ -612,15 +662,6 @@ if CLIENT then
 	net.Receive("ulx_community_cleardecals", function()
 		RunConsoleCommand("r_cleardecals")
 	end)
-	net.Receive("ulx_community_thirdperson", function()
-		if net.ReadBool() then
-			hook.Add("ShouldDrawLocalPlayer", "ULXThirdPerson", function() return true end)
-			hook.Add("CalcView", "ULXThirdPersonCam", thirdPersonCam)
-		else
-			hook.Remove("ShouldDrawLocalPlayer", "ULXThirdPerson")
-			hook.Remove("CalcView", "ULXThirdPersonCam")
-		end
-	end)
 	net.Receive("ulx_community_toggleview", toggleThirdPerson)
 	local haloEntities = {}
 	hook.Add("PreDrawHalos", "ULXCommunityHalo", function()
@@ -644,6 +685,7 @@ if CLIENT then
 	local trailHistory = {}
 	local TRAIL_LIFE = 40
 	local trailHookActive = false
+	local trailDraw
 	local function trailUpdateHook()
 		if next(trailTargets) and not trailHookActive then
 			hook.Add("PostDrawOpaqueRenderables", "ULXCommunityTrail", trailDraw)
@@ -653,7 +695,7 @@ if CLIENT then
 			trailHookActive = false
 		end
 	end
-	local function trailDraw()
+	function trailDraw()
 		for ent, _ in pairs(trailTargets) do
 			if not ent:IsValid() then
 				trailTargets[ent] = nil
@@ -696,13 +738,16 @@ if CLIENT then
 		trailHistory[ent] = nil
 		haloEntities[ent] = nil
 	end)
+	local LocalPlayer = LocalPlayer
+	local chat = chat
 	net.Receive("ulx_community_color", function()
 		local ent = net.ReadEntity()
 		if ent:IsValid() then ent:SetColor(Color(net.ReadUInt(8), net.ReadUInt(8), net.ReadUInt(8))) end
 	end)
+	hook.Add("PlayerChat", "ULXDeafenCheck", function(ply) if LocalPlayer():GetNWBool("ulx_deafened") then return true end end)
 	hook.Add("PlayerSay", "ULXSilenceCheck", function(ply)
 		if ply == LocalPlayer() and ply:GetNWBool("ulx_silenced") then
-			chat.AddText(Color(255,100,100), "[ULX] 你已被禁言,无法发送消息。")
+			chat.AddText(Color(255,100,100), L.T("community_muted_notice"))
 			return ""
 		end
 	end)
@@ -710,4 +755,4 @@ if CLIENT then
 		if talker:GetNWBool("ulx_silenced") then return false end
 	end)
 end
-if not UltraULX_SilentReRegister then Msg("[ULX] 社区扩展模块已加载 (30+ 命令)\n") end
+if not ulx._silentReReg then Msg("[ULX] Community extension loaded (30+ commands)\n") end

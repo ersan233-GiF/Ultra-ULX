@@ -1,6 +1,8 @@
 # Ultra ULX — 开发心得与经验
 
-> 基于 Team Ulysses ULX v3.71 的深度增强分支 · v2.72.0
+> 基于 Team Ulysses ULX v3.81 的深度增强分支 · v2.98.51
+
+> **本仓库为发布仓库**（`Ultra ULX/` 为已剥离注释的发布包）。代码开发、文档与构建工具链在 **[ultra-ulx-source](https://github.com/ersan233-GiF/ultra-ulx-source)** 进行。
 
 ## 项目定位
 在保留原版 ULX 全部功能基础上，完全中文化 + 114+ 新命令 + 4 语言 + SQLite 持久化惩罚 + BHOP/蹲跳 + 坐标 HUD + 智能道具。**与服务器上的原版 ULX 共存、删除即恢复**（零侵入设计）。
@@ -33,10 +35,10 @@
 6. **PowerShell 中文路径（发布侧）**：`strip_comments.ps1` 含中文路径"发布包"，PowerShell 5.1 按 GBK 误读 → 改用 Python `strip_comments.py`（UTF-8 安全）。
 
 ## 发布流程（换机后可复用）
-1. 改 `defines.lua` 版本号（`ulx.VERSION` / `VERSION_STR`）+ README 更新日志
-2. 开发版 lua → 发布包（`strip_comments.py` 去注释）
-3. 打包 zip（含 `Ultra ULX/` 文件夹）
-4. push GitHub + 打 tag + 创建 Release + 上传 zip 附件
+1. 在源码仓库 `ultra-ulx-source` 改 `defines.lua` 版本号（`ulx.VERSION` / `VERSION_STR`）+ README 更新日志
+2. 开发版 lua → 发布包（`scripts/strip_comments.py` 去注释）
+3. 将发布包（`Ultra ULX/` 文件夹 + addon.json）推送至本仓库
+4. 打 tag `v2.98.51` → GitHub Actions 自动打包 zip + 创建 Release
 
 ## 下一步规划
 - [ ] 继续完善 XGUI 面板（道具/地图投票/设置）
@@ -45,4 +47,5 @@
 - [ ] 更完善的 i18n 测试脚本（检查 4 语言键完整性）
 
 ## 关联仓库
-- `ultra-ulx-devkit` — 开发配套（GLuaLS 配置 / VS Code 工作区 / 发布工具）
+- `ultra-ulx-source` — **开发源码仓库**（带注释 + 文档 + 构建工具链）
+- `Ultra-ULX`（本仓库）— 发布仓库（剥离注释的 `Ultra ULX/` 发布包）

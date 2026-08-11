@@ -1,0 +1,1 @@
+if SERVER and not (ulx and ulx._ultra) then include("ulx/init.lua") end

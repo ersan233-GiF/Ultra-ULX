@@ -220,12 +220,16 @@ function ulx.generateMotdHTML()
 		elseif data.type == "mods" then
 			content = string.gsub( template_section_ul, "%%items%%", renderMods() )
 		elseif data.type == "admins" then
-			local users = {}
+			local users, seen = {}, {}
 			for g=1, #data.contents do
 				local group = data.contents[g]
 				if ulx.motdSettings.admins[group] then
 					for u=1, #ulx.motdSettings.admins[group] do
-						table.insert( users, ulx.motdSettings.admins[group][u] )
+						local name = ulx.motdSettings.admins[group][u]
+						if not seen[name:lower()] then
+							seen[name:lower()] = true
+							table.insert( users, name )
+						end
 					end
 				end
 			end

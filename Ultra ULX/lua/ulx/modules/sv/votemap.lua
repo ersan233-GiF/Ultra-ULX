@@ -1,3 +1,4 @@
+local L = ULib.ulx_lang
 ulx.votemaps = ulx.votemaps or {}
 local specifiedMaps = {}
 local function init()
@@ -32,14 +33,14 @@ ulx.convar( "votemapVetotime", "30", _, ULib.ACCESS_ADMIN )
 ulx.convar( "votemapMapmode", "1", _, ULib.ACCESS_ADMIN )
 function ulx.votemapVeto( calling_ply )
 	if not ulx.timedVeto then
-		ULib.tsayError( calling_ply, "没有可否决的投票！", true )
+		ULib.tsayError( calling_ply, ULib.ulx_lang.T("votemap_no_veto"), true )
 		return
 	end
 	timer.Remove( "ULXVotemap" )
 	ulx.timedVeto = nil
 	hook.Call( ulx.HOOK_VETO )
-	ULib.tsay( _, "Votemap changelevel halted.", true )
-	ulx.logServAct( calling_ply, "#A vetoed the votemap" )
+	ULib.tsay( _, L.T( "votemap_veto_success" ), true )
+	ulx.logServAct( calling_ply, L.T( "votemap_veto_log" ) )
 end
 function ulx.votemapAddMap( map )
 	specifiedMaps[ map ] = true
@@ -49,20 +50,20 @@ function ulx.clearVotemaps()
 end
 function ulx.votemap( calling_ply, map )
 	if not ULib.toBool( GetConVarNumber( "ulx_votemapEnabled" ) ) then
-		ULib.tsayError( calling_ply, "换图投票已被服务器管理员禁用。", true )
+		ULib.tsayError( calling_ply, ULib.ulx_lang.T("votemap_disabled"), true )
 		return
 	end
 	if not calling_ply:IsValid() then
-		Msg( "无法从专用服务器控制台使用 votemap。\n" )
+		Msg( ULib.ulx_lang.T("votemap_no_console") .. "\n" )
 		return
 	end
 	if ulx.timedVeto then
-		ULib.tsayError( calling_ply, "你现在不能投票，另一张地图已经胜出并等待批准。", true )
+		ULib.tsayError( calling_ply, ULib.ulx_lang.T("votemap_veto_pending"), true )
 		return
 	end
 	if not map or map == "" then
-		ULib.tsay( calling_ply, "Map list printed to console", true )
-		ULib.console( calling_ply, "Use \"votemap <id>\" to vote for a map. Map list:" )
+		ULib.tsay( calling_ply, L.T( "votemap_list_printed" ), true )
+		ULib.console( calling_ply, L.T( "votemap_list_header" ) )
 		for id, map in ipairs( ulx.votemaps ) do
 			ULib.console( calling_ply, "  " .. id .. " -\t" .. map )
 		end
@@ -70,17 +71,17 @@ function ulx.votemap( calling_ply, map )
 	end
 	local mintime = tonumber( GetConVarString( "ulx_votemapMintime" ) ) or 10
 	if CurTime() < mintime * 60 then
-		ULib.tsayError( calling_ply, "抱歉，换图后需等待 " .. mintime .. " 分钟才能再次投票换图。", true )
+		ULib.tsayError( calling_ply, L.T( "votemap_cooldown", mintime ), true )
 		local timediff = mintime*60 - CurTime()
-		ULib.tsayError( calling_ply, "即还需要等待 " .. string.FormattedTime( math.fmod( timediff, 3600 ), (mintime < 60) and "%02i:%02i" or math.floor( timediff/3600 ) .. " 小时 %02i:%02i" ) .. " 分钟。", true )
+		ULib.tsayError( calling_ply, L.T( "votemap_wait_remaining", string.FormattedTime( timediff, "%02i:%02i:%02i" ) ), true )
 		return
 	end
 	if userMapvote[ calling_ply ] then
 		local waittime = tonumber( GetConVarString( "ulx_votemapWaittime" ) ) or 5
 		if CurTime() - userMapvote[ calling_ply ].time < waittime * 60 then
-			ULib.tsayError( calling_ply, "抱歉，需等待 " .. waittime .. " 分钟才能更改投票。", true )
+			ULib.tsayError( calling_ply, L.T( "votemap_change_cooldown", waittime ), true )
 			local timediff = waittime*60 - (CurTime() - userMapvote[ calling_ply ].time)
-			ULib.tsayError( calling_ply, "即还需要等待 " .. string.FormattedTime( math.fmod( timediff, 3600 ), (waittime < 60) and "%02i:%02i" or math.floor( timediff/3600 ) .. " 小时 %02i:%02i" ) .. " 分钟。", true )
+			ULib.tsayError( calling_ply, L.T( "votemap_wait_remaining", string.FormattedTime( timediff, "%02i:%02i:%02i" ) ), true )
 			return
 		end
 	end
@@ -88,7 +89,7 @@ function ulx.votemap( calling_ply, map )
 	if tonumber( map ) then
 		mapid = tonumber( map )
 		if not ulx.votemaps[ mapid ] then
-			ULib.tsayError( calling_ply, "无效的地图 ID！", true )
+			ULib.tsayError( calling_ply, ULib.ulx_lang.T("votemap_invalid_id"), true )
 			return
 		end
 	else
@@ -97,7 +98,7 @@ function ulx.votemap( calling_ply, map )
 		end
 		mapid = ULib.findInTable( ulx.votemaps, map )
 		if not mapid then
-			ULib.tsayError( calling_ply, "无效的地图！", true )
+			ULib.tsayError( calling_ply, ULib.ulx_lang.T("votemap_invalid_map"), true )
 			return
 		end
 	end
@@ -110,8 +111,8 @@ function ulx.votemap( calling_ply, map )
 	local minvotes = tonumber( GetConVarString( "ulx_votemapMinvotes" ) ) or 0
 	local successratio = tonumber( GetConVarString( "ulx_votemapSuccessratio" ) ) or 0.5
 	local votes_needed = math.ceil( math.max( minvotes, successratio * #player.GetAll() ) )
-	ULib.tsay( _, string.format( "%s voted for %s (%i/%i). Say \"!votemap %i\" to vote for this map too.", calling_ply:Nick(), ulx.votemaps[ mapid ], mapvotes[ mapid ], votes_needed, mapid ), true )
-	ulx.logString( string.format( "%s voted for %s (%i/%i)", calling_ply:Nick(), ulx.votemaps[ mapid ], mapvotes[ mapid ], votes_needed ) )
+	ULib.tsay( _, L.T( "votemap_vote_progress", calling_ply:Nick(), ulx.votemaps[ mapid ], mapvotes[ mapid ], votes_needed, mapid ), true )
+	ulx.logString( L.T( "votemap_vote_log", calling_ply:Nick(), ulx.votemaps[ mapid ], mapvotes[ mapid ], votes_needed ) )
 	if mapvotes[ mapid ] >= votes_needed then
 		local vetotime = tonumber( GetConVarString( "ulx_votemapVetotime" ) ) or 30
 		local admins = {}
@@ -124,15 +125,15 @@ function ulx.votemap( calling_ply, map )
 			end
 		end
 		if #admins <= 0 or vetotime < 1 then
-			ULib.tsay( _, "Vote for map " .. ulx.votemaps[ mapid ] .. " successful! Changing levels now.", true )
-			ulx.logString( "Votemap for " .. ulx.votemaps[ mapid ] .. " won." )
+			ULib.tsay( _, L.T( "votemap_success_change", ulx.votemaps[ mapid ] ), true )
+			ulx.logString( L.T( "votemap_won_log", ulx.votemaps[ mapid ] ) )
 			game.ConsoleCommand( "changelevel " .. ulx.votemaps[ mapid ] .. "\n" )
 		else
-			ULib.tsay( _, "Vote for map " .. ulx.votemaps[ mapid ] .. " successful! Now pending admin approval. (" .. vetotime .. " seconds)", true )
+			ULib.tsay( _, L.T( "votemap_success_pending", ulx.votemaps[ mapid ], vetotime ), true )
 			for _, player in ipairs( admins ) do
-				ULib.tsay( player, "To veto this vote, just say \"!veto\"", true )
+				ULib.tsay( player, L.T( "votemap_veto_tip" ), true )
 			end
-			ulx.logString( "Votemap for " .. ulx.votemaps[ mapid ] .. " won. Pending admin veto." )
+			ulx.logString( L.T( "votemap_won_pending_log", ulx.votemaps[ mapid ] ) )
 			ulx.timedVeto = true
 			hook.Call( ulx.HOOK_VETO )
 			timer.Create( "ULXVotemap", vetotime, 1, function() game.ConsoleCommand( "changelevel " .. ulx.votemaps[ mapid ] .. "\n" ) end )

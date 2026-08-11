@@ -93,12 +93,12 @@ local defaultAccessHandler = {["CAMI.PlayerHasAccess"] =
 	end
 }
 function CAMI.PlayerHasAccess(actorPly, privilegeName, callback, targetPly,
-extraInfoTbl)
+	extraInfoTbl)
 	hook.Call("CAMI.PlayerHasAccess", defaultAccessHandler, actorPly,
 		privilegeName, callback, targetPly, extraInfoTbl)
 end
 function CAMI.GetPlayersWithAccess(privilegeName, callback, targetPly,
-extraInfoTbl)
+	extraInfoTbl)
 	local allowedPlys = {}
 	local allPlys = player.GetAll()
 	local countdown = #allPlys
@@ -114,7 +114,7 @@ extraInfoTbl)
 	end
 end
 function CAMI.SteamIDHasAccess(actorSteam, privilegeName, callback,
-targetSteam, extraInfoTbl)
+	targetSteam, extraInfoTbl)
 	hook.Call("CAMI.SteamIDHasAccess", defaultAccessHandler, actorSteam,
 		privilegeName, callback, targetSteam, extraInfoTbl)
 end

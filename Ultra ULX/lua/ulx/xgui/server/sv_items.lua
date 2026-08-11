@@ -1,4 +1,5 @@
 local plySpawned = {}
+local L = ULib.ulx_lang
 local function startSpawnBatch( ply )
 	if not IsValid( ply ) then return end
 	plySpawned[ply] = plySpawned[ply] or { batches = {}, all = {} }
@@ -32,7 +33,6 @@ end
 if SERVER then
 	if not ulx_items_net_init then
 		util.AddNetworkString( "ulx_items_give" )
-		util.AddNetworkString( "ulx_items_ammo" )
 		util.AddNetworkString( "ulx_items_inventory" )
 		util.AddNetworkString( "ulx_items_spawn" )
 		util.AddNetworkString( "ulx_items_spawn_undo" )
@@ -41,121 +41,122 @@ if SERVER then
 	end
 	ULib.ucl.registerAccess( "xgui_manageitems", "admin", "允许在 XGUI 中使用道具管理面板。", "XGUI" )
 end
-local persistent_items = {
-	{ class = "weapon_crowbar",     name = "撬棍",       cat = "武器" },
-	{ class = "weapon_pistol",      name = "手枪",       cat = "武器" },
-	{ class = "weapon_357",         name = "左轮",       cat = "武器" },
-	{ class = "weapon_smg1",        name = "SMG",        cat = "武器" },
-	{ class = "weapon_ar2",         name = "AR2步枪",    cat = "武器" },
-	{ class = "weapon_shotgun",     name = "霰弹枪",     cat = "武器" },
-	{ class = "weapon_crossbow",    name = "弩",         cat = "武器" },
-	{ class = "weapon_rpg",         name = "RPG",        cat = "武器" },
-	{ class = "weapon_frag",        name = "手雷",       cat = "武器" },
-	{ class = "weapon_slam",        name = "SLAM地雷",   cat = "武器" },
-	{ class = "weapon_stunstick",   name = "电棍",       cat = "武器" },
-	{ class = "weapon_bugbait",     name = "虫饵",       cat = "武器" },
-	{ class = "weapon_physcannon",  name = "重力枪",     cat = "武器" },
-	{ class = "weapon_physgun",     name = "物理枪",     cat = "武器" },
-	{ class = "weapon_alyxgun",     name = "Alyx手枪",   cat = "武器" },
-	{ class = "weapon_annabelle",   name = "Annabelle",  cat = "武器" },
-	{ class = "weapon_striderbuster", name = "三角机甲克星", cat = "武器" },
-	{ class = "weapon_deagle",      name = "沙漠之鹰",   cat = "CSS武器" },
-	{ class = "weapon_elite",       name = "双持贝雷塔", cat = "CSS武器" },
-	{ class = "weapon_fiveseven",   name = "FN57",        cat = "CSS武器" },
-	{ class = "weapon_glock",       name = "格洛克",      cat = "CSS武器" },
-	{ class = "weapon_usp",         name = "USP消音版",   cat = "CSS武器" },
-	{ class = "weapon_p228",        name = "P228",        cat = "CSS武器" },
-	{ class = "weapon_m3",          name = "M3霰弹枪",    cat = "CSS武器" },
-	{ class = "weapon_mac10",       name = "MAC-10",      cat = "CSS武器" },
-	{ class = "weapon_mp5navy",     name = "MP5海军",     cat = "CSS武器" },
-	{ class = "weapon_p90",         name = "P90",         cat = "CSS武器" },
-	{ class = "weapon_tmp",         name = "TMP",         cat = "CSS武器" },
-	{ class = "weapon_ump45",       name = "UMP45",       cat = "CSS武器" },
-	{ class = "weapon_ak47",        name = "AK-47",       cat = "CSS武器" },
-	{ class = "weapon_aug",         name = "AUG",         cat = "CSS武器" },
-	{ class = "weapon_famas",       name = "FAMAS",       cat = "CSS武器" },
-	{ class = "weapon_galil",       name = "Galil",       cat = "CSS武器" },
-	{ class = "weapon_m4a1",        name = "M4A1消音版",  cat = "CSS武器" },
-	{ class = "weapon_sg552",       name = "SG552",       cat = "CSS武器" },
-	{ class = "weapon_awp",         name = "AWP",         cat = "CSS武器" },
-	{ class = "weapon_g3sg1",       name = "G3SG1",       cat = "CSS武器" },
-	{ class = "weapon_scout",       name = "Scout",       cat = "CSS武器" },
-	{ class = "weapon_sg550",       name = "SG550",       cat = "CSS武器" },
-	{ class = "weapon_m249",        name = "M249",        cat = "CSS武器" },
-	{ class = "gmod_tool",          name = "工具枪",     cat = "工具" },
-	{ class = "gmod_camera",        name = "相机",       cat = "工具" },
-	{ class = "prop_physics",       name = "物理道具",     cat = "道具" },
-	{ class = "prop_dynamic",       name = "动态道具",     cat = "道具" },
-	{ class = "prop_ragdoll",       name = "布娃娃",       cat = "道具" },
-	{ class = "item_suit",          name = "防护服",       cat = "道具" },
-	{ class = "item_healthkit",     name = "医疗包",       cat = "道具" },
-	{ class = "item_healthvial",    name = "医疗瓶",       cat = "道具" },
-	{ class = "item_healthcharger", name = "生命恢复仪",   cat = "道具" },
-	{ class = "item_battery",       name = "电池",         cat = "道具" },
-	{ class = "item_suitcharger",   name = "防护服充电仪", cat = "道具" },
-	{ class = "combine_mine",            name = "联合军跳雷",   cat = "道具" },
-	{ class = "combine_mine_resistance", name = "反抗军跳雷",   cat = "道具" },
-	{ class = "grenade_helicopter",      name = "直升机炸弹",   cat = "道具" },
-	{ class = "sent_ball",               name = "弹力球",       cat = "道具" },
-	{ class = "item_box_buckshot",        name = "霰弹弹药箱",   cat = "道具" },
-	{ class = "prop_vehicle_prisoner_pod",  name = "办公室座椅",   cat = "座椅", model = "models/props_c17/FurnitureChair001a.mdl", vkey = "Chair_Office1" },
-	{ class = "prop_vehicle_prisoner_pod",  name = "真皮办公椅",   cat = "座椅", model = "models/props_c17/FurnitureChair002a.mdl", vkey = "Chair_Office2" },
-	{ class = "prop_vehicle_prisoner_pod",  name = "铁质凳子",     cat = "座椅", model = "models/props_c17/FurnitureChair003a.mdl", vkey = "Chair_Plastic" },
-	{ class = "prop_vehicle_prisoner_pod",  name = "木质凳子",     cat = "座椅", model = "models/props_c17/FurnitureChair004a.mdl", vkey = "Chair_Wood" },
-	{ class = "prop_vehicle_prisoner_pod",  name = "汽艇座椅",     cat = "座椅", model = "models/nova/airboat_seat.mdl",            vkey = "Seat_Airboat" },
-	{ class = "prop_vehicle_prisoner_pod",  name = "老爷车座椅",   cat = "座椅", model = "models/nova/jalopy_seat.mdl",            vkey = "Seat_Jalopy" },
-	{ class = "prop_vehicle_prisoner_pod",  name = "吉普车座椅",   cat = "座椅", model = "models/nova/jeep_seat.mdl",              vkey = "Seat_Jeep" },
-	{ class = "prop_vehicle_jeep_old",      name = "老爷车",     cat = "载具" },
-	{ class = "prop_vehicle_jeep",          name = "吉普车",     cat = "载具" },
-	{ class = "prop_vehicle_airboat",      name = "汽艇",       cat = "载具" },
-	{ class = "prop_vehicle_prisoner_pod", name = "囚犯舱",     cat = "载具" },
-	{ class = "prop_vehicle_apc",          name = "装甲战车",   cat = "载具" },
-	{ class = "item_ammo_pistol",           name = "手枪弹药",     cat = "弹药" },
-	{ class = "item_ammo_pistol_large",     name = "手枪弹药(大)", cat = "弹药" },
-	{ class = "item_ammo_357",              name = "左轮弹药",     cat = "弹药" },
-	{ class = "item_ammo_357_large",        name = "左轮弹药(大)", cat = "弹药" },
-	{ class = "item_ammo_smg1",             name = "SMG弹药",      cat = "弹药" },
-	{ class = "item_ammo_smg1_large",       name = "SMG弹药(大)",  cat = "弹药" },
-	{ class = "item_ammo_ar2",              name = "AR2弹药",      cat = "弹药" },
-	{ class = "item_ammo_ar2_large",        name = "AR2弹药(大)",  cat = "弹药" },
-	{ class = "item_ammo_ar2_altfire",      name = "AR2能量球",    cat = "弹药" },
-	{ class = "item_ammo_smg1_grenade",     name = "SMG榴弹",      cat = "弹药" },
-	{ class = "item_ammo_buckshot",         name = "霰弹弹药",     cat = "弹药" },
-	{ class = "item_ammo_crossbow",         name = "弩箭",         cat = "弹药" },
-	{ class = "item_rpg_round",             name = "RPG火箭弹",    cat = "弹药" },
-	{ class = "weapon_flechettegun",        name = "钢茅枪",       cat = "武器", access = "superadmin" },
-	{ class = "weapon_medkit",              name = "医疗包",       cat = "道具", access = "superadmin" },
-	{ class = "manhack_welder",             name = "飞锯枪",       cat = "武器", access = "superadmin" },
-	{ class = "weapon_spraypatterncreator", name = "喷漆图案器",   cat = "工具", access = "superadmin" },
-}
-local itemAccess = {}
-for _, it in ipairs( persistent_items ) do
-	if it.access then
-		itemAccess[ it.class ] = it.access
+local function buildPersistentItems()
+	local items = {}
+	for _, cat in ipairs(ulx.itemOrder) do
+		for _, it in ipairs(ulx.itemRegistry[cat] or {}) do
+			table.insert(items, {
+				class  = it.class,
+				name   = it.n or it.name,
+				cat    = cat,
+				type   = it.t or it.type,
+				access = it.a or it.access,
+				model  = it.model,
+				vkey   = it.k or it.vkey,
+			})
+		end
 	end
+	return items
+end
+local function buildItemAccess()
+	local acc = {}
+	for _, cat in ipairs(ulx.itemOrder) do
+		for _, it in ipairs(ulx.itemRegistry[cat] or {}) do
+			local a = it.a or it.access
+			if a and a ~= "" and it.class then
+				acc[it.class] = a
+			end
+		end
+	end
+	return acc
+end
+local function getPersistentItems()
+	return buildPersistentItems()
 end
 function ulx.getAvailableItems( ply )
+	local items = getPersistentItems()
 	if ply and ply:IsValid() then
+		local access = buildItemAccess()
 		local filtered = {}
-		for _, it in ipairs( persistent_items ) do
-			if not it.access or ply:query( it.access ) then
-				table.insert( filtered, it )
+		for _, it in ipairs(items) do
+			local required = access[it.class]
+			if not required or required == "" or ply:query(required) then
+				table.insert(filtered, it)
 			end
 		end
 		return filtered
 	end
-	return persistent_items
+	return items
 end
-local function checkItemAccess( ply, classname )
-	local required = itemAccess[ classname ]
-	if required and not ply:query( required ) then
-		ULib.tsayError( ply, "你没有使用该管理道具的权限。", true )
+local function denyItemAccess( ply )
+	if IsValid( ply ) then
+		ULib.tsayError( ply, L.T("items_no_permission"), true )
+	end
+end
+local function getRegisteredItem( classname, vkey )
+	if not classname or classname == "" then return nil end
+	local wantedKey = vkey or ""
+	local function matches( it )
+		if not it then return false end
+		local class = it.class or it.c
+		local key = it.k or it.vkey or ""
+		if class ~= classname then return false end
+		if wantedKey ~= "" and key ~= wantedKey then return false end
+		return true
+	end
+	local direct = ulx.getItemDef and ulx.getItemDef( classname )
+	if matches( direct ) then return direct end
+	for _, cat in ipairs( ulx.itemOrder or {} ) do
+		for _, it in ipairs( ulx.itemRegistry[cat] or {} ) do
+			if matches( it ) then return it end
+		end
+	end
+	return nil
+end
+local function checkItemAccess( ply, classname, vkey )
+	local item = getRegisteredItem( classname, vkey )
+	if not item then
+		denyItemAccess( ply )
 		return false
 	end
-	return true
+	local required = item.a or item.access
+	if required and required ~= "" and not ply:query(required) then
+		denyItemAccess( ply )
+		return false
+	end
+	return true, item
+end
+local function readValidatedTargets( admin, count, accessName )
+	local selectors = {}
+	local seen = {}
+	for i = 1, count do
+		local sid64 = net.ReadString()
+		local p = player.GetBySteamID64( sid64 )
+		if IsValid( p ) and not seen[p] then
+			local id = ULib.getUniqueIDForPlayer( p )
+			if id then
+				selectors[#selectors + 1] = "$" .. id
+				seen[p] = true
+			end
+		end
+	end
+	if #selectors == 0 then return {} end
+	local parser = ULib.cmds.PlayersArg()
+	local targets, err = parser:parseAndValidate( admin, table.concat( selectors, "," ), { cmd = accessName, type = ULib.cmds.PlayersArg } )
+	if not targets then
+		ULib.tsayError( admin, err or L.T("cmd_cannot_target_any"), true )
+		return {}
+	end
+	return targets
 end
 function ulx.giveItem( calling_ply, target_plys, classname, quantity, secAmmo )
-	if not checkItemAccess( calling_ply, classname ) then return {} end
+	local ok, item = checkItemAccess( calling_ply, classname )
+	if not ok then return {} end
+	local itemType = tonumber( item.t or item.type or 1 ) or 1
+	if itemType == 5 or itemType == 6 then
+		denyItemAccess( calling_ply )
+		return {}
+	end
 	quantity = math.Clamp( quantity or 0, 0, 9999 )
 	secAmmo = math.Clamp( secAmmo or 0, 0, 9999 )
 	local affected = {}
@@ -255,38 +256,16 @@ function ulx.getPlayerInventory( ply )
 end
 if SERVER then
 	net.Receive( "ulx_items_give", function( len, ply )
-		if not ply:query( "xgui_manageitems" ) then ULib.tsayError(ply, "你没有使用道具管理的权限。", true); return end
+		if not ply:query( "xgui_manageitems" ) then ULib.tsayError(ply, L.T("items_no_permission"), true); return end
 		local count = net.ReadUInt( 8 )
-		local targets = {}
-		for i = 1, count do
-			local sid64 = net.ReadString()
-			local p = player.GetBySteamID64( sid64 )
-			if IsValid( p ) then table.insert( targets, p ) end
-		end
+		local targets = readValidatedTargets( ply, count, "xgui_manageitems" )
+		if #targets == 0 then return end
 		local classname = net.ReadString()
 		local quantity = net.ReadUInt( 16 )
 		local secAmmo = net.ReadUInt( 16 )
 		local result = ulx.giveItem( ply, targets, classname, quantity, secAmmo )
 		if #result > 0 then
-			ulx.fancyLogAdmin( ply, "#A 给予 " .. #result .. " 名玩家 " .. classname .. " x" .. quantity )
-		end
-	end )
-	net.Receive( "ulx_items_ammo", function( len, ply )
-		if not ply:query( "xgui_manageitems" ) then ULib.tsayError(ply, "你没有使用道具管理的权限。", true); return end
-		local count = net.ReadUInt( 8 )
-		local targets = {}
-		for i = 1, count do
-			local sid64 = net.ReadString()
-			local p = player.GetBySteamID64( sid64 )
-			if IsValid( p ) then table.insert( targets, p ) end
-		end
-		local ammoType = net.ReadString()
-		local amount = net.ReadUInt( 16 )
-		local result = ulx.giveAmmo( ply, targets, ammoType, amount )
-		if ammoType == "" then
-			ulx.fancyLogAdmin( ply, "#A 补充了 #i 名玩家的全部弹药", #result )
-		else
-			ulx.fancyLogAdmin( ply, "#A 给予 #i 名玩家 " .. ammoType .. " 弹药 x" .. amount, #result )
+			ulx.fancyLogKeyed( ply, "items_give_log", nil, #result, classname, quantity )
 		end
 	end )
 	local function smartGroundSpawn( entClass, owner, quantity, centerHit, ang, vdata, mdl )
@@ -505,24 +484,35 @@ if SERVER then
 		return placed, #placed, quality
 	end
 	net.Receive( "ulx_items_spawn", function( len, ply )
-		if not ply:query( "xgui_manageitems" ) then ULib.tsayError(ply, "你没有使用道具管理的权限。", true); return end
-		startSpawnBatch( ply )
+		if not ply:query( "xgui_manageitems" ) then ULib.tsayError(ply, L.T("items_no_permission"), true); return end
 		local count = net.ReadUInt( 8 )
-		local targets = {}
-		for i = 1, count do
-			local sid64 = net.ReadString()
-			local p = player.GetBySteamID64( sid64 )
-			if IsValid( p ) then table.insert( targets, p ) end
-		end
+		local targets = readValidatedTargets( ply, count, "xgui_manageitems" )
+		if #targets == 0 then return end
 		local classname = net.ReadString()
 		local quantity = net.ReadUInt( 16 )
 		local vkey = net.ReadString()
 		quantity = math.Clamp( quantity, 1, 10 )
-		if not checkItemAccess( ply, classname ) then return end
+		local ok, item = checkItemAccess( ply, classname, vkey )
+		if not ok then return end
+		local itemType = tonumber( item.t or item.type or 1 ) or 1
+		if itemType == 1 then
+			denyItemAccess( ply )
+			return
+		end
+		local registeredVKey = item.k or item.vkey or ""
+		if registeredVKey ~= "" and vkey == "" then
+			denyItemAccess( ply )
+			return
+		end
 		local vdata = nil
 		if vkey ~= "" then
 			vdata = list.Get( "Vehicles" )[vkey]
+			if not vdata then
+				denyItemAccess( ply )
+				return
+			end
 		end
+		startSpawnBatch( ply )
 		local spawned = 0
 		local wallMounts = {
 			["item_healthcharger"] = true,
@@ -662,16 +652,17 @@ if SERVER then
 			end
 		end
 		if spawned > 0 then
-			ulx.fancyLogAdmin( ply, string.format( ULib.ulx_lang.T("log_spawn"), classname, spawned, #targets ) )
+			ulx.fancyLogKeyed( ply, "log_spawn_item", nil, classname, spawned )
 		else
 			ULib.tsayError( ply, string.format( ULib.ulx_lang.T("items_spawn_fail"), classname ), true )
 		end
 	end )
 	net.Receive( "ulx_items_inventory", function( len, ply )
-		if not ply:query( "xgui_manageitems" ) then ULib.tsayError(ply, "你没有使用道具管理的权限。", true); return end
-		local sid64 = net.ReadString()
-		local target = player.GetBySteamID64( sid64 )
+		if not ply:query( "xgui_manageitems" ) then ULib.tsayError(ply, L.T("items_no_permission"), true); return end
+		local targets = readValidatedTargets( ply, 1, "xgui_manageitems" )
+		local target = targets[1]
 		if not IsValid( target ) then return end
+		local sid64 = target:SteamID64()
 		local inventory = ulx.getPlayerInventory( target )
 		net.Start( "ulx_items_inventory" )
 		net.WriteString( sid64 )
