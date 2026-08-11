@@ -7,80 +7,148 @@
 <meta name="description" content="Ultra ULX — 基于 ULX 的增强分支，150+ 命令、4 语言、SQLite 持久化，零侵入共存">
 <style>
   :root{
-    --bg:#0d1117; --bg2:#161b22; --bg3:#1c2330;
-    --border:#2d333b; --text:#e6edf3; --muted:#8b949e;
-    --accent:#3c96f0; --accent2:#40c980; --warn:#f0a03c; --err:#e5534b;
-    --radius:12px;
+    --bg:#0b0f17; --bg2:#111826; --bg3:#182235;
+    --border:#232e44; --border2:#2c3a55;
+    --text:#e8eef7; --muted:#93a0b5; --dim:#64738a;
+    --accent:#3c96f0; --accent2:#40c980; --gold:#f0b03c;
+    --grad:linear-gradient(135deg,#3c96f0,#40c980);
+    --radius:14px; --shadow:0 8px 30px rgba(0,0,0,.35);
   }
   *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+  html{scroll-behavior:smooth}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.7;overflow-x:hidden}
   a{color:var(--accent);text-decoration:none}
-  a:hover{text-decoration:underline}
-  .container{max-width:1080px;margin:0 auto;padding:0 20px}
+  .container{max-width:1100px;margin:0 auto;padding:0 22px}
+  section{padding:72px 0;position:relative}
+  h2{font-size:32px;font-weight:800;letter-spacing:-.5px}
+  .sub{color:var(--muted);margin:6px 0 38px;font-size:15px}
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
 
-  /* ── Hero ── */
-  .hero{background:radial-gradient(1200px 500px at 50% -10%,rgba(60,150,240,.18),transparent 60%),linear-gradient(180deg,#0f151f 0%,var(--bg) 100%);padding:80px 0 60px;text-align:center;border-bottom:1px solid var(--border)}
-  .hero .logo{font-size:52px;font-weight:800;letter-spacing:-1px;background:linear-gradient(90deg,#3c96f0,#40c980);-webkit-background-clip:text;background-clip:text;color:transparent}
-  .hero .tagline{color:var(--muted);font-size:18px;margin:14px auto 26px;max-width:640px}
-  .badges{margin:0 auto 32px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
-  .badges img{height:22px;border-radius:4px}
-  .btn{display:inline-block;padding:14px 34px;border-radius:999px;font-size:17px;font-weight:700;transition:transform .15s,box-shadow .15s;margin:0 8px}
-  .btn:hover{transform:translateY(-2px);text-decoration:none}
-  .btn-primary{background:linear-gradient(90deg,#3c96f0,#2f7fd0);color:#fff;box-shadow:0 8px 24px rgba(60,150,240,.35)}
-  .btn-ghost{background:var(--bg2);color:var(--text);border:1px solid var(--border)}
-  .hero .meta{margin-top:30px;color:var(--muted);font-size:14px}
+  nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(11,15,23,.78);border-bottom:1px solid var(--border)}
+  nav .container{display:flex;align-items:center;justify-content:space-between;height:60px}
+  .nav-brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:17px}
+  .nav-links{display:flex;gap:22px;font-size:14px}
+  .nav-links a{color:var(--muted);transition:color .2s}
+  .nav-links a:hover{color:var(--accent)}
 
-  /* ── 区块 ── */
-  section{padding:60px 0;border-bottom:1px solid var(--border)}
-  h2{font-size:30px;font-weight:800;margin-bottom:8px}
-  .sub{color:var(--muted);margin-bottom:36px}
+  .hero{position:relative;padding:96px 0 80px;text-align:center;overflow:hidden;
+    background:radial-gradient(1000px 500px at 50% -12%,rgba(60,150,240,.20),transparent 60%),
+               radial-gradient(700px 400px at 85% 110%,rgba(64,201,128,.12),transparent 60%)}
+  .hero::before{content:"";position:absolute;inset:0;background:
+    linear-gradient(90deg,transparent 49.9%,rgba(60,150,240,.06) 50%,transparent 50.1%),
+    linear-gradient(transparent 49.9%,rgba(60,150,240,.06) 50%,transparent 50.1%);
+    background-size:56px 56px;-webkit-mask-image:radial-gradient(700px 300px at 50% 0%,#000,transparent);mask-image:radial-gradient(700px 300px at 50% 0%,#000,transparent);pointer-events:none}
+  .logo-svg{width:86px;height:86px;margin:0 auto 22px;filter:drop-shadow(0 10px 30px rgba(60,150,240,.4));animation:float 5s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .hero h1{font-size:56px;font-weight:800;letter-spacing:-1.5px;
+    background:linear-gradient(90deg,#5aa8f5,#40c980);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero .tagline{color:var(--muted);font-size:18px;margin:16px auto 28px;max-width:660px}
+  .badges{margin:0 auto 34px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+  .badges img{height:22px;border-radius:5px}
+  .btn{display:inline-block;padding:14px 32px;border-radius:999px;font-size:16px;font-weight:700;transition:transform .15s,box-shadow .2s;margin:0 8px}
+  .btn:hover{transform:translateY(-2px)}
+  .btn-primary{background:var(--grad);color:#fff;box-shadow:0 10px 28px rgba(60,150,240,.35)}
+  .btn-ghost{background:var(--bg2);color:var(--text);border:1px solid var(--border2)}
+  .btn-ghost:hover{border-color:var(--accent)}
+  .btn-star{background:var(--bg3);color:var(--gold);border:1px solid rgba(240,176,60,.4)}
+  .btn-star:hover{border-color:var(--gold)}
+  .hero .meta{margin-top:28px;color:var(--dim);font-size:13.5px}
 
-  /* 特性卡片 */
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
-  .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:22px;transition:border-color .2s,transform .2s}
-  .card:hover{border-color:var(--accent);transform:translateY(-3px)}
-  .card .icon{font-size:26px;margin-bottom:10px}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-top:-40px;position:relative;z-index:2}
+  .stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center;box-shadow:var(--shadow)}
+  .stat .num{font-size:30px;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .stat .lbl{color:var(--muted);font-size:13px;margin-top:2px}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px}
+  .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;transition:transform .25s,border-color .25s,box-shadow .25s;position:relative;overflow:hidden}
+  .card::before{content:"";position:absolute;inset:0 0 auto 0;height:2px;background:var(--grad);opacity:0;transition:opacity .3s}
+  .card:hover{transform:translateY(-4px);border-color:var(--border2);box-shadow:var(--shadow)}
+  .card:hover::before{opacity:1}
+  .card .icon{font-size:30px;margin-bottom:12px;display:block}
   .card h3{font-size:17px;margin-bottom:6px}
   .card p{color:var(--muted);font-size:14px}
 
-  /* 安装步骤 */
   .steps{display:flex;flex-direction:column;gap:14px}
-  .step{display:flex;gap:16px;align-items:flex-start;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px}
-  .step .num{flex-shrink:0;width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
-  .step p{color:var(--text);font-size:15px}
-  .step code{background:var(--bg3);padding:2px 8px;border-radius:6px;font-size:13px;color:#7ee787}
+  .step{display:flex;gap:16px;align-items:flex-start;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px}
+  .step .num{flex-shrink:0;width:36px;height:36px;border-radius:50%;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
+  .step p{font-size:15px}
+  .step code{background:var(--bg3);padding:2px 9px;border-radius:6px;font-size:13px;color:#7ee787}
 
-  /* 命令表 */
+  .search-wrap{position:relative;max-width:520px;margin:0 0 22px}
+  .search-wrap input{width:100%;padding:13px 18px 13px 46px;border-radius:12px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);font-size:15px;outline:none;transition:border-color .2s,box-shadow .2s}
+  .search-wrap input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(60,150,240,.15)}
+  .search-wrap::before{content:"🔍";position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.7}
   table{width:100%;border-collapse:collapse;background:var(--bg2);border-radius:var(--radius);overflow:hidden}
   th,td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--border);font-size:14px}
   th{background:var(--bg3);color:var(--muted);font-weight:600}
-  td code{background:var(--bg3);padding:2px 8px;border-radius:6px;font-size:13px;color:#79c0ff}
+  td code{background:var(--bg3);padding:2px 9px;border-radius:6px;font-size:13px;color:#79c0ff;cursor:pointer;transition:color .15s}
+  td code:hover{color:#5aa8f5}
+  tr.hide{display:none}
+  .copy-hint{position:fixed;left:50%;bottom:40px;transform:translateX(-50%) translateY(20px);background:var(--bg3);border:1px solid var(--border2);padding:10px 20px;border-radius:10px;font-size:14px;opacity:0;transition:all .3s;pointer-events:none;z-index:100;box-shadow:var(--shadow)}
+  .copy-hint.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-  /* 语言 */
-  .langs{display:flex;flex-wrap:wrap;gap:12px}
-  .lang{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 22px;text-align:center;flex:1;min-width:140px}
-  .lang .flag{font-size:26px}
-  .lang .name{font-weight:700;margin-top:6px}
-  .lang .cmd{color:var(--muted);font-size:13px;margin-top:4px}
-  .lang .cmd code{color:#79c0ff;background:var(--bg3);padding:1px 6px;border-radius:5px}
+  .langs{display:flex;flex-wrap:wrap;gap:14px}
+  .lang{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px 24px;text-align:center;flex:1;min-width:150px;transition:transform .2s,border-color .2s}
+  .lang:hover{transform:translateY(-3px);border-color:var(--accent)}
+  .lang .flag{font-size:30px}
+  .lang .name{font-weight:700;margin-top:8px}
+  .lang .cmd{color:var(--dim);font-size:12.5px;margin-top:5px}
+  .lang .cmd code{color:#79c0ff;background:var(--bg3);padding:2px 7px;border-radius:5px;cursor:pointer}
 
-  /* FAQ */
-  details{background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden}
-  summary{padding:16px 20px;cursor:pointer;font-weight:600;list-style:none;position:relative}
-  summary::after{content:"▾";position:absolute;right:20px;color:var(--muted)}
+  details{background:var(--bg2);border:1px solid var(--border);border-radius:11px;margin-bottom:10px;overflow:hidden;transition:border-color .2s}
+  details[open]{border-color:var(--border2)}
+  summary{padding:16px 20px;cursor:pointer;font-weight:600;list-style:none;position:relative;transition:color .2s}
+  summary:hover{color:var(--accent)}
+  summary::after{content:"▾";position:absolute;right:20px;color:var(--muted);transition:transform .25s}
   details[open] summary::after{transform:rotate(180deg)}
   details div{padding:0 20px 16px;color:var(--muted);font-size:14px}
+  details code{background:var(--bg3);padding:1px 7px;border-radius:5px;color:#79c0ff;font-size:13px}
 
-  footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px}
-  footer a{color:var(--muted);margin:0 10px}
+  .changelog{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px}
+  .changelog h3{font-size:16px;margin-bottom:10px;color:var(--accent)}
+  .changelog ul{list-style:none;color:var(--muted);font-size:14px}
+  .changelog li{padding:5px 0;padding-left:20px;position:relative}
+  .changelog li::before{content:"✦";position:absolute;left:0;color:var(--accent2)}
+
+  footer{text-align:center;padding:46px 20px 60px;color:var(--dim);font-size:14px;border-top:1px solid var(--border);margin-top:20px}
+  footer a{color:var(--muted);margin:0 10px;transition:color .2s}
+  footer a:hover{color:var(--accent)}
+
+  #toTop{position:fixed;right:26px;bottom:26px;width:44px;height:44px;border-radius:50%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-size:18px;cursor:pointer;opacity:0;pointer-events:none;transition:all .3s;z-index:90;box-shadow:var(--shadow)}
+  #toTop.show{opacity:1;pointer-events:auto}
+  #toTop:hover{border-color:var(--accent);transform:translateY(-2px)}
+
+  @media(max-width:720px){
+    .hero h1{font-size:38px}
+    .nav-links{display:none}
+    .grid{grid-template-columns:1fr}
+  }
 </style>
 </head>
 <body>
 
-<!-- Hero -->
+<nav>
+  <div class="container">
+    <div class="nav-brand">
+      <svg width="26" height="26" viewBox="0 0 48 48" fill="none"><path d="M24 3 42 11v14c0 10.5-7.5 17.5-18 20C13.5 42.5 6 35.5 6 25V11L24 3z" fill="url(#lg)"/><path d="M17 18h14v4h-5v10h-4V22h-5v-4z" fill="#0b0f17"/><defs><linearGradient id="lg" x1="6" y1="3" x2="42" y2="45"><stop stop-color="#3c96f0"/><stop offset="1" stop-color="#40c980"/></linearGradient></defs></svg>
+      Ultra ULX
+    </div>
+    <div class="nav-links">
+      <a href="#features">特性</a>
+      <a href="#install">安装</a>
+      <a href="#commands">命令</a>
+      <a href="#languages">语言</a>
+      <a href="#faq">FAQ</a>
+      <a href="#changelog">更新日志</a>
+    </div>
+  </div>
+</nav>
+
 <header class="hero">
   <div class="container">
-    <div class="logo">Ultra ULX</div>
+    <svg class="logo-svg" width="86" height="86" viewBox="0 0 48 48" fill="none"><path d="M24 3 42 11v14c0 10.5-7.5 17.5-18 20C13.5 42.5 6 35.5 6 25V11L24 3z" fill="url(#lg2)"/><path d="M17 18h14v4h-5v10h-4V22h-5v-4z" fill="#0b0f17"/><defs><linearGradient id="lg2" x1="6" y1="3" x2="42" y2="45"><stop stop-color="#3c96f0"/><stop offset="1" stop-color="#40c980"/></linearGradient></defs></svg>
+    <h1>Ultra ULX</h1>
     <p class="tagline">基于 Team Ulysses ULX 的增强分支 · 完全中文化 · 150+ 命令 · 4 种语言 · SQLite 持久化 · 零侵入共存</p>
     <div class="badges">
       <img src="https://img.shields.io/github/v/release/ersan233-GiF/Ultra-ULX?label=最新版本&color=blue" alt="版本">
@@ -92,103 +160,180 @@
     </div>
     <div>
       <a class="btn btn-primary" href="https://github.com/ersan233-GiF/Ultra-ULX/releases/latest">⬇️ 下载发布包</a>
-      <a class="btn btn-ghost" href="https://github.com/ersan233-GiF/Ultra-ULX">GitHub 仓库</a>
+      <a class="btn btn-ghost" href="https://github.com/ersan233-GiF/Ultra-ULX">📦 GitHub 仓库</a>
+      <a class="btn btn-star" href="https://github.com/ersan233-GiF/Ultra-ULX">⭐ Star</a>
     </div>
-    <div class="meta">当前版本 v2.98.51 · 兼容 ULX 3.81 / ULib 2.72 · 支持简体中文 / English / Русский / 文言文</div>
+    <div class="meta">当前版本 v2.98.51 · 兼容 ULX 3.81 / ULib 2.72 · 点击命令可一键复制</div>
   </div>
 </header>
 
-<!-- 特性 -->
-<section>
+<div class="container">
+  <div class="stats reveal">
+    <div class="stat"><div class="num" data-count="150">0</div><div class="lbl">+ 管理命令</div></div>
+    <div class="stat"><div class="num" data-count="4">0</div><div class="lbl">种语言</div></div>
+    <div class="stat"><div class="num" data-count="123">0</div><div class="lbl">个代码文件</div></div>
+    <div class="stat"><div class="num" data-count="23">0</div><div class="lbl">个功能模块</div></div>
+    <div class="stat"><div class="num" data-count="30">0</div><div class="lbl">份权限自动备份</div></div>
+  </div>
+</div>
+
+<section id="features">
   <div class="container">
-    <h2>核心功能</h2>
-    <p class="sub">从日常管理到娱乐互动，一站式覆盖</p>
+    <h2 class="reveal">核心功能</h2>
+    <p class="sub reveal">从日常管理到娱乐互动，一站式覆盖</p>
     <div class="grid">
-      <div class="card"><div class="icon">🛡️</div><h3>权限管理</h3><p>多级用户组 + 细粒度权限 + SQLite 持久化 + 30 份自动备份</p></div>
-      <div class="card"><div class="icon">⚖️</div><h3>惩罚系统</h3><p>分级警告（3次禁言 / 5次封禁）、限时禁言禁聊、IP 封禁持久化</p></div>
-      <div class="card"><div class="icon">🎮</div><h3>管理工具</h3><p>封禁 / 踢出 / 传送 / 换图 / 清理 / 重置，覆盖日常运维</p></div>
-      <div class="card"><div class="icon">🎉</div><h3>娱乐命令</h3><p>50+ 娱乐互动：slap / ragdoll / freeze / ignite / 火箭 / 颜色…</p></div>
-      <div class="card"><div class="icon">🗳️</div><h3>投票系统</h3><p>玩家投票换图 / 踢人 / 封禁，支持 MapVote / GMVote</p></div>
-      <div class="card"><div class="icon">🖥️</div><h3>XGUI 面板</h3><p>全功能图形管理界面，无需记忆命令即可完成所有操作</p></div>
-      <div class="card"><div class="icon">🏃</div><h3>BHOP 连跳</h3><p>CS:S 标准自动连跳，含坡度补偿与 SetupMove 保活</p></div>
-      <div class="card"><div class="icon">📦</div><h3>道具生成</h3><p>9 类 70+ 预设物品，智能碰撞检测（武器 / 载具 / 道具）</p></div>
-      <div class="card"><div class="icon">🌐</div><h3>4 种语言</h3><p>简体中文 / English / Русский / 文言文，客户端自由切换</p></div>
-      <div class="card"><div class="icon">🧭</div><h3>坐标系统</h3><p>屏幕 HUD + 头顶坐标，4 种可见模式</p></div>
-      <div class="card"><div class="icon">🦘</div><h3>蹲跳增强</h3><p>可调跳跃倍率 + 蹲行速度 + 自动解锁</p></div>
-      <div class="card"><div class="icon">🔒</div><h3>零侵入共存</h3><p>独立数据目录，删除即恢复原版 ULX，无残留</p></div>
+      <div class="card reveal"><span class="icon">🛡️</span><h3>权限管理</h3><p>多级用户组 + 细粒度权限 + SQLite 持久化 + 30 份自动备份 + 损坏恢复</p></div>
+      <div class="card reveal"><span class="icon">⚖️</span><h3>惩罚系统</h3><p>分级警告（3次禁言 / 5次封禁）、限时禁言禁聊、IP 封禁持久化</p></div>
+      <div class="card reveal"><span class="icon">🎮</span><h3>管理工具</h3><p>封禁 / 踢出 / 传送 / 换图 / 清理 / 重置，覆盖日常运维</p></div>
+      <div class="card reveal"><span class="icon">🎉</span><h3>娱乐命令</h3><p>50+ 娱乐互动：slap / ragdoll / freeze / ignite / 火箭 / 颜色…</p></div>
+      <div class="card reveal"><span class="icon">🗳️</span><h3>投票系统</h3><p>玩家投票换图 / 踢人 / 封禁，支持 MapVote / GMVote</p></div>
+      <div class="card reveal"><span class="icon">🖥️</span><h3>XGUI 面板</h3><p>全功能图形管理界面，无需记忆命令即可完成所有操作</p></div>
+      <div class="card reveal"><span class="icon">🏃</span><h3>BHOP 连跳</h3><p>CS:S 标准自动连跳，含坡度补偿与 SetupMove 保活</p></div>
+      <div class="card reveal"><span class="icon">📦</span><h3>道具生成</h3><p>9 类 70+ 预设物品，智能碰撞检测（武器 / 载具 / 道具）</p></div>
+      <div class="card reveal"><span class="icon">🌐</span><h3>4 种语言</h3><p>简体中文 / English / Русский / 文言文，客户端自由切换</p></div>
+      <div class="card reveal"><span class="icon">🧭</span><h3>坐标系统</h3><p>屏幕 HUD + 头顶坐标，4 种可见模式</p></div>
+      <div class="card reveal"><span class="icon">🦘</span><h3>蹲跳增强</h3><p>可调跳跃倍率 + 蹲行速度 + 自动解锁</p></div>
+      <div class="card reveal"><span class="icon">🔒</span><h3>零侵入共存</h3><p>独立数据目录，删除即恢复原版 ULX，无残留</p></div>
     </div>
   </div>
 </section>
 
-<!-- 安装 -->
-<section>
+<section id="install">
   <div class="container">
-    <h2>快速安装</h2>
-    <p class="sub">三步完成部署</p>
+    <h2 class="reveal">快速安装</h2>
+    <p class="sub reveal">三步完成部署</p>
     <div class="steps">
-      <div class="step"><div class="num">1</div><p>下载最新 <a href="https://github.com/ersan233-GiF/Ultra-ULX/releases/latest">发布包</a> 并解压</p></div>
-      <div class="step"><div class="num">2</div><p>将 <code>Ultra ULX</code> 文件夹放入 <code>garrysmod/addons/</code></p></div>
-      <div class="step"><div class="num">3</div><p>重启服务器，控制台显示 <code>Ultra ULX v2.98.51 启动完成</code> 即成功</p></div>
+      <div class="step reveal"><div class="num">1</div><p>下载最新 <a href="https://github.com/ersan233-GiF/Ultra-ULX/releases/latest">发布包</a> 并解压</p></div>
+      <div class="step reveal"><div class="num">2</div><p>将 <code data-copy>Ultra ULX</code> 文件夹放入 <code data-copy>garrysmod/addons/</code></p></div>
+      <div class="step reveal"><div class="num">3</div><p>重启服务器，控制台显示 <code data-copy>Ultra ULX v2.98.51 启动完成</code> 即成功</p></div>
     </div>
-    <p style="margin-top:20px;color:var(--muted);font-size:14px">安装后需在服务器控制台执行 <code>ulx adduserid &lt;你的SteamID&gt; superadmin</code> 获取管理员权限。</p>
+    <p style="margin-top:20px;color:var(--muted);font-size:14px" class="reveal">安装后需在服务器控制台执行 <code data-copy>ulx adduserid &lt;你的SteamID&gt; superadmin</code> 获取管理员权限。</p>
   </div>
 </section>
 
-<!-- 命令 -->
-<section>
+<section id="commands">
   <div class="container">
-    <h2>常用命令</h2>
-    <p class="sub">聊天框输入 <code>!指令</code>，或控制台使用 <code>ulx 指令</code></p>
-    <table>
+    <h2 class="reveal">常用命令</h2>
+    <p class="sub reveal">点击命令即可复制 · 支持搜索</p>
+    <div class="search-wrap reveal"><input id="cmdSearch" type="text" placeholder="搜索命令…（如 ban / noclip / god）"></div>
+    <div class="reveal">
+    <table id="cmdTable">
       <thead><tr><th>命令</th><th>说明</th></tr></thead>
       <tbody>
-        <tr><td><code>!bring 玩家</code></td><td>把目标传送到自己面前</td></tr>
-        <tr><td><code>!goto 玩家</code></td><td>传送到目标身边</td></tr>
-        <tr><td><code>!ban 玩家 分钟 原因</code></td><td>封禁玩家</td></tr>
-        <tr><td><code>!kick 玩家</code></td><td>踢出玩家</td></tr>
-        <tr><td><code>!mute / !gag 玩家</code></td><td>禁言 / 禁聊</td></tr>
-        <tr><td><code>!freeze / !ragdoll 玩家</code></td><td>冰冻 / 变布娃娃</td></tr>
-        <tr><td><code>!god / !noclip</code></td><td>无敌 / 飞天穿墙</td></tr>
-        <tr><td><code>!cleanup</code></td><td>清理场景道具</td></tr>
-        <tr><td><code>!who</code></td><td>查看玩家列表与 SteamID</td></tr>
-        <tr><td><code>!menu</code></td><td>打开 XGUI 全功能管理面板</td></tr>
+        <tr><td><code data-copy>!bring 玩家</code></td><td>把目标传送到自己面前</td></tr>
+        <tr><td><code data-copy>!goto 玩家</code></td><td>传送到目标身边</td></tr>
+        <tr><td><code data-copy>!ban 玩家 分钟 原因</code></td><td>封禁玩家</td></tr>
+        <tr><td><code data-copy>!kick 玩家</code></td><td>踢出玩家</td></tr>
+        <tr><td><code data-copy>!mute / !gag 玩家</code></td><td>禁言 / 禁聊</td></tr>
+        <tr><td><code data-copy>!warn 玩家 原因</code></td><td>警告玩家（3次禁言/5次封禁）</td></tr>
+        <tr><td><code data-copy>!freeze / !ragdoll 玩家</code></td><td>冰冻 / 变布娃娃</td></tr>
+        <tr><td><code data-copy>!god / !noclip</code></td><td>无敌 / 飞天穿墙</td></tr>
+        <tr><td><code data-copy>!slap / !slay 玩家</code></td><td>拍打 / 处决玩家</td></tr>
+        <tr><td><code data-copy>!jail 玩家 秒数</code></td><td>关禁闭</td></tr>
+        <tr><td><code data-copy>!cleanup</code></td><td>清理场景道具</td></tr>
+        <tr><td><code data-copy>!coordhud</code></td><td>坐标 HUD</td></tr>
+        <tr><td><code data-copy>!bhop</code></td><td>开启自动连跳</td></tr>
+        <tr><td><code data-copy>!who</code></td><td>查看玩家列表与 SteamID</td></tr>
+        <tr><td><code data-copy>!version</code></td><td>查看版本信息</td></tr>
+        <tr><td><code data-copy>!menu</code></td><td>打开 XGUI 全功能管理面板</td></tr>
       </tbody>
     </table>
-  </div>
-</section>
-
-<!-- 语言 -->
-<section>
-  <div class="container">
-    <h2>多语言</h2>
-    <p class="sub">客户端自由切换，无需重启</p>
-    <div class="langs">
-      <div class="lang"><div class="flag">🇨🇳</div><div class="name">简体中文</div><div class="cmd"><code>ulx_lang zh-cn</code></div></div>
-      <div class="lang"><div class="flag">🇬🇧</div><div class="name">English</div><div class="cmd"><code>ulx_lang en</code></div></div>
-      <div class="lang"><div class="flag">🇷🇺</div><div class="name">Русский</div><div class="cmd"><code>ulx_lang ru</code></div></div>
-      <div class="lang"><div class="flag">📜</div><div class="name">文言文</div><div class="cmd"><code>ulx_lang lzh</code></div></div>
     </div>
   </div>
 </section>
 
-<!-- FAQ -->
-<section>
+<section id="languages">
   <div class="container">
-    <h2>常见问题</h2>
-    <p class="sub">遇到问题先看看这里</p>
-    <details><summary>Unknown command: ulx？</summary><div>检查目录是否多了一层嵌套：<code>addons/Ultra ULX/lua/</code> 必须直接存在。</div></details>
-    <details><summary>怎么给自己管理员权限？</summary><div>服务器控制台执行 <code>ulx adduserid &lt;你的SteamID&gt; superadmin</code>。SteamID 可用聊天框 <code>!who</code> 查看。</div></details>
+    <h2 class="reveal">多语言</h2>
+    <p class="sub reveal">客户端自由切换，无需重启 · 点击命令复制</p>
+    <div class="langs">
+      <div class="lang reveal"><div class="flag">🇨🇳</div><div class="name">简体中文</div><div class="cmd"><code data-copy>ulx_lang zh-cn</code></div></div>
+      <div class="lang reveal"><div class="flag">🇬🇧</div><div class="name">English</div><div class="cmd"><code data-copy>ulx_lang en</code></div></div>
+      <div class="lang reveal"><div class="flag">🇷🇺</div><div class="name">Русский</div><div class="cmd"><code data-copy>ulx_lang ru</code></div></div>
+      <div class="lang reveal"><div class="flag">📜</div><div class="name">文言文</div><div class="cmd"><code data-copy>ulx_lang lzh</code></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="container">
+    <h2 class="reveal">常见问题</h2>
+    <p class="sub reveal">遇到问题先看看这里</p>
+    <div class="reveal">
+    <details><summary>Unknown command: ulx？</summary><div>检查目录是否多了一层嵌套：<code data-copy>addons/Ultra ULX/lua/</code> 必须直接存在。</div></details>
+    <details><summary>怎么给自己管理员权限？</summary><div>服务器控制台执行 <code data-copy>ulx adduserid &lt;你的SteamID&gt; superadmin</code>。SteamID 可用聊天框 <code data-copy>!who</code> 查看。</div></details>
     <details><summary>命令无反应？</summary><div>确认自己有对应权限（SuperAdmin / Admin）。</div></details>
-    <details><summary>语言切换后乱码？</summary><div>输入 <code>ulx_lang zh-cn</code> 切回中文。</div></details>
-    <details><summary>怎么卸载？</summary><div>删除 <code>addons/Ultra ULX/</code> 文件夹（可选删除 <code>data/ultra_ulx/</code>），重启服务器即恢复原版 ULX。</div></details>
+    <details><summary>语言切换后乱码？</summary><div>输入 <code data-copy>ulx_lang zh-cn</code> 切回中文。</div></details>
+    <details><summary>怎么卸载？</summary><div>删除 <code data-copy>addons/Ultra ULX/</code> 文件夹（可选删除 <code data-copy>data/ultra_ulx/</code>），重启服务器即恢复原版 ULX。</div></details>
     <details><summary>想反馈 Bug 或建议？</summary><div>到 <a href="https://github.com/ersan233-GiF/Ultra-ULX/issues">GitHub Issues</a> 提交，有 Bug / 功能建议模板可用。</div></details>
+    </div>
+  </div>
+</section>
+
+<section id="changelog">
+  <div class="container">
+    <h2 class="reveal">近期更新</h2>
+    <p class="sub reveal">v2.98.51</p>
+    <div class="changelog reveal">
+      <h3>Ultra ULX v2.98.51</h3>
+      <ul>
+        <li>修复 XGUI 设置面板语法错误，消除级联报错</li>
+        <li>移除 4 个无发送端的死网络接收器</li>
+        <li>恢复 v2.72.0 经典 XGUI 界面布局与底部信息栏</li>
+        <li>全模块热路径性能缓存优化</li>
+        <li>4 语言包对齐至 1626 键</li>
+      </ul>
+      <p style="margin-top:14px"><a href="https://github.com/ersan233-GiF/Ultra-ULX/blob/main/CHANGELOG.md">📖 查看完整更新日志 →</a></p>
+    </div>
   </div>
 </section>
 
 <footer>
   <p>Ultra ULX · 基于 <a href="https://github.com/TeamUlysses/ulx">ULX</a> by Team Ulysses 增强 · <a href="https://github.com/ersan233-GiF/Ultra-ULX">发布仓库</a> · <a href="https://github.com/ersan233-GiF/ultra-ulx-source">开发源码</a> · <a href="https://github.com/ersan233-GiF/Ultra-ULX/issues">提交 Issue</a></p>
-  <p style="margin-top:8px;color:#4b5563">Made with ❤️ for the Garry's Mod community</p>
+  <p style="margin-top:8px;color:var(--dim)">Made with ❤️ for the Garry's Mod community · <span id="year"></span></p>
 </footer>
 
+<button id="toTop" title="返回顶部">↑</button>
+<div class="copy-hint" id="copyHint">✅ 已复制</div>
+
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: .08 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+const countIO = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return;
+  const el = e.target, target = +el.dataset.count, dur = 1000, t0 = performance.now();
+  const step = t => { const p = Math.min((t - t0) / dur, 1); el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step); countIO.unobserve(el);
+}), { threshold: .5 });
+document.querySelectorAll('[data-count]').forEach(el => countIO.observe(el));
+
+const search = document.getElementById('cmdSearch');
+search.addEventListener('input', () => {
+  const q = search.value.trim().toLowerCase();
+  document.querySelectorAll('#cmdTable tbody tr').forEach(tr => {
+    tr.classList.toggle('hide', q && !tr.innerText.toLowerCase().includes(q));
+  });
+});
+
+const hint = document.getElementById('copyHint');
+let hintTimer;
+document.addEventListener('click', e => {
+  const code = e.target.closest('code[data-copy]');
+  if (!code) return;
+  const text = code.innerText.trim();
+  (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject())
+    .catch(() => { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); });
+  hint.classList.add('show');
+  clearTimeout(hintTimer);
+  hintTimer = setTimeout(() => hint.classList.remove('show'), 1600);
+});
+
+const toTop = document.getElementById('toTop');
+window.addEventListener('scroll', () => toTop.classList.toggle('show', window.scrollY > 500));
+toTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+</script>
 </body>
 </html>
