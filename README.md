@@ -3,7 +3,7 @@
 [![最新版本](https://img.shields.io/github/v/release/ersan233-GiF/Ultra-ULX?label=最新版本&color=blue)](https://github.com/ersan233-GiF/Ultra-ULX/releases/latest)
 [![总下载量](https://img.shields.io/github/downloads/ersan233-GiF/Ultra-ULX/total?label=总下载&color=success)](https://github.com/ersan233-GiF/Ultra-ULX/releases)
 [![Stars](https://img.shields.io/github/stars/ersan233-GiF/Ultra-ULX?style=social&label=Stars)](https://github.com/ersan233-GiF/Ultra-ULX)
-[![许可](https://img.shields.io/github/license/ersan233-GiF/Ultra-ULX?label=许可&color=green)](LICENSE)
+[![许可](https://img.shields.io/badge/license-CC_BY--NC--SA_3.0-green)](LICENSE)
 [![ULX](https://img.shields.io/badge/ULX-3.81%20compatible-orange)](https://github.com/TeamUlysses/ulx)
 [![ULib](https://img.shields.io/badge/ULib-2.72%20built--in-blueviolet)](https://github.com/TeamUlysses/ulib)
 [![Garry's Mod](https://img.shields.io/badge/Garry's%20Mod-Addon-ff69b4)](https://gmod.facepunch.com/)
