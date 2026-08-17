@@ -1,7 +1,14 @@
 <p align="center">
+  <img src="assets/banner.png" alt="Ultra ULX" width="880">
+</p>
+
+<p align="center">
   <a href="https://github.com/ersan233-GiF/Ultra-ULX/releases/latest"><img src="https://img.shields.io/github/v/release/ersan233-GiF/Ultra-ULX?label=%E6%9C%80%E6%96%B0%E7%89%88%E6%9C%AC&color=blue" alt="最新版本"></a>
   <a href="https://github.com/ersan233-GiF/Ultra-ULX/releases"><img src="https://img.shields.io/github/downloads/ersan233-GiF/Ultra-ULX/total?label=%E6%80%BB%E4%B8%8B%E8%BD%BD&color=success" alt="总下载量"></a>
   <a href="https://github.com/ersan233-GiF/Ultra-ULX"><img src="https://img.shields.io/github/stars/ersan233-GiF/Ultra-ULX?style=social&label=Stars" alt="Stars"></a>
+  <a href="https://github.com/ersan233-GiF/Ultra-ULX/discussions"><img src="https://img.shields.io/github/discussions/ersan233-GiF/Ultra-ULX?label=%E8%AE%A8%E8%AE%BA" alt="讨论"></a>
+  <a href="https://github.com/ersan233-GiF/Ultra-ULX/actions/workflows/release.yml"><img src="https://img.shields.io/github/actions/workflow/status/ersan233-GiF/Ultra-ULX/release.yml?branch=main&label=%E5%8F%91%E5%B8%83%E6%9E%84%E5%BB%BA" alt="发布构建"></a>
+  <a href="https://github.com/ersan233-GiF/Ultra-ULX/actions/workflows/pages.yml"><img src="https://img.shields.io/github/actions/workflow/status/ersan233-GiF/Ultra-ULX/pages.yml?branch=main&label=%E5%AE%98%E7%BD%91%E9%83%A8%E7%BD%B2" alt="官网部署"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-CC_BY--NC--SA_3.0-green" alt="许可"></a>
   <a href="https://github.com/TeamUlysses/ulx"><img src="https://img.shields.io/badge/ULX-3.81%20compatible-orange" alt="ULX"></a>
   <a href="https://github.com/TeamUlysses/ulib"><img src="https://img.shields.io/badge/ULib-2.72%20merged-blueviolet" alt="ULib"></a>
@@ -295,6 +302,11 @@ ulx removeuser 玩家名                          ← 按名称移除
 | ULib 版本 | 2.72（已并入 Ultra ULX） |
 | Ultra ULX 版本 | **v2.98.52** |
 | ULX 兼容版本 | 3.81 |
+
+<p align="center">
+  <a href="https://github.com/ersan233-GiF/Ultra-ULX"><img alt="Repo Card" src="https://github-readme-stats.vercel.app/api/pin/?username=ersan233-GiF&repo=Ultra-ULX&theme=tokyonight&hide_border=true"></a>
+  <a href="https://github.com/ersan233-GiF/Ultra-ULX"><img alt="Top Languages" src="https://github-readme-stats.vercel.app/api/top-langs/?username=ersan233-GiF&theme=tokyonight&hide_border=true&layout=compact"></a>
+</p>
 
 ---
 

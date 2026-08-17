@@ -69,6 +69,10 @@
   .btn{display:inline-block;padding:14px 32px;border-radius:999px;font-size:16px;font-weight:700;transition:transform .15s,box-shadow .2s;margin:0 8px}
   .btn:hover{transform:translateY(-2px)}
   .btn-primary{background:var(--grad);color:#fff;box-shadow:0 10px 28px rgba(60,150,240,.35)}
+  .site-banner{display:block;width:min(760px,94%);height:auto;margin:0 auto 34px;border-radius:16px;border:1px solid rgba(255,255,255,.08);box-shadow:0 18px 48px rgba(0,0,0,.45)}
+  #toTop{position:fixed;right:22px;bottom:24px;width:46px;height:46px;border-radius:50%;background:var(--grad);color:#fff;border:none;font-size:20px;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;z-index:99;box-shadow:0 8px 22px rgba(60,150,240,.4)}
+  #toTop.show{opacity:1;pointer-events:auto}
+  #toTop:hover{transform:translateY(-4px)}
   .btn-ghost{background:var(--bg2);color:var(--text);border:1px solid var(--border2)}
   .btn-ghost:hover{border-color:var(--accent)}
   .btn-star{background:var(--bg3);color:var(--gold);border:1px solid rgba(240,176,60,.4)}
@@ -218,6 +222,7 @@
 <!-- 特性 -->
 <section id="features">
   <div class="container">
+    <img class="site-banner reveal" src="assets/banner.png" alt="Ultra ULX">
     <h2 class="reveal" data-i18n="features.title">核心功能</h2>
     <p class="sub reveal" data-i18n="features.sub">从日常管理到娱乐互动，一站式覆盖</p>
     <div class="grid">
@@ -254,6 +259,17 @@
       <div class="step reveal"><div class="num">2</div><p data-i18n-html="d2">将仓库中的 <code data-copy>Ultra ULX</code> 文件夹直接复制到 <code data-copy>garrysmod/addons/</code>（无需解压）</p></div>
       <div class="step reveal"><div class="num">3</div><p data-i18n-html="d3">重启服务器</p></div>
     </div>
+  </div>
+</section>
+
+<!-- 仓库统计 -->
+<section id="stats">
+  <div class="container">
+    <h2 class="reveal" data-i18n="stats.title">仓库统计</h2>
+    <p class="reveal" style="text-align:center">
+      <a href="https://github.com/ersan233-GiF/Ultra-ULX"><img alt="Repo Card" src="https://github-readme-stats.vercel.app/api/pin/?username=ersan233-GiF&repo=Ultra-ULX&theme=tokyonight&hide_border=true"></a>
+      <a href="https://github.com/ersan233-GiF/Ultra-ULX"><img alt="Top Languages" src="https://github-readme-stats.vercel.app/api/top-langs/?username=ersan233-GiF&theme=tokyonight&hide_border=true&layout=compact"></a>
+    </p>
   </div>
 </section>
 
@@ -355,7 +371,7 @@ const I18N = {
     'hero.tagline':'基于 Team Ulysses ULX 的增强分支 · 完全中文化 · 150+ 命令 · 4 种语言 · SQLite 持久化 · 零侵入共存',
     'hero.download':'⬇️ 下载发布包','hero.repo':'📦 GitHub 仓库','hero.meta':'当前版本 v2.98.52 · 兼容 ULX 3.81 / ULib 2.72 · 点击命令可一键复制',
     'stat1':'+ 管理命令','stat2':'种语言','stat3':'个代码文件','stat4':'个功能模块','stat5':'份权限自动备份',
-    'features.title':'核心功能','features.sub':'从日常管理到娱乐互动，一站式覆盖',
+    'features.title':'核心功能','stats.title':'仓库统计','features.sub':'从日常管理到娱乐互动，一站式覆盖',
     'f1t':'权限管理','f1d':'多级用户组 + 细粒度权限 + SQLite 持久化 + 30 份自动备份 + 损坏恢复',
     'f2t':'惩罚系统','f2d':'分级警告（3次禁言 / 5次封禁）、限时禁言禁聊、IP 封禁持久化',
     'f3t':'管理工具','f3d':'封禁 / 踢出 / 传送 / 换图 / 清理 / 重置，覆盖日常运维',
@@ -404,7 +420,7 @@ const I18N = {
     'hero.tagline':'An enhanced fork of Team Ulysses ULX · Fully localized · 150+ commands · 4 languages · SQLite persistence · Zero-intrusion coexistence',
     'hero.download':'⬇️ Download release','hero.repo':'📦 GitHub repo','hero.meta':'v2.98.52 · ULX 3.81 / ULib 2.72 · Click any command to copy',
     'stat1':'admin commands','stat2':'languages','stat3':'code files','stat4':'modules','stat5':'auto backups',
-    'features.title':'Key Features','features.sub':'From daily administration to fun — all in one',
+    'features.title':'Key Features','stats.title':'Repository Stats','features.sub':'From daily administration to fun — all in one',
     'f1t':'Permission system','f1d':'Multi-level groups + fine-grained permissions + SQLite + 30 auto-backups + recovery',
     'f2t':'Punishment system','f2d':'Tiered warnings (3 → auto-gag, 5 → auto-ban), timed mute/gag, persistent IP bans',
     'f3t':'Admin tools','f3d':'Ban / kick / teleport / map / cleanup / reset — covers daily operations',
@@ -453,7 +469,7 @@ const I18N = {
     'hero.tagline':'Расширенный форк Team Ulysses ULX · Полная локализация · 150+ команд · 4 языка · SQLite · Бесследное сосуществование',
     'hero.download':'⬇️ Скачать релиз','hero.repo':'📦 GitHub','hero.meta':'v2.98.52 · ULX 3.81 / ULib 2.72 · Нажмите на команду, чтобы скопировать',
     'stat1':'команд админ.','stat2':'языка','stat3':'файлов кода','stat4':'модуля','stat5':'авто-бэкапов',
-    'features.title':'Основные возможности','features.sub':'От администрирования до развлечений — всё в одном',
+    'features.title':'Основные возможности','stats.title':'Статистика репозитория','features.sub':'От администрирования до развлечений — всё в одном',
     'f1t':'Система прав','f1d':'Многоуровневые группы + детальные права + SQLite + 30 автобэкапов + восстановление',
     'f2t':'Наказания','f2d':'Предупреждения (3 → авто-гаг, 5 → авто-бан), таймер-мут/гаг, персистентные IP-баны',
     'f3t':'Инструменты админа','f3d':'Бан / кик / телепорт / карта / очистка / сброс',
@@ -568,6 +584,12 @@ document.addEventListener('click', e => {
 const toTop = document.getElementById('toTop');
 window.addEventListener('scroll', () => toTop.classList.toggle('show', window.scrollY > 500));
 toTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+</script>
+<button id="toTop" aria-label="返回顶部" title="返回顶部">↑</button>
+<script>
+  const toTop = document.getElementById('toTop');
+  addEventListener('scroll', function(){ toTop.classList.toggle('show', scrollY > 600); });
+  toTop.addEventListener('click', function(){ scrollTo({ top: 0, behavior: 'smooth' }); });
 </script>
 </body>
 </html>
