@@ -1,20 +1,28 @@
+<p align="center">
+  <a href="https://github.com/ersan233-GiF/Ultra-ULX/releases/latest"><img src="https://img.shields.io/github/v/release/ersan233-GiF/Ultra-ULX?label=%E6%9C%80%E6%96%B0%E7%89%88%E6%9C%AC&color=blue" alt="最新版本"></a>
+  <a href="https://github.com/ersan233-GiF/Ultra-ULX/releases"><img src="https://img.shields.io/github/downloads/ersan233-GiF/Ultra-ULX/total?label=%E6%80%BB%E4%B8%8B%E8%BD%BD&color=success" alt="总下载量"></a>
+  <a href="https://github.com/ersan233-GiF/Ultra-ULX"><img src="https://img.shields.io/github/stars/ersan233-GiF/Ultra-ULX?style=social&label=Stars" alt="Stars"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-CC_BY--NC--SA_3.0-green" alt="许可"></a>
+  <a href="https://github.com/TeamUlysses/ulx"><img src="https://img.shields.io/badge/ULX-3.81%20compatible-orange" alt="ULX"></a>
+  <a href="https://github.com/TeamUlysses/ulib"><img src="https://img.shields.io/badge/ULib-2.72%20merged-blueviolet" alt="ULib"></a>
+  <a href="https://gmod.facepunch.com/"><img src="https://img.shields.io/badge/Garry%27s%20Mod-Addon-ff69b4" alt="Garry's Mod"></a>
+  <a href="#%E5%A4%9A%E8%AF%AD%E8%A8%80%E5%88%87%E6%8D%A2"><img src="https://img.shields.io/badge/%E8%AF%AD%E8%A8%80-4%20%E7%A7%8D-4FC08D" alt="语言"></a>
+  <a href="#%E5%91%BD%E4%BB%A4%E5%8F%82%E8%80%83"><img src="https://img.shields.io/badge/%E5%91%BD%E4%BB%A4-150%2B-success" alt="命令"></a>
+</p>
+
 # Ultra ULX
 
-[![最新版本](https://img.shields.io/github/v/release/ersan233-GiF/Ultra-ULX?label=最新版本&color=blue)](https://github.com/ersan233-GiF/Ultra-ULX/releases/latest)
-[![总下载量](https://img.shields.io/github/downloads/ersan233-GiF/Ultra-ULX/total?label=总下载&color=success)](https://github.com/ersan233-GiF/Ultra-ULX/releases)
-[![Stars](https://img.shields.io/github/stars/ersan233-GiF/Ultra-ULX?style=social&label=Stars)](https://github.com/ersan233-GiF/Ultra-ULX)
-[![许可](https://img.shields.io/badge/license-CC_BY--NC--SA_3.0-green)](LICENSE)
-[![ULX](https://img.shields.io/badge/ULX-3.81%20compatible-orange)](https://github.com/TeamUlysses/ulx)
-[![ULib](https://img.shields.io/badge/ULib-2.72%20merged-blueviolet)](https://github.com/TeamUlysses/ulib)
-[![Garry's Mod](https://img.shields.io/badge/Garry's%20Mod-Addon-ff69b4)](https://gmod.facepunch.com/)
-[![语言](https://img.shields.io/badge/语言-4%20种-4FC08D)](#多语言切换)
-[![命令](https://img.shields.io/badge/命令-150%2B-success)](#命令参考)
+<p align="center">🌐 <strong>简体中文</strong> · <a href="docs/README.en.md">English</a> · <a href="docs/README.ru.md">Русский</a></p>
 
-> 🌐 **简体中文** · [English](README.en.md) · [Русский](README.ru.md)
+<p align="center"><em>基于 <a href="https://github.com/TeamUlysses/ulx">Team Ulysses ULX v3.81</a> + <a href="https://github.com/TeamUlysses/ulib">ULib v2.72</a> 的增强分支 · 完全中文化 · 150+ 命令 · 4 种语言 · SQLite 持久化 · 零侵入共存</em></p>
 
-> 基于 [Team Ulysses ULX v3.81](https://github.com/TeamUlysses/ulx) + [ULib v2.72](https://github.com/TeamUlysses/ulib) 的增强分支 · 完全中文化 · 150+ 命令 · 4 种语言 · SQLite 持久化 · 零侵入共存
-
-**[⬇️ 下载最新发布包](https://github.com/ersan233-GiF/Ultra-ULX/releases/latest)** · **[🌐 官方网站](https://ersan233-gif.github.io/Ultra-ULX/)** · **[提交 Issue](https://github.com/ersan233-GiF/Ultra-ULX/issues)** · **[查看变更日志](CHANGELOG.md)** · **[开发源码仓库](https://github.com/ersan233-GiF/ultra-ulx-source)**
+<p align="center">
+  <strong><a href="https://github.com/ersan233-GiF/Ultra-ULX/releases/latest">⬇️ 下载最新发布包</a></strong> ·
+  <a href="https://ersan233-gif.github.io/Ultra-ULX/">🌐 官方网站</a> ·
+  <a href="https://github.com/ersan233-GiF/Ultra-ULX/issues">提交 Issue</a> ·
+  <a href="docs/CHANGELOG.md">查看变更日志</a> ·
+  <a href="https://github.com/ersan233-GiF/ultra-ulx-source">开发源码仓库</a>
+</p>
 
 ---
 
@@ -706,11 +714,11 @@ ulx.item.Register("my_category", {
 | 文档 | 说明 |
 |:----|:-----|
 | [README.md](README.md) | 中文主文档（本页） |
-| [README.en.md](README.en.md) | English documentation |
-| [README.ru.md](README.ru.md) | Русская документация |
-| [CHANGELOG.md](CHANGELOG.md) | 完整更新日志 |
-| [DEVELOPMENT.md](DEVELOPMENT.md) | 开发指南（发布仓库结构说明） |
-| [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | 行为准则 |
+| [README.en.md](docs/README.en.md) | English documentation |
+| [README.ru.md](docs/README.ru.md) | Русская документация |
+| [CHANGELOG.md](docs/CHANGELOG.md) | 完整更新日志 |
+| [DEVELOPMENT.md](docs/DEVELOPMENT.md) | 开发指南（发布仓库结构说明） |
+| [CODE_OF_CONDUCT.md](docs/CODE_OF_CONDUCT.md) | 行为准则 |
 | [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md) | 贡献指南 |
 | [.github/SECURITY.md](.github/SECURITY.md) | 安全策略 |
 | [🌐 官方网站](https://ersan233-gif.github.io/Ultra-ULX/) | 三语言官网（GitHub Pages） |

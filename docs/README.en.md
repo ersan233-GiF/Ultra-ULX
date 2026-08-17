@@ -10,7 +10,7 @@
 [![Languages](https://img.shields.io/badge/Languages-4-4FC08D)](#multi-language)
 [![Commands](https://img.shields.io/badge/Commands-150%2B-success)](#command-reference)
 
-> 🌐 **English** · [简体中文](README.md) · [Русский](README.ru.md)
+> 🌐 **English** · [简体中文](../README.md) · [Русский](README.ru.md)
 
 > An enhanced fork of [Team Ulysses ULX v3.81](https://github.com/TeamUlysses/ulx) + [ULib v2.72](https://github.com/TeamUlysses/ulib) · Fully localized · 150+ commands · 4 languages · SQLite persistence · Zero-intrusion coexistence
 
