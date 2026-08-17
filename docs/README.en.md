@@ -86,10 +86,9 @@
 
 ## Installation
 
-> **Priority: [P0] Read before installing**
 
 ```
-1. Download the release → unzip → put the "Ultra ULX" folder into garrysmod/addons/
+1. Download the release — the zip contains the "Ultra ULX" folder at the top level. Unzip it directly into garrysmod/addons/
 2. Restart the server
 3. Success is confirmed when the console shows "Ultra ULX v2.98.52 loaded"
 ```
@@ -107,7 +106,6 @@ git clone https://github.com/ersan233-GiF/Ultra-ULX.git
 
 ## Command Usage
 
-> **Priority: [P0] Getting started**
 
 | Method | Example | Description |
 |:----|:-----|:-----|
@@ -138,7 +136,6 @@ ulx ragdoll <player>           ← ragdoll a player
 
 ## First-Time Server Setup
 
-> **Priority: [P0] Must-read for server owners — do these in order**
 
 ### Step 1: Get your SteamID
 
@@ -232,7 +229,6 @@ Type !menu (or !xgui) in chat:
 
 ## Multi-Language
 
-> **Priority: [P1] Optional**
 
 Client console command:
 
@@ -259,7 +255,6 @@ Or switch via `!menu` → Settings → Client → Language.
 
 ## Uninstallation
 
-> **Priority: [P0] If you need to uninstall**
 
 ```
 1. Delete the whole addons/Ultra ULX/ folder
@@ -273,7 +268,6 @@ Or switch via `!menu` → Settings → Client → Language.
 
 ## FAQ
 
-> **Priority: [P1] Check here when you hit problems**
 
 | Problem | Solution |
 |:----|:-----|
@@ -318,7 +312,6 @@ This repository is the **Ultra ULX release repository**: the `Ultra ULX/` folder
 
 ## Development & Contribution
 
-> **Priority: [P2] For developers**
 
 Welcome to submit PRs and Issues! Please read the [Contributing Guide](.github/CONTRIBUTING.md) first.
 
@@ -328,7 +321,6 @@ Welcome to submit PRs and Issues! Please read the [Contributing Guide](.github/C
 
 ## Security
 
-> **Priority: [P1] For server admins**
 
 - All write paths are sanitized and escaped (`sql.SQLStr`) against SQL injection
 - The `ulx url` command has a built-in domain whitelist against open redirects
