@@ -100,7 +100,7 @@
 
 
 ```
-1. 下载发布包 → 解压 → 将 Ultra ULX 文件夹放入 garrysmod/addons/
+1. 下载发布包（zip 顶层即 Ultra ULX 文件夹）→ 直接解压到 garrysmod/addons/
 2. 重启服务器
 3. 控制台显示 Ultra ULX v2.98.52 启动完成信息即成功
 ```
