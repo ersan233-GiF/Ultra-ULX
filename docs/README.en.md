@@ -88,9 +88,19 @@
 
 
 ```
-1. Download the release — the zip contains the "Ultra ULX" folder at the top level. Unzip it directly into garrysmod/addons/
-2. Restart the server
-3. Success is confirmed when the console shows "Ultra ULX v2.98.52 loaded"
+### 👥 Regular users (recommended — download)
+
+1. Download the release zip and unzip it
+2. Put the extracted "Ultra ULX" folder into garrysmod/addons/
+3. Restart the server — the console shows "Ultra ULX v2.98.52 loaded"
+
+[⬇️ Download the plugin directly](https://github.com/ersan233-GiF/Ultra-ULX/releases/latest/download/Ultra-ULX-latest.zip)
+
+### 🛠 Developers & creators (clone)
+
+1. Clone the repository: `git clone https://github.com/ersan233-GiF/Ultra-ULX.git`
+2. Copy the "Ultra ULX" folder from the repository directly into garrysmod/addons/ (no unzip needed)
+3. Restart the server
 ```
 
 > **Directory check:** the final path must be `garrysmod/addons/Ultra ULX/lua/...` (do not nest an extra folder).

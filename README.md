@@ -98,16 +98,25 @@
 
 ## 快速安装
 
+### 👥 普通用户（推荐 · 下载安装）
 
 ```
-1. 下载发布包（zip 顶层即 Ultra ULX 文件夹）→ 直接解压到 garrysmod/addons/
-2. 重启服务器
-3. 控制台显示 Ultra ULX v2.98.52 启动完成信息即成功
+1. 下载发布包 zip 并解压
+2. 将解压出的 Ultra ULX 文件夹放入 garrysmod/addons/
+3. 重启服务器，控制台显示 Ultra ULX v2.98.52 启动完成即成功
 ```
 
-[⬇️ 下载最新发布包](https://github.com/ersan233-GiF/Ultra-ULX/releases/latest/download/Ultra-ULX-latest.zip)
+[⬇️ 直接下载插件包](https://github.com/ersan233-GiF/Ultra-ULX/releases/latest/download/Ultra-ULX-latest.zip)
 
-> **下载包即完整插件**：放入 `addons/` 重启即用，无需额外安装任何组件。
+### 🛠 开发者 / 二创作者（克隆安装）
+
+```
+1. 克隆仓库: git clone https://github.com/ersan233-GiF/Ultra-ULX.git
+2. 将仓库中的 Ultra ULX 文件夹直接复制到 garrysmod/addons/（无需解压）
+3. 重启服务器
+```
+
+> 两种方式均无需安装原版 ULX（已内置），放入后重启即用。
 
 ## 命令使用
 
