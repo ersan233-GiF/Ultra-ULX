@@ -536,7 +536,7 @@ function ulx._fancyLogKeyedInternal(calling_ply, hide_echo, key, targets, ...)
 		end
 	end
 	local ei2 = 1
-	local log_msg = template:gsub("#[%.%d]*[aAdDiIgGsS]", function(spec)
+	local log_msg = template:gsub("#[%.%d]*[aAdDiIgGtTsSpP]", function(spec)
 		local st = spec:sub(-1, -1)
 		if st == "A" then return admin_name
 		elseif st == "T" or st == "P" then return target_str

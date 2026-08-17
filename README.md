@@ -5,7 +5,7 @@
 [![Stars](https://img.shields.io/github/stars/ersan233-GiF/Ultra-ULX?style=social&label=Stars)](https://github.com/ersan233-GiF/Ultra-ULX)
 [![许可](https://img.shields.io/badge/license-CC_BY--NC--SA_3.0-green)](LICENSE)
 [![ULX](https://img.shields.io/badge/ULX-3.81%20compatible-orange)](https://github.com/TeamUlysses/ulx)
-[![ULib](https://img.shields.io/badge/ULib-2.72%20built--in-blueviolet)](https://github.com/TeamUlysses/ulib)
+[![ULib](https://img.shields.io/badge/ULib-2.72%20merged-blueviolet)](https://github.com/TeamUlysses/ulib)
 [![Garry's Mod](https://img.shields.io/badge/Garry's%20Mod-Addon-ff69b4)](https://gmod.facepunch.com/)
 [![语言](https://img.shields.io/badge/语言-4%20种-4FC08D)](#多语言切换)
 [![命令](https://img.shields.io/badge/命令-150%2B-success)](#命令参考)
@@ -34,6 +34,7 @@
 - [命令参考](#命令参考)
 - [模块手册](#模块手册)
 - [配置系统](#配置系统)
+- [仓库文档索引](#仓库文档索引)
 - [发布说明](#发布说明)
 - [开发与贡献](#开发与贡献)
 - [安全](#安全)
@@ -58,10 +59,11 @@
 | **投票系统** | 玩家自主投票换图/踢人/封禁，支持 MapVote/GMVote |
 | **XGUI 面板** | 全功能图形管理界面，无需记忆命令即可完成所有操作 |
 | **多语言** | 4 种语言，客户端自由切换 |
-| **BHOP 连跳** | CS:S 标准自动连跳系统含坡度补偿，SetupMove 保活 |
+| **BHOP 连跳** | 参考服手感自动连跳：JumpPower 290 + sv_airaccelerate 2000 配方 + 能量守恒坡度补偿 + groundTicks 反卡 |
 | **道具生成** | 9 类 70+ 预设物品，智能碰撞检测 |
 | **坐标系统** | 屏幕 HUD + 头顶坐标，4 种可见模式 |
 | **蹲跳增强** | 可调跳跃倍率 + 蹲行速度 + 自动解锁 |
+| **内置 ULib** | ULib 2.72 已整体并入，`ulib/` 目录保留为兼容垫片，无需单独安装 |
 | **安全共存** | 独立数据目录 + InitPostEntity 覆盖，删除即恢复原版 ULX |
 
 ---
@@ -73,10 +75,12 @@
 ```
 1. 下载发布包 → 解压 → 将 Ultra ULX 文件夹放入 garrysmod/addons/
 2. 重启服务器
-3. 控制台显示 Ultra ULX v2.98.51 启动完成信息即成功
+3. 控制台显示 Ultra ULX v2.98.52 启动完成信息即成功
 ```
 
 [⬇️ 下载最新发布包](https://github.com/ersan233-GiF/Ultra-ULX/releases)
+
+> **发布包零冗余**：包内仅含 `addon.json` + `lua/`（已剥离开发注释），无任何开发文档与构建脚本——放入 `addons/` 即用。
 
 ## 命令使用
 
@@ -205,7 +209,7 @@ ulx removeuser 玩家名                          ← 按名称移除
 | 场景 | 行为 |
 |:----|:-----|
 | 原版 ULX 已安装 | Ultra ULX 自动覆盖同名命令 |
-| 仅安装 Ultra ULX | 自带完整 ULib，无需额外安装 |
+| 仅安装 Ultra ULX | 内置完整 ULib 2.72（已并入），无需额外安装 |
 | 删除 Ultra ULX | 原版 ULX 完整保留 |
 
 ---
@@ -246,150 +250,161 @@ ulx removeuser 玩家名                          ← 按名称移除
 
 ## 总览
 
+> 以下数据取自 **v2.98.52 发布包实况**（剥离开发注释后的成品）：
+
 | 指标 | 数值 |
 |:---:|:---:|
-| 总行数 (Lua, 含注释) | **~31,400 行** |
-| 发布包行数 (去注释) | **~25,650 行** |
-| Lua 源码大小 | **~1,120 KB** |
-| 发布包大小 | **~1,023 KB** |
-| 文件数 (Lua) | **93 个** |
-| 语言包 | **4 种** (简体中文 1,180行 / English 1,222行 / Русский 1,246行 / 文言文 1,147行) |
-| 命令总数 | **~150 条** (原版 ~45 条 + 105+ 新增) |
-| 模块数 | **23 个** (sh 14 + cl 5 + sv 4) |
+| 发布包 Lua 文件数 | **123 个** |
+| 发布包总行数 (剥离注释) | **~27,000 行** |
+| 开发仓库总行数 (含注释) | **~29,900 行** |
+| 发布包大小 (lua) | **~1,067 KB** |
+| 语言包 | **4 种**（各 1,616 行） |
+| 运行时命令数 | **128 条**（11 分类，含别名/反向 ~150 条） |
+| 模块数 | **25 个**（sh 16 + cl 5 + sv 4） |
 | 道具分类 | **9 类** |
-| ULib 版本 | 2.72 |
-| Ultra ULX 版本 | **v2.98.51** |
+| ULib 版本 | 2.72（已并入 Ultra ULX） |
+| Ultra ULX 版本 | **v2.98.52** |
 | ULX 兼容版本 | 3.81 |
 
 ---
 
 ## 完整文件树
 
-> **优先级：[P2] 开发者/调试用**
+> 数据取自 v2.98.52 发布包（剥离注释后的行数）
 
 ```
-addons/Ultra ULX/                          [~1.07 MB / ~26,100 行]
+addons/Ultra ULX/                          [~1,067 KB / 123 文件]
 │
-├── addon.json ........................... 412 B    插件元数据 JSON（GMod 识别入口）
+├── addon.json ........................... 插件元数据 JSON（GMod 识别入口）
 │
 └── lua/
     ├── autorun/
-    │   ├── init_ulx.lua ............. 132 B  [  6行]  ⭐ Ultra 主入口
-    │   ├── ulib_init.lua ............ 118 B  [  6行]  ULib 路径兼容入口
-    │   └── sh_rngfix.lua ..................  RNG 修正（独立包，不依赖 ULX）
+    │   ├── init_ulx.lua .............  5行  ⭐ Ultra 主入口
+    │   ├── ulib_init.lua ............  6行  ULib 路径兼容入口
+    │   └── sh_rngfix.lua ............ 18行  RNG 修正（独立包，不依赖 ULX）
+    │
+    ├── ulib/ ................................ ULib 兼容垫片（真实实现已并入 ulx/）
+    │   └── (24 个 1~6 行重定向垫片 + modules/what_is_this.txt 说明)
     │
     └── ulx/
-        ├── init.lua ................. 6.6 KB  [188行]  ⭐⭐ 服务端主入口（阶段加载91文件+语言ConVar+共存覆盖）
-        ├── cl_init.lua .............. 4.5 KB  [136行]  ⭐⭐ 客户端主入口（版本CRC同步+UCL认证+模块安全加载）
+        ├── init.lua ................. 81行  ⭐⭐ 服务端主入口（阶段加载+语言ConVar+共存覆盖）
+        ├── cl_init.lua .............. 64行  ⭐⭐ 客户端主入口（版本CRC同步+UCL认证+模块安全加载）
         │
-        ├── shared/ .............................. 170.2 KB [4,753行]
-        │   ├── defines.lua ......... 11.2 KB  [377行]  ⭐⭐⭐ 核心常量+版本号+7色主题+22个net字串
-        │   ├── commands.lua ........ 38.5 KB  [1,222行] ⭐⭐⭐ 命令系统（注册/解析/执行/回显全流程）
-        │   ├── misc.lua ............ 19.1 KB  [750行]  ⭐⭐  字符串工具/模式继承/命令分类
-        │   ├── util.lua ............ 12.7 KB  [454行]  ⭐⭐  文件IO/队列调度/序列化
-        │   ├── cami_global.lua ..... 12.6 KB  [447行]  ⭐⭐  CAMI 权限接口全局注册
-        │   ├── player.lua .......... 7.5 KB   [311行]  ⭐⭐  玩家选择器/目标匹配
-        │   ├── sh_ucl.lua .......... 6.5 KB   [226行]  ⭐⭐  共享 UCL 权限查询
-        │   ├── messages.lua ........ 5.5 KB   [232行]  ⭐   彩色消息/tsay分块
-        │   ├── ulx_base.lua ........ 4.8 KB   [150行]  ⭐   ULX 命令基类（setOpposite/帮助生成）
-        │   ├── plugin.lua .......... 4.6 KB   [148行]  ⭐   插件注册/更新机制
-        │   ├── tables.lua .......... 3.5 KB   [123行]  ⭐   只读表/矩阵工具
-        │   ├── language.lua ........ 2.9 KB   [109行]  ⭐   多语言系统（load/switch/缓存）
-        │   ├── hook.lua ............ 2.2 KB   [ 94行]  自定义5级优先级钩子系统
-        │   └── cami_ulib.lua ....... 4.1 KB   [ 98行]  CAMI-ULib 桥接
+        ├── shared/ .............................. 2,900行
+        │   ├── commands.lua ........ 804行  ⭐⭐⭐ 命令系统（注册/解析/执行/回显全流程）
+        │   ├── misc.lua ............ 404行  ⭐⭐  字符串工具/模式继承/命令分类
+        │   ├── util.lua ............ 249行  ⭐⭐  文件IO/队列调度/序列化
+        │   ├── player.lua .......... 232行  ⭐⭐  玩家选择器/目标匹配
+        │   ├── language.lua ........ 158行  ⭐   多语言系统（load/switch/缓存）
+        │   ├── messages.lua ........ 154行  ⭐   彩色消息/tsay分块
+        │   ├── ulx_base.lua ........ 142行  ⭐   ULX 命令基类（setOpposite/帮助生成）
+        │   ├── cami_global.lua ..... 126行  ⭐⭐  CAMI 权限接口全局注册
+        │   ├── ulx4_ext.lua ........ 117行       ULX4 兼容扩展
+        │   ├── sh_ucl.lua .......... 111行  ⭐⭐  共享 UCL 权限查询
+        │   ├── plugin.lua ..........  96行  ⭐   插件注册/更新机制
+        │   ├── hook.lua ............  85行       自定义5级优先级钩子系统
+        │   ├── tables.lua ..........  79行  ⭐   只读表/矩阵工具
+        │   ├── defines.lua .........  72行  ⭐⭐⭐ 核心常量+版本号+7色主题+22个net字串
+        │   └── cami_ulib.lua .......  71行       CAMI-ULib 桥接
         │
-        ├── server/ ............................... 133.5 KB [3,597行]
-        │   ├── ucl.lua ............ 37.1 KB  [1,307行] ⭐⭐⭐ 权限系统（SQLite+txt双存储+30份自动备份+恢复）
-        │   ├── data.lua ........... 14.9 KB  [467行]  ⭐⭐⭐ 默认配置文件生成（中文化模板+独立目录）
-        │   ├── log.lua ............ 17.2 KB  [448行]  ⭐⭐  日志系统（彩色回显+文件记录+过滤）
-        │   ├── player.lua ......... 6.4 KB   [253行]  ⭐⭐  服务端玩家管理（查找/查询）
-        │   ├── bans.lua ........... 6.5 KB   [249行]  ⭐⭐  封禁系统（封/解/查/SQLite持久化）
-        │   ├── srv_util.lua ....... 5.8 KB   [183行]  ⭐   复制 Cvar 系统（同步ConVar到客户端）
-        │   ├── entity_ext.lua ..... 4.7 KB   [167行]  ⭐   实体扩展方法
-        │   ├── concommand.lua ..... 2.5 KB   [ 90行]  控制台命令注册（ulx_前缀）
-        │   ├── phys.lua ........... 3.1 KB   [ 98行]  物理工具函数
-        │   ├── ulx_command.lua .... 3.6 KB   [ 94行]  Cvar 访问器
-        │   ├── ulx_lib.lua ........ 2.3 KB   [ 76行]  独占/不死/无碰撞标记
-        │   ├── player_ext.lua ..... 1.7 KB   [ 62行]  玩家扩展限制
-        │   └── end.lua ............ 3.1 KB   [103行]  配置加载引擎（doCfg三层叠加）
+        ├── server/ ............................... 3,187行
+        │   ├── ucl.lua ............ 1029行  ⭐⭐⭐ 权限系统（SQLite+txt双存储+30份自动备份+恢复）
+        │   ├── log.lua ............  556行  ⭐⭐  日志系统（彩色回显+文件记录+过滤）
+        │   ├── data.lua ...........  507行  ⭐⭐⭐ 默认配置文件生成（中文化模板+独立目录）
+        │   ├── player.lua .........  194行  ⭐⭐  服务端玩家管理（查找/查询）
+        │   ├── bans.lua ...........  189行  ⭐⭐  封禁系统（封/解/查/SQLite持久化）
+        │   ├── entity_ext.lua .....  150行  ⭐   实体扩展方法
+        │   ├── srv_util.lua .......  128行  ⭐   复制 Cvar 系统（同步ConVar到客户端）
+        │   ├── end.lua ............  106行       配置加载引擎（doCfg三层叠加）
+        │   ├── ulx_command.lua ....   87行       Cvar 访问器
+        │   ├── ulx_lib.lua ........   73行       独占/不死/无碰撞标记
+        │   ├── player_ext.lua .....   61行       玩家扩展限制
+        │   ├── phys.lua ...........   56行       物理工具函数
+        │   └── concommand.lua .....   51行       控制台命令注册（ulx_前缀）
         │
-        ├── client/ ................................ 9.3 KB [268行]
-        │   ├── cl_util.lua ........ 3.7 KB   [104行]  客户端工具函数
-        │   ├── ulx_cl_lib.lua ..... 2.7 KB   [103行]  客户端数据填充（net接收）
-        │   ├── draw.lua ........... 1.3 KB   [ 48行]  HUD绘制（cloak/blind/coord辅助）
-        │   └── cl_commands.lua .... 397 B    [ 13行]  客户端命令注册
+        ├── client/ ................................ 257行
+        │   ├── cl_util.lua ........  117行       客户端工具函数
+        │   ├── ulx_cl_lib.lua .....  107行       客户端数据填充（net接收）
+        │   └── draw.lua ...........   33行       HUD绘制（cloak/blind/coord辅助）
         │
-        ├── modules/ .............................. 294.9 KB [7,251行]
-        │   ├── sh/ (14) .......................... 184.3 KB [4,447行]
-        │   │   ├── community.lua .. 28.0 KB  [785行]  ⭐⭐⭐ 30+社区扩展命令（火箭/颜色/Halo/拖尾/ESP/banip/机器人/伪装/警告/静默）
-        │   │   ├── fun.lua ........ 30.9 KB  [918行]  ⭐⭐⭐ 25种娱乐命令（slap/whip/slay/点燃/冰冻/神/HP/护甲/隐形/致盲/监禁/布娃娃/剥光/maul）
-        │   │   ├── util.lua ....... 15.5 KB  [445行]  ⭐⭐⭐ 管理工具（kick/ban/unban/banid/noclip/spectate/map/who/version/重置默认）
-        │   │   ├── vote.lua ....... 13.4 KB  [382行]  ⭐⭐  投票系统（发起/停止/votemap2/votekick/voteban/否决/mapvote/gmvote）
-        │   │   ├── teleport.lua ... 9.9 KB   [314行]  ⭐⭐  传送命令（bring螺旋网格/goto碰撞检测/send/tp/tpto/return）
-        │   │   ├── user.lua ....... 9.4 KB   [307行]  ⭐⭐  用户管理（adduser/removeuser/groupallow/renamegroup等16条）
-        │   │   ├── chat.lua ....... 8.5 KB   [273行]  ⭐   聊天命令（psay/asay/tsay/csay/thetime/gimp/mute/gag+广告系统）
-        │   │   ├── bhop.lua ....... 8.2 KB   [216行]  ⭐   CS:S自动连跳（跑260/跳300/重力0.6/SetupMove保活）
-        │   │   ├── extras.lua ..... 7.2 KB   [209行]  ⭐   辅助命令（cleanup/respawn/setmodel/setteam/giveweapon/scale/gravity）
-        │   │   ├── coord.lua ...... 6.0 KB   [153行]  ⭐   坐标系统（coordhud屏幕上方+coord头顶4模式/0.5s刷新）
-        │   │   ├── crouchjump.lua . 5.8 KB   [145行]  ⭐   蹲跳增强（倍率1~10x/蹲姿解锁/蹲走加速）
-        │   │   ├── menus.lua ...... 5.1 KB   [133行]  ⭐   MOTD菜单（json+txt+gamemode三路扫描/无缓存）
-        │   │   ├── rcon.lua ....... 3.7 KB   [101行]  ⭐   远程控制（rcon/luarun/exec/cexec/ent）
-        │   │   └── userhelp.lua ... 2.6 KB   [ 66行]  用户帮助面板
+        ├── modules/ .............................. 7,904行
+        │   ├── sh/ (16) .......................... 4,630行
+        │   │   ├── fun.lua ........ 1044行  ⭐⭐⭐ 25种娱乐命令（slap/whip/slay/点燃/冰冻/神/HP/护甲/隐形/致盲/监禁/布娃娃/剥光/maul）
+        │   │   ├── community.lua ..  758行  ⭐⭐⭐ 30+社区扩展命令（火箭/颜色/Halo/拖尾/ESP/banip/机器人/伪装/警告/静默）
+        │   │   ├── util.lua .......  446行  ⭐⭐⭐ 管理工具（kick/ban/unban/banid/noclip/spectate/map/who/version/重置默认）
+        │   │   ├── vote.lua .......  397行  ⭐⭐  投票系统（发起/停止/votemap2/votekick/voteban/否决/mapvote/gmvote）
+        │   │   ├── bhop.lua .......  344行  ⭐⭐  参考服手感连跳（JumpPower290/aa2000/能量守恒坡补/groundTicks反卡）
+        │   │   ├── teleport.lua ...  327行  ⭐⭐  传送命令（bring螺旋网格/goto碰撞检测/send/tp/tpto/return）
+        │   │   ├── user.lua .......  313行  ⭐⭐  用户管理（adduser/removeuser/groupallow/renamegroup等16条）
+        │   │   ├── chat.lua .......  293行  ⭐   聊天命令（psay/asay/tsay/csay/thetime/gimp/mute/gag+广告系统）
+        │   │   ├── admin_ext.lua ..  234行  ⭐   管理扩展（限时禁言/警告分级/维护模式/endmaintenance）
+        │   │   ├── extras.lua .....  198行  ⭐   辅助命令（cleanup/respawn/setmodel/setteam/giveweapon/scale/gravity）
+        │   │   ├── coord.lua ......  168行  ⭐   坐标系统（coordhud屏幕上方+coord头顶4模式/0.5s刷新）
+        │   │   ├── crouchjump.lua .  157行  ⭐   蹲跳增强（倍率1~10x/蹲姿解锁/蹲走加速）
+        │   │   ├── dev_debug.lua ..  154行       开发诊断（版本/语言检查/错误列表）
+        │   │   ├── menus.lua ......  135行  ⭐   MOTD菜单（json+txt+gamemode三路扫描/无缓存）
+        │   │   ├── rcon.lua .......  104行  ⭐   远程控制（rcon/luarun/exec/cexec/ent）
+        │   │   └── userhelp.lua ...   65行       用户帮助面板
         │   │
-        │   ├── cl/ (5) ............................ 82.8 KB [2,137行]
-        │   │   ├── xlib.lua ............. 32.2 KB [1,137行] ⭐⭐⭐ XGUI 控件库（窗口/按钮/滑块/列表/标签/面板）
-        │   │   ├── xgui_helpers.lua ..... 14.5 KB [392行]  ⭐⭐  XGUI 辅助函数（35px原版滑块/动态表单）
-        │   │   ├── xgui_client.lua ...... 13.3 KB [360行]  ⭐⭐  XGUI 客户端核心（菜单面板/标签页系统）
-        │   │   ├── motdmenu.lua ......... 9.5 KB  [240行]  ⭐   MOTD HTML生成器（模板渲染/变量替换）
-        │   │   └── uteam.lua ............ 222 B   [  8行]  UTeam 客户端桩
+        │   ├── cl/ (5) ............................ 2,138行
+        │   │   ├── xlib.lua ............. 1181行  ⭐⭐⭐ XGUI 控件库（窗口/按钮/滑块/列表/标签/面板）
+        │   │   ├── xgui_helpers.lua .....  381行  ⭐⭐  XGUI 辅助函数（35px原版滑块/动态表单）
+        │   │   ├── xgui_client.lua ......  325行  ⭐⭐  XGUI 客户端核心（菜单面板/标签页系统）
+        │   │   ├── motdmenu.lua .........  243行  ⭐   MOTD HTML生成器（模板渲染/变量替换）
+        │   │   └── uteam.lua ............    8行  UTeam 客户端桩
         │   │
-        │   └── sv/ (4) ............................. 27.8 KB [667行]
-        │       ├── xgui_server.lua ....... 11.0 KB [306行]  ⭐⭐  XGUI 服务端通信（net消息路由/数据分发）
-        │       ├── votemap.lua ........... 6.2 KB  [155行]  ⭐   投票换图系统
-        │       ├── uteam.lua ............. 5.0 KB  [135行]  UTeam 队伍管理
-        │       └── slots.lua ............. 2.9 KB  [ 71行]  预留槽位（VIP/管理员强制加入）
+        │   └── sv/ (4) ............................. 629行
+        │       ├── xgui_server.lua .......  276行  ⭐⭐  XGUI 服务端通信（net消息路由/数据分发）
+        │       ├── votemap.lua ...........  149行  ⭐   投票换图系统
+        │       ├── uteam.lua .............  133行  UTeam 队伍管理
+        │       └── slots.lua .............   71行  预留槽位（VIP/管理员强制加入）
         │
-        ├── items/ .................................. 9.6 KB [175行]
-        │   ├── init.lua .............. 2.1 KB   [ 65行]  ⭐⭐ 道具注册表 API（注册/查询/生成）
-        │   ├── weapons_css.lua ...... 2.1 KB   [ 31行]  12种 CS:S 武器
-        │   ├── weapons_hl2.lua ...... 979 B    [ 16行]  14种 HL2 武器
-        │   ├── ammo.lua ............. 1.1 KB   [ 16行]  7种弹药
-        │   ├── props.lua ............ 1.1 KB   [ 16行]  8种预设道具
-        │   ├── seats.lua ............ 1.1 KB   [ 10行]  3种座椅
-        │   ├── vehicles.lua ......... 512 B    [  8行]  2种载具
-        │   ├── tools.lua ............ 408 B    [  8行]  3种工具枪
-        │   └── weapons_admin.lua .... 294 B    [  5行]  2种管理员武器
+        ├── items/ .................................. 267行
+        │   ├── init.lua ..............  110行  ⭐⭐ 道具注册表 API（注册/查询/生成）
+        │   ├── auto_discover.lua .....   59行  分类自动发现
+        │   ├── weapons_css.lua ......   28行  12种 CS:S 武器
+        │   ├── weapons_hl2.lua ......   17行  14种 HL2 武器
+        │   ├── ammo.lua .............   15行  7种弹药
+        │   ├── props.lua ............   15行  8种预设道具
+        │   ├── seats.lua ............    9行  3种座椅
+        │   ├── tools.lua ............    7行  3种工具枪
+        │   └── vehicles.lua .........    7行  2种载具
         │
-        ├── language/ .............................. 196.7 KB [4,795行]
-        │   ├── zh-cn.lua ......... 51.4 KB [1,180行]   简体中文（完整翻译 + 文化适配）
-        │   ├── en.lua ............. 50.2 KB [1,222行]  English（完整原版 + 新增命令翻译）
-        │   ├── ru.lua ............. 65.5 KB [1,246行]  Русский（完整俄语翻译）
-        │   └── lzh.lua ............ 43.0 KB [1,147行]   文言文（古典风格翻译）
+        ├── language/ .............................. 6,464行
+        │   ├── ru.lua ............. 1,616行  Русский（完整俄语翻译）
+        │   ├── zh-cn.lua .......... 1,616行  简体中文（完整翻译 + 文化适配）
+        │   ├── en.lua ............. 1,616行  English（完整原版 + 新增命令翻译）
+        │   └── lzh.lua ............ 1,616行  文言文（古典风格翻译）
         │
-        └── xgui/ .................................. 256.0 KB [5,634行]
-            ├── root (7)
-            │   ├── commands.lua ..... 13.7 KB [411行]   命令浏览/执行面板
-            │   ├── groups.lua ....... 21.5 KB [568行]   用户组管理面板
-            │   ├── bans.lua ......... 16.0 KB [359行]   封禁记录面板
-            │   ├── items.lua ........ 16.3 KB [431行]  ⭐  道具生成面板（分类+搜索+快捷）
-            │   ├── maps.lua ......... 7.4 KB  [191行]   地图投票配置面板
-            │   ├── xgui_core.lua .... 3.8 KB  [112行]  ⭐  XGUI 核心（concommand注册/信息栏）
-            │   └── settings.lua ..... 1.0 KB  [ 32行]   设置入口
+        └── xgui/ .................................. 5,756行
+            ├── root (8)
+            │   ├── commands.lua .....  397行   命令浏览/执行面板
+            │   ├── groups.lua .......  545行   用户组管理面板
+            │   ├── bans.lua .........  351行   封禁记录面板
+            │   ├── items.lua ........  389行  ⭐ 道具生成面板（分类+搜索+快捷）
+            │   ├── maps.lua .........  186行   地图投票配置面板
+            │   ├── ai_bot.lua .......  145行   机器人管理面板
+            │   ├── xgui_core.lua ....   97行  ⭐ XGUI 核心（concommand注册/信息栏）
+            │   └── settings.lua .....   29行   设置入口
             ├── framework/
-            │   ├── init.lua ......... 7.0 KB  [190行]  ⭐⭐  XGUI 框架初始化（窗口系统/主题/皮肤）
-            │   └── layout.lua ....... 3.3 KB  [101行]   统一布局引擎（多标签页管理）
+            │   ├── init.lua .........  163行  ⭐⭐ XGUI 框架初始化（窗口系统/主题/皮肤）
+            │   ├── layout.lua .......   65行   统一布局引擎（多标签页管理）
+            │   ├── theme.lua ........   35行   主题
+            │   └── modern_layout.lua    17行   现代化布局扩展
             ├── gamemodes/
-            │   └── sandbox.lua ...... 5.1 KB  [ 72行]   沙盒模式限制配置
-            ├── server/ (6)
-            │   ├── sv_items.lua ..... 34.4 KB [830行]  ⭐⭐⭐ 智能道具生成（碰撞检测/挂墙/撤回/自适应）
-            │   ├── sv_settings.lua .. 11.7 KB [330行]  ⭐⭐  服务器设置（MOTD模板/封禁消息/系统配置）
-            │   ├── sv_groups.lua .... 11.7 KB [321行]  ⭐⭐  用户组服务端（权限继承/保存/同步）
-            │   ├── sv_bans.lua ...... 9.3 KB  [254行]  ⭐   封禁服务端（查询/解封/同步）
-            │   ├── sv_sandbox.lua ... 1.7 KB  [ 47行]   沙盒限制服务端
-            │   └── sv_maps.lua ...... 660 B   [ 18行]   地图列表服务端
+            │   └── sandbox.lua ......   62行   沙盒模式限制配置
+            ├── server/ (8)
+            │   ├── sv_items.lua .....  746行  ⭐⭐⭐ 智能道具生成（碰撞检测/挂墙/撤回/自适应）
+            │   ├── sv_settings.lua ..  323行  ⭐⭐  服务器设置（MOTD模板/封禁消息/系统配置）
+            │   ├── sv_groups.lua ....  288行  ⭐⭐  用户组服务端（权限继承/保存/同步）
+            │   ├── sv_bans.lua ......  230行  ⭐   封禁服务端（查询/解封/同步）
+            │   ├── sv_import.lua ....  218行       导入服务端
+            │   ├── sv_ai_bot.lua ....   65行       机器人服务端
+            │   ├── sv_sandbox.lua ...   42行       沙盒限制服务端
+            │   └── sv_maps.lua ......   16行       地图列表服务端
             └── settings/
-                ├── server.lua ....... 59.8 KB [1,142行] ⭐⭐⭐ 服务器设置面板（MOTD编辑/游戏模式/地图/沙盒限制）
-                └── client.lua ....... 14.8 KB [265行]  ⭐   客户端设置面板（语言/皮肤/界面选项）
+                ├── server.lua ....... 1089行  ⭐⭐⭐ 服务器设置面板（MOTD编辑/游戏模式/地图/沙盒限制）
+                └── client.lua .......  258行  ⭐   客户端设置面板（语言/皮肤/界面选项）
 ```
 
 ---
@@ -400,30 +415,32 @@ addons/Ultra ULX/                          [~1.07 MB / ~26,100 行]
 
 | 文件 | 行数 | 大小 | 分类 | 功能 |
 |:---:|:---:|:---:|:---:|:---|
-| `community.lua` | 785 | 28.0 KB | 模块 | 30+ 命令 (rocket/color/halo/ESP/banip/bot...) |
-| `bhop.lua` | 216 | 8.2 KB | 模块 | CS:S 自动连跳 (跑260/跳300/重力0.6) |
-| `crouchjump.lua` | 145 | 5.8 KB | 模块 | 蹲跳增强 (倍率+解锁+蹲走加速) |
-| `coord.lua` | 153 | 6.0 KB | 模块 | 坐标 HUD + 头顶坐标 (4 模式) |
-| `items/*` (9 文件) | 175 | 9.6 KB | 道具 | 道具注册表 API + 8 分类 |
-| `client.lua` (settings) | 265 | 14.8 KB | XGUI | 客户端设置 (语言/皮肤) |
-| `layout.lua` | 101 | 3.3 KB | XGUI | 统一布局引擎 |
-| `zh-cn.lua` | **1,180** | 51.4 KB | 语言 | 简体中文 100% |
-| `lzh.lua` | **1,147** | 43.0 KB | 语言 | 文言文 100% |
-| `ru.lua` | **1,246** | 65.5 KB | 语言 | Русский 100% |
-| `language.lua` | 109 | 2.9 KB | 共享 | 多语言框架 |
-| `rngfix/` (2 文件) | 58 | 1.1 KB | RNG | 斜坡修正独立包 |
+| `community.lua` | 758 | 29.0 KB | 模块 | 30+ 命令 (rocket/color/halo/ESP/banip/bot...) |
+| `bhop.lua` | 344 | 11.9 KB | 模块 | 参考服手感自动连跳 (JumpPower290/aa2000) |
+| `admin_ext.lua` | 234 | 11.5 KB | 模块 | 限时禁言/警告分级/维护模式 |
+| `crouchjump.lua` | 157 | 5.4 KB | 模块 | 蹲跳增强 (倍率+解锁+蹲走加速) |
+| `coord.lua` | 168 | 6.4 KB | 模块 | 坐标 HUD + 头顶坐标 (4 模式) |
+| `dev_debug.lua` | 154 | 5.5 KB | 模块 | 开发诊断 |
+| `items/*` (9 文件) | 267 | 10.9 KB | 道具 | 道具注册表 API + 8 分类 |
+| `settings/client.lua` | 258 | 16.5 KB | XGUI | 客户端设置 (语言/皮肤) |
+| `settings/server.lua` | 1089 | 55.8 KB | XGUI | 服务器设置面板 |
+| `layout.lua` | 65 | 2.5 KB | XGUI | 统一布局引擎 |
+| `zh-cn.lua` | **1,616** | 79.9 KB | 语言 | 简体中文 100% |
+| `lzh.lua` | **1,616** | 69.0 KB | 语言 | 文言文 100% |
+| `ru.lua` | **1,616** | 89.7 KB | 语言 | Русский 100% |
+| `language.lua` | 158 | 4.3 KB | 共享 | 多语言框架 |
+| `sh_rngfix.lua` | 18 | 0.5 KB | RNG | 斜坡修正独立包 |
 
 ### 显著增强
 
 | 文件 | 原版 | Ultra ULX | 增强内容 |
 |:---:|:---:|:---:|:---|
-| `sv_items.lua` | ~200行 | **830行** | 智能生成+碰撞自适应+挂墙+撤回 |
-| `ucl.lua` | ~1,300行 | **1,307行** | 备份30+恢复+DB管理+二次检测 |
-| `data.lua` | ~300行 | **467行** | 中文化模板+详细注释+独立数据目录 |
-| `fun.lua` | ~800行 | **918行** | unigniteall+playsound+sslay |
-| `en.lua` | ~900行 | **1,222行** | +322 翻译键 + 文言文新增键同步 |
-| `defines.lua` | ~400行 | **377行** | 7色主题(加深40%)+版号格式 |
-| `menus.lua` | ~100行 | **133行** | json+txt+gamemode三路扫描,无缓存 |
+| `sv_items.lua` | ~200行 | **746行** | 智能生成+碰撞自适应+挂墙+撤回 |
+| `ucl.lua` | ~1,300行 | **1029行** | 备份30+恢复+DB管理+二次检测 |
+| `data.lua` | ~300行 | **507行** | 中文化模板+详细注释+独立数据目录 |
+| `fun.lua` | ~800行 | **1044行** | unigniteall+playsound+sslay |
+| `en.lua` | ~900行 | **1,616行** | +700 翻译键 + 新增键同步 |
+| `menus.lua` | ~100行 | **135行** | json+txt+gamemode三路扫描,无缓存 |
 
 ### 删除/合并
 
@@ -434,7 +451,7 @@ addons/Ultra ULX/                          [~1.07 MB / ~26,100 行]
 | 合并 | `!undisguise` | → `!disguise` setOpposite |
 | 合并 | `!undeafen` | → `!deafen` setOpposite |
 | 合并 | `!unsilence` | → `!silence` setOpposite |
-| 删除 | RNG-Fix 大段逻辑 | 精简为独立 `rngfix` 包（58行） |
+| 删除 | RNG-Fix 大段逻辑 | 精简为独立 `rngfix` 包（18行） |
 | 删除 | moveCmds 48px 滑块 | 改用原版 `x_getcontrol` 35px |
 | 删除 | makeStyledButton | 改用标准 `xlib.makebutton` |
 | 删除 | MOTD 缓存 | `populateMotdData` 每次实时 |
@@ -448,23 +465,24 @@ addons/Ultra ULX/                          [~1.07 MB / ~26,100 行]
 > **优先级：[P2] 开发者/调试用**
 
 ```
-Layer 0: autorun/init_ulx.lua (6行)
+Layer 0: autorun/init_ulx.lua (5行)
          → SERVER: include("ulx/init.lua")
          → CLIENT: include("ulx/cl_init.lua")
-Layer 1: ULib 共享库 (15 文件)
+Layer 1: ULib 兼容层 (ulib/* 垫片)
+         → 所有 ulib 路径请求重定向到 ulx/init.lua 合并实现
+Layer 2: ULX 共享库 (15 文件)
          → defines → misc → util → hook → tables → player → messages
          → commands → sh_ucl → plugin → cami_global → cami_ulib → language
-Layer 2: ULX 服务端 (13 文件)
+Layer 3: ULX 服务端 (13 文件)
          → player → bans → concommand → srv_util → ucl → phys
          → player_ext → entity_ext → data → ulx_lib
          → ulx_command → ulx_base → log → end
-Layer 3: 模块 (23 文件)
-         → sh: 14 模块 | cl: 5 模块 | sv: 4 模块
-Layer 4: 道具注册 (9 文件)
-         → init + 8 分类注册表
-Layer 5: XGUI (18 文件)
-         → root 7 + framework 2 + gamemodes 1 + server 6 + settings 2
-Layer 6: 语言 (4 文件)
+Layer 4: 模块 (25 文件)
+         → sh: 16 模块 | cl: 5 模块 | sv: 4 模块
+Layer 5: 道具注册 (9 文件)
+         → init + auto_discover + 7 分类注册表
+Layer 6: XGUI (23 文件) + 语言 (4 文件)
+         → root 8 + framework 4 + gamemodes 1 + server 8 + settings 2
          → zh-cn | en | ru | lzh
 ```
 
@@ -537,42 +555,50 @@ Layer 6: 语言 (4 文件)
 
 ## 模块手册
 
-### 共享模块 (14 个)
+### 共享模块 (16 个)
 
 | 模块 | 行数 | 命令 | 核心功能 |
 |:---:|:---:|:---:|:---|
-| community | 785 | 30+ | rocket/color/halo/trail/ESP/deafen/silence/banip/bot/warn/disguise |
-| fun | 918 | 25 | slap/whip/slay/ignite/freeze/god/cloak/blind/jail/ragdoll/maul |
-| util | 445 | 9 | kick/ban/unban/noclip/spectate/map/who/version |
-| vote | 382 | 9 | vote/votemap2/votekick/voteban/stopvote/veto |
-| teleport | 314 | 6 | bring(螺旋网格)/goto(碰撞检测)/send/tpto/teleport/return |
-| user | 307 | 16 | adduser/removeuser/groupallow/renamegroup |
-| chat | 273 | 9 | psay/asay/tsay/csay/thetime/gimp/mute/gag+广告 |
-| extras | 209 | 6 | cleanup/respawn/scale/gravity+防落地抖动 |
-| bhop | 216 | 1 | CS:S自动连跳(跑260/跳300/重力0.6) |
-| coord | 153 | 2 | coordhud 屏幕上方 + coord 头顶(4模式) |
-| crouchjump | 145 | 1 | 倍率(1~10x)+蹲姿解锁+蹲走加速 |
-| menus | 133 | 1 | MOTD(三路扫描,无缓存) |
-| rcon | 101 | 5 | rcon/luarun/exec/cexec/ent |
-| userhelp | 66 | 1 | 用户管理帮助 |
+| fun | 1044 | 25 | slap/whip/slay/ignite/freeze/god/cloak/blind/jail/ragdoll/maul |
+| community | 758 | 30+ | rocket/color/halo/trail/ESP/deafen/silence/banip/bot/warn/disguise |
+| util | 446 | 9 | kick/ban/unban/noclip/spectate/map/who/version |
+| vote | 397 | 9 | vote/votemap2/votekick/voteban/stopvote/veto |
+| bhop | 344 | 1 | 参考服手感连跳(能量守恒坡补+groundTicks反卡) |
+| teleport | 327 | 6 | bring(螺旋网格)/goto(碰撞检测)/send/tpto/teleport/return |
+| user | 313 | 16 | adduser/removeuser/groupallow/renamegroup |
+| chat | 293 | 9 | psay/asay/tsay/csay/thetime/gimp/mute/gag+广告 |
+| admin_ext | 234 | 6 | 限时禁言/警告分级/维护模式/endmaintenance |
+| extras | 198 | 6 | cleanup/respawn/scale/gravity+防落地抖动 |
+| coord | 168 | 2 | coordhud 屏幕上方 + coord 头顶(4模式) |
+| crouchjump | 157 | 1 | 倍率(1~10x)+蹲姿解锁+蹲走加速 |
+| dev_debug | 154 | 1 | 开发诊断 |
+| menus | 135 | 1 | MOTD(三路扫描,无缓存) |
+| rcon | 104 | 5 | rcon/luarun/exec/cexec/ent |
+| userhelp | 65 | 1 | 用户管理帮助 |
 
-### BHOP 参数 (CS:S 标准)
+### BHOP 参数（参考服手感，v2.98.52 实测配方）
+
+> 配方来源：热门 bhop 服 "BunnyHop 兔子跳 - 1服 [128Tick]" A2S 实测
 
 | 参数 | 值 | 说明 |
 |:---:|:---:|:---|
-| sv_airaccelerate | 1000 | 空中加速度 |
-| sv_enablebunnyhopping | 1 | 引擎连跳 |
-| sv_staminamax | 0 | 关体力 |
-| sv_maxvelocity | 3,500 | 速限 |
-| sv_accelerate | 10 | 地面加速 |
-| sv_friction | 4 | 摩擦 |
-| sv_stopspeed | 75 | 停止速度 |
-| 跑速/走速 | 260/260 | 统一 |
-| 跳跃力 | 300 | CS:S 标准 |
-| 重力 | 0.6 | 更低=更高跳 |
-| 步幅 | 18 | 标准 |
+| JumpPower (玩家跳力) | **290** | 参考服一致 |
+| 走/跑速 | **250 / 250** | 统一 |
+| 重力倍率 (玩家) | **1** | 不接管全局 |
+| 步幅 | **18** | 参考服一致 |
+| sv_airaccelerate | **2000** | 空气加速（专业 bhop 服级） |
+| sv_maxspeed | **10000** | 空中期望速度上限（不影响走速） |
+| sv_accelerate | **5** | 地面加速 |
+| sv_friction | **4** | 摩擦 |
+| sv_stopspeed | **75** | 停止速度 |
+| sv_gravity | **800** | 全局重力（可设 0 不接管） |
 
-> 开 `!bhop` 保存原始物理并覆盖；关 `!unbhop` 恢复。SetupMove 每帧保活。
+- 开 `!bhop` 保存原始物理并应用；关 `!unbhop` 恢复；断开连接自动恢复，零残留
+- 7 个全局 cvar 引用计数管理：任一玩家开启即生效，全部关闭恢复原值
+- **坡度补偿**：落地瞬间 TraceHull 探坡 + ClipVelocity 能量守恒投影（无任意倍率，高速不突跳）
+- **反卡机制**：贴地 >15 tick 未离地（上坡滑动）自动松一拍重建跳跃边沿
+- 客户端进图立即 + 3s 轮询状态同步，防 net 丢失
+- 管理员可调：`ulx_bhop_airaccelerate` / `ulx_bhop_maxspeed` / `ulx_bhop_gravity` 等 7 个 convar，设 0 = 不接管该项
 
 ### 蹲跳参数
 
@@ -669,7 +695,25 @@ ulx.item.Register("my_category", {
 })
 ```
 
-已有分类：weapons_hl2（14件）、weapons_css（12件）、weapons_admin（2件）、tools（3件）、ammo（7种）、props（8件）、seats（3件）、vehicles（2件）。
+已有分类：weapons_hl2（14件）、weapons_css（12件）、tools（3件）、ammo（7种）、props（8件）、seats（3件）、vehicles（2件）。
+
+---
+
+## 仓库文档索引
+
+> **本仓库所有 `.md` 文档均不参与发布包打包**——只存于仓库便于在线查阅，发布 zip 中仅含 `Ultra ULX/` 插件本体。
+
+| 文档 | 说明 |
+|:----|:-----|
+| [README.md](README.md) | 中文主文档（本页） |
+| [README.en.md](README.en.md) | English documentation |
+| [README.ru.md](README.ru.md) | Русская документация |
+| [CHANGELOG.md](CHANGELOG.md) | 完整更新日志 |
+| [DEVELOPMENT.md](DEVELOPMENT.md) | 开发指南（发布仓库结构说明） |
+| [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | 行为准则 |
+| [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md) | 贡献指南 |
+| [.github/SECURITY.md](.github/SECURITY.md) | 安全策略 |
+| [🌐 官方网站](https://ersan233-gif.github.io/Ultra-ULX/) | 三语言官网（GitHub Pages） |
 
 ---
 
@@ -679,9 +723,11 @@ ulx.item.Register("my_category", {
 
 本仓库是 **Ultra ULX 发布仓库**：根目录的 `Ultra ULX/` 文件夹即为可直接放入 `garrysmod/addons/` 的完整插件（已剥离开发注释，零依赖）。
 
+- **发布包内容**：仅 `addon.json` + `lua/`（123 个 Lua 文件，~27,000 行）——无文档、无脚本、无构建产物
+- **文档与插件分离**：README/CHANGELOG/官网等所有 `.md` 与 `site/` 只存于仓库，不进入 Release 打包
 - **开发源码**（含注释、开发文档、构建工具链）：[ultra-ulx-source](https://github.com/ersan233-GiF/ultra-ulx-source)
-- **发布流程**：开发完成 → 迭代版本号 → 构建发布包 → 推送本仓库 → 打 `v*` 标签自动创建 Release（见 `.github/workflows/release.yml`）
-- **当前版本**：v2.98.51
+- **发布流程**：开发完成 → 注释剥离 → 游戏内功能验证 → 推送本仓库 → 打 `v*` 标签自动创建 Release（见 `.github/workflows/release.yml`）
+- **当前版本**：v2.98.52（build 20260817）
 
 ---
 
@@ -708,7 +754,7 @@ ulx.item.Register("my_category", {
 
 ## 许可证
 
-本项目基于 [CC BY-NC-SA 3.0](LICENSE.md) 许可发布（非商业使用）。
+本项目基于 [CC BY-NC-SA 3.0](LICENSE) 许可发布（非商业使用）。
 
 - 原版 ULX / ULib 版权归 [Team Ulysses](https://github.com/TeamUlysses) 所有
 - Ultra ULX 在保留原版权声明的基础上进行增强与中文化
@@ -729,6 +775,17 @@ ulx.item.Register("my_category", {
 
 ## 更新日志
 
+### v2.98.52 (2026-08-17)
+
+- **发布**：全新发布包，迭代自 v2.98.51，已剥离开发注释并完成游戏内功能验证
+- **BHOP**：参考服手感移植——全局 7 项 convar 配方（sv_airaccelerate=2000 等，引用计数+可关）、JumpPower 290、ClipVelocity 能量守恒坡度补偿（废弃任意倍率）、groundTicks 上坡反卡、客户端 3s 状态同步
+- **修复**：`!endmaintenance` oppositeArgs 传参错误（原 `{false}` 为 falsy 导致反向开启维护）
+- **修复**：服务端日志模板漏 `#T/#P` 占位符导致原样输出
+- **修复**：`ulx return` 别名缺失参数/权限/帮助定义
+- **修复**：桥错误文件路径 `errors.jsonl` → `errors.json`（与 Dev Tools 实际写入一致）
+- **语言**：清理孤儿键，4 语言包对齐至 1,614 键（文件各 1,616 行）
+- **仓库**：文档与插件彻底分离——所有 `.md` 仅存仓库可在线查阅，不进入发布包
+
 ### v2.98.51 (2026-08-11)
 
 - **发布**：全新发布包，迭代自 v2.98.50，可直接放入 `addons/` 使用（已剥离开发注释）
@@ -736,7 +793,7 @@ ulx.item.Register("my_category", {
 - **清理**：移除 4 个无发送端的死网络接收器，减少无用 net 监听
 - **界面**：恢复 v2.72.0 经典 XGUI 布局与底部信息栏
 - **性能**：全模块热路径 local 缓存优化
-- **语言**：4 语言包对齐至 1626 键
+- **语言**：4 语言包对齐
 
 ### v2.70.0 (2026-06-20)
 

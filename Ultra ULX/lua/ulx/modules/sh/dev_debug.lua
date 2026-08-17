@@ -115,7 +115,7 @@ if SERVER then
 			local path = "ulx/language/" .. lang .. ".lua"
 			Msg("  " .. lang .. ".lua: " .. (file.Exists(path, "LUA") and "OK" or "MISSING") .. "\n")
 		end
-		local errorsFile = "ultra_ulx_dev_bridge/errors/errors.jsonl"
+		local errorsFile = "ultra_ulx_dev_bridge/errors/errors.json"
 		if file.Exists(errorsFile, "DATA") then
 			local content = file.Read(errorsFile, "DATA") or ""
 			local n = 0
@@ -128,7 +128,7 @@ if SERVER then
 		if ply:IsValid() and not ply:IsSuperAdmin() then return end
 		local limit = tonumber(args and args[1]) or 20
 		limit = math.Clamp(limit, 1, 200)
-		local errorsFile = "ultra_ulx_dev_bridge/errors/errors.jsonl"
+		local errorsFile = "ultra_ulx_dev_bridge/errors/errors.json"
 		if not file.Exists(errorsFile, "DATA") then
 			Msg("[Dev] 无错误记录 (Dev Tools 桥未启用或从未捕获错误). 启用: ultra_devui_enabled 1\n")
 			return

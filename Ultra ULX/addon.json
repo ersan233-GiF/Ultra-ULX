@@ -1,8 +1,8 @@
 {
 	"title"		:	"Ultra ULX",
 	"type"		:	"ServerContent",
-	"version"	:	"2.98.51",
-	"description"	:	"完全中文版 ULX 管理插件 - 50+ 新命令 - 道具系统 - BHOP - 智能生成 - 自动同步",
+	"version"	:	"2.98.52",
+	"description"	:	"Garry's Mod 服务端管理插件（ULX 增强分支）· 150+ 命令 · 4 语言 · SQLite 持久化 · 零侵入共存",
 	"author"	:	"Team Ulysses and Ultra ULX Contributors",
 	"tags"		:	[ "fun", "build", "admin", "util", "server", "translation" ],
 	"ignore"	:
@@ -25,6 +25,8 @@
 		"README.md",
 		"CHANGELOG.md",
 		"LICENSE.md",
+		"*.md",
+		"*.markdown",
 		"*.bak",
 		"*.tmp",
 		"*.pyc"

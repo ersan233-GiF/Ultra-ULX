@@ -318,6 +318,10 @@ end
 local retrn = ulx.command( CATEGORY_NAME, "ulx retrn", ulx.retrn, "!return" )
 retrn.opposite = nil
 local returnAlias = ulx.command( CATEGORY_NAME, "ulx return", ulx.retrn, nil )
+returnAlias.opposite = nil
+returnAlias:addParam{ type=ULib.cmds.PlayerArg, ULib.cmds.optional }
+returnAlias:defaultAccess( ULib.ACCESS_ADMIN )
+returnAlias:help( L.T("tele_retrn_help") )
 retrn:addParam{ type=ULib.cmds.PlayerArg, ULib.cmds.optional }
 retrn:defaultAccess( ULib.ACCESS_ADMIN )
 retrn:help( L.T("tele_retrn_help") )

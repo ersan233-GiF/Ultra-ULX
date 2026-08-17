@@ -231,4 +231,4 @@ local maintCmd = ulx.command(CAT, "ulx maintenance", ulx.maintenance, "!maintena
 maintCmd:addParam{type=ULib.cmds.BoolArg, invisible=true}
 maintCmd:defaultAccess(ULib.ACCESS_SUPERADMIN)
 maintCmd:help(L.T("help_maintenance"))
-maintCmd:setOpposite("ulx endmaintenance", {false}, "!endmaintenance")
+maintCmd:setOpposite("ulx endmaintenance", {_, true}, "!endmaintenance")

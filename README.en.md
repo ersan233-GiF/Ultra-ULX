@@ -61,7 +61,7 @@
 | **Voting system** | Players vote to change map / kick / ban; supports MapVote / GMVote |
 | **XGUI panel** | Full graphical admin interface (`!menu`) — no need to memorize commands |
 | **Multi-language** | 4 languages, switchable per client |
-| **BHOP** | CS:S-standard auto bunnyhop with slope compensation and SetupMove keep-alive |
+| **BHOP** | Reference-server auto bunnyhop: JumpPower 290 + sv_airaccelerate 2000 recipe, energy-conserving slope projection, groundTicks anti-stuck |
 | **Item spawning** | 9 categories, 70+ preset items, smart collision detection |
 | **Coordinate system** | Screen HUD + above-head coordinates, 4 visibility modes |
 | **Crouch-jump boost** | Adjustable jump multiplier + crouch speed + auto-unlock |
@@ -76,7 +76,7 @@
 ```
 1. Download the release → unzip → put the "Ultra ULX" folder into garrysmod/addons/
 2. Restart the server
-3. Success is confirmed when the console shows "Ultra ULX v2.98.51 loaded"
+3. Success is confirmed when the console shows "Ultra ULX v2.98.52 loaded"
 ```
 
 > **Directory check:** the final path must be `garrysmod/addons/Ultra ULX/lua/...` (do not nest an extra folder).
@@ -286,7 +286,7 @@ Or switch via `!menu` → Settings → Client → Language.
 | Modules | **23** (sh 14 + cl 5 + sv 4) |
 | Item categories | **9** |
 | ULib version | 2.72 |
-| Ultra ULX version | **v2.98.51** |
+| Ultra ULX version | **v2.98.52** |
 | ULX compatibility | 3.81 |
 
 ---
@@ -297,7 +297,7 @@ This repository is the **Ultra ULX release repository**: the `Ultra ULX/` folder
 
 - **Source code** (with comments, docs and build tooling): [ultra-ulx-source](https://github.com/ersan233-GiF/ultra-ulx-source)
 - **Release process**: develop → bump version → build release package → push here → tag `v*` to auto-create a Release (see `.github/workflows/release.yml`)
-- **Current version**: v2.98.51
+- **Current version**: v2.98.52
 
 ---
 

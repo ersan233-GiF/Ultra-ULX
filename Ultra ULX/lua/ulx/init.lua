@@ -48,7 +48,6 @@ local function safeInclude(dir, file)
 	if not ok then ErrorNoHalt("[ULX] Module load failed: " .. file .. " - " .. tostring(err) .. "\n") end
 end
 local disabledModules = {
-	["sh/bhop.lua"] = true,
 }
 local function moduleEnabled( dir, file )
 	return not disabledModules[ dir .. "/" .. file ]
