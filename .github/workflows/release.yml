@@ -19,6 +19,7 @@ jobs:
       - name: 打包 zip
         run: |
           zip -r "Ultra-ULX-${GITHUB_REF_NAME}.zip" "Ultra ULX"
+          cp "Ultra-ULX-${GITHUB_REF_NAME}.zip" "Ultra-ULX-latest.zip"
           ls -la
 
       - name: 创建 Release

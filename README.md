@@ -17,7 +17,7 @@
 <p align="center"><em>基于 <a href="https://github.com/TeamUlysses/ulx">Team Ulysses ULX v3.81</a> + <a href="https://github.com/TeamUlysses/ulib">ULib v2.72</a> 的增强分支 · 完全中文化 · 150+ 命令 · 4 种语言 · SQLite 持久化 · 零侵入共存</em></p>
 
 <p align="center">
-  <strong><a href="https://github.com/ersan233-GiF/Ultra-ULX/releases/latest">⬇️ 下载最新发布包</a></strong> ·
+  <strong><a href="https://github.com/ersan233-GiF/Ultra-ULX/releases/latest/download/Ultra-ULX-latest.zip">⬇️ 下载最新发布包</a></strong> ·
   <a href="https://ersan233-gif.github.io/Ultra-ULX/">🌐 官方网站</a> ·
   <a href="https://github.com/ersan233-GiF/Ultra-ULX/issues">提交 Issue</a> ·
   <a href="docs/CHANGELOG.md">查看变更日志</a> ·
@@ -105,7 +105,7 @@
 3. 控制台显示 Ultra ULX v2.98.52 启动完成信息即成功
 ```
 
-[⬇️ 下载最新发布包](https://github.com/ersan233-GiF/Ultra-ULX/releases)
+[⬇️ 下载最新发布包](https://github.com/ersan233-GiF/Ultra-ULX/releases/latest/download/Ultra-ULX-latest.zip)
 
 > **下载包即完整插件**：放入 `addons/` 重启即用，无需额外安装任何组件。
 

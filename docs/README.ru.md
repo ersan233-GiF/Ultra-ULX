@@ -1,7 +1,7 @@
 # Ultra ULX
 
-[![Последний релиз](https://img.shields.io/github/v/release/ersan233-GiF/Ultra-ULX?label=Релиз&color=blue)](https://github.com/ersan233-GiF/Ultra-ULX/releases/latest)
-[![Загрузки](https://img.shields.io/github/downloads/ersan233-GiF/Ultra-ULX/total?label=Загрузки&color=success)](https://github.com/ersan233-GiF/Ultra-ULX/releases)
+[![Последний релиз](https://img.shields.io/github/v/release/ersan233-GiF/Ultra-ULX?label=Релиз&color=blue)](https://github.com/ersan233-GiF/Ultra-ULX/releases/latest/download/Ultra-ULX-latest.zip)
+[![Загрузки](https://img.shields.io/github/downloads/ersan233-GiF/Ultra-ULX/total?label=Загрузки&color=success)](https://github.com/ersan233-GiF/Ultra-ULX/releases/latest/download/Ultra-ULX-latest.zip)
 [![Stars](https://img.shields.io/github/stars/ersan233-GiF/Ultra-ULX?style=social&label=Stars)](https://github.com/ersan233-GiF/Ultra-ULX)
 [![Лицензия](https://img.shields.io/badge/license-CC_BY--NC--SA_3.0-green)](LICENSE)
 [![ULX](https://img.shields.io/badge/ULX-3.81%20compatible-orange)](https://github.com/TeamUlysses/ulx)
@@ -14,7 +14,7 @@
 
 > Расширенный форк [Team Ulysses ULX v3.81](https://github.com/TeamUlysses/ulx) + [ULib v2.72](https://github.com/TeamUlysses/ulib) · Полная локализация · 150+ команд · 4 языка · SQLite-персистентность · Бесследное сосуществование
 
-**[⬇️ Скачать последний релиз](https://github.com/ersan233-GiF/Ultra-ULX/releases/latest)** · **[🌐 Официальный сайт](https://ersan233-gif.github.io/Ultra-ULX/)** · **[Сообщить об ошибке](https://github.com/ersan233-GiF/Ultra-ULX/issues)** · **[Журнал изменений](CHANGELOG.md)** · **[Исходный репозиторий](https://github.com/ersan233-GiF/ultra-ulx-source)**
+**[⬇️ Скачать последний релиз](https://github.com/ersan233-GiF/Ultra-ULX/releases/latest/download/Ultra-ULX-latest.zip)** · **[🌐 Официальный сайт](https://ersan233-gif.github.io/Ultra-ULX/)** · **[Сообщить об ошибке](https://github.com/ersan233-GiF/Ultra-ULX/issues)** · **[Журнал изменений](CHANGELOG.md)** · **[Исходный репозиторий](https://github.com/ersan233-GiF/ultra-ulx-source)**
 
 ---
 
