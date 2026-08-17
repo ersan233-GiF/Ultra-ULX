@@ -98,7 +98,6 @@
 
 ## 快速安装
 
-> **优先级：[P0] 安装必读**
 
 ```
 1. 下载发布包 → 解压 → 将 Ultra ULX 文件夹放入 garrysmod/addons/
@@ -108,11 +107,10 @@
 
 [⬇️ 下载最新发布包](https://github.com/ersan233-GiF/Ultra-ULX/releases)
 
-> **发布包零冗余**：包内仅含 `addon.json` + `lua/`（已剥离开发注释），无任何开发文档与构建脚本——放入 `addons/` 即用。
+> **下载包即完整插件**：放入 `addons/` 重启即用，无需额外安装任何组件。
 
 ## 命令使用
 
-> **优先级：[P0] 入门必读**
 
 | 方式 | 示例 | 说明 |
 |:----|:-----|:-----|
@@ -124,7 +122,6 @@
 
 ## 首次开服设置
 
-> **优先级：[P0] 开服必读 — 请按顺序操作**
 
 ### 第一步：获取你的 SteamID
 
@@ -220,7 +217,6 @@ ulx removeuser 玩家名                          ← 按名称移除
 
 ## 卸载
 
-> **优先级：[P0] 如需卸载**
 
 ```
 1. 删除 addons/Ultra ULX/ 整个文件夹
@@ -244,7 +240,6 @@ ulx removeuser 玩家名                          ← 按名称移除
 
 ## 多语言切换
 
-> **优先级：[P1] 可选配置**
 
 客户端控制台执行:
 
@@ -261,7 +256,6 @@ ulx removeuser 玩家名                          ← 按名称移除
 
 ## 常见问题 (FAQ)
 
-> **优先级：[P1] 遇到问题时查阅**
 
 | 问题 | 解决 |
 |:----|:-----|
@@ -278,13 +272,12 @@ ulx removeuser 玩家名                          ← 按名称移除
 
 ## 总览
 
-> 以下数据取自 **v2.98.52 发布包实况**（剥离开发注释后的成品）：
+> 以下数据取自 **v2.98.52 发布包实况**：
 
 | 指标 | 数值 |
 |:---:|:---:|
 | 发布包 Lua 文件数 | **123 个** |
-| 发布包总行数 (剥离注释) | **~27,000 行** |
-| 开发仓库总行数 (含注释) | **~29,900 行** |
+| 发布包 Lua 总行数 | **~27,000 行** |
 | 发布包大小 (lua) | **~1,067 KB** |
 | 语言包 | **4 种**（各 1,616 行） |
 | 运行时命令数 | **128 条**（11 分类，含别名/反向 ~150 条） |
@@ -298,7 +291,7 @@ ulx removeuser 玩家名                          ← 按名称移除
 
 ## 完整文件树
 
-> 数据取自 v2.98.52 发布包（剥离注释后的行数）
+> 以下为 v2.98.52 发布包实际行数
 
 ```
 addons/Ultra ULX/                          [~1,067 KB / 123 文件]
@@ -369,7 +362,7 @@ addons/Ultra ULX/                          [~1,067 KB / 123 文件]
         │   │   ├── extras.lua .....  198行  ⭐   辅助命令（cleanup/respawn/setmodel/setteam/giveweapon/scale/gravity）
         │   │   ├── coord.lua ......  168行  ⭐   坐标系统（coordhud屏幕上方+coord头顶4模式/0.5s刷新）
         │   │   ├── crouchjump.lua .  157行  ⭐   蹲跳增强（倍率1~10x/蹲姿解锁/蹲走加速）
-        │   │   ├── dev_debug.lua ..  154行       开发诊断（版本/语言检查/错误列表）
+        │   │   ├── dev_debug.lua ..  154行       系统诊断（版本/语言检查/错误列表）
         │   │   ├── menus.lua ......  135行  ⭐   MOTD菜单（json+txt+gamemode三路扫描/无缓存）
         │   │   ├── rcon.lua .......  104行  ⭐   远程控制（rcon/luarun/exec/cexec/ent）
         │   │   └── userhelp.lua ...   65行       用户帮助面板
@@ -490,7 +483,6 @@ addons/Ultra ULX/                          [~1,067 KB / 123 文件]
 
 ### 6 层加载顺序
 
-> **优先级：[P2] 开发者/调试用**
 
 ```
 Layer 0: autorun/init_ulx.lua (5行)
@@ -531,7 +523,6 @@ Layer 6: XGUI (23 文件) + 语言 (4 文件)
 
 ## 命令参考
 
-> **优先级：[P1] 日常管理**
 
 ### 完整索引（按分类）
 
@@ -599,7 +590,7 @@ Layer 6: XGUI (23 文件) + 语言 (4 文件)
 | extras | 198 | 6 | cleanup/respawn/scale/gravity+防落地抖动 |
 | coord | 168 | 2 | coordhud 屏幕上方 + coord 头顶(4模式) |
 | crouchjump | 157 | 1 | 倍率(1~10x)+蹲姿解锁+蹲走加速 |
-| dev_debug | 154 | 1 | 开发诊断 |
+| dev_debug | 154 | 1 | 系统诊断 |
 | menus | 135 | 1 | MOTD(三路扫描,无缓存) |
 | rcon | 104 | 5 | rcon/luarun/exec/cexec/ent |
 | userhelp | 65 | 1 | 用户管理帮助 |
@@ -652,7 +643,6 @@ Layer 6: XGUI (23 文件) + 语言 (4 文件)
 
 ## 配置系统
 
-> **优先级：[P1] 服务器配置**
 
 ```
 data/ultra_ulx/                        ← Ultra ULX 独立目录（不干扰原版）
@@ -693,7 +683,6 @@ ULib.COLOR_HIGHLIGHT = Color(255, 180,   0 )  高亮（金色）
 
 ## 关键机制
 
-> **优先级：[P2] 开发者/调试用**
 
 | 机制 | 实现 | 重要性 |
 |:---|:---|:---:|
@@ -709,7 +698,6 @@ ULib.COLOR_HIGHLIGHT = Color(255, 180,   0 )  高亮（金色）
 
 ## 道具 API
 
-> **优先级：[P2] 开发者/扩展用**
 
 可通过 `items/init.lua` 中的注册表 API 扩展新的道具分类：
 
@@ -729,7 +717,7 @@ ulx.item.Register("my_category", {
 
 ## 仓库文档索引
 
-> **本仓库所有 `.md` 文档均不参与发布包打包**——只存于仓库便于在线查阅，发布 zip 中仅含 `Ultra ULX/` 插件本体。
+> 下载包仅包含插件本体；以下文档供在线查阅，不随下载包分发。
 
 | 文档 | 说明 |
 |:----|:-----|
@@ -737,8 +725,6 @@ ulx.item.Register("my_category", {
 | [README.en.md](docs/README.en.md) | English documentation |
 | [README.ru.md](docs/README.ru.md) | Русская документация |
 | [CHANGELOG.md](docs/CHANGELOG.md) | 完整更新日志 |
-| [DEVELOPMENT.md](docs/DEVELOPMENT.md) | 开发指南（发布仓库结构说明） |
-| [CODE_OF_CONDUCT.md](docs/CODE_OF_CONDUCT.md) | 行为准则 |
 | [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md) | 贡献指南 |
 | [.github/SECURITY.md](.github/SECURITY.md) | 安全策略 |
 | [🌐 官方网站](https://ersan233-gif.github.io/Ultra-ULX/) | 三语言官网（GitHub Pages） |
@@ -747,31 +733,28 @@ ulx.item.Register("my_category", {
 
 ## 发布说明
 
-> **优先级：[P1] 发布者使用**
 
-本仓库是 **Ultra ULX 发布仓库**：根目录的 `Ultra ULX/` 文件夹即为可直接放入 `garrysmod/addons/` 的完整插件（已剥离开发注释，零依赖）。
+本仓库是 **Ultra ULX 发布仓库**：根目录的 `Ultra ULX/` 文件夹即为可直接放入 `garrysmod/addons/` 的完整插件（开箱即用）。
 
-- **发布包内容**：仅 `addon.json` + `lua/`（123 个 Lua 文件，~27,000 行）——无文档、无脚本、无构建产物
+- **发布包内容**：`addon.json` + `lua/`（123 个 Lua 文件，~27,000 行）
 - **文档与插件分离**：README/CHANGELOG/官网等所有 `.md` 与 `site/` 只存于仓库，不进入 Release 打包
-- **开发源码**（含注释、开发文档、构建工具链）：[ultra-ulx-source](https://github.com/ersan233-GiF/ultra-ulx-source)
-- **发布流程**：开发完成 → 注释剥离 → 游戏内功能验证 → 推送本仓库 → 打 `v*` 标签自动创建 Release（见 `.github/workflows/release.yml`）
+- **项目源码仓库**：[ultra-ulx-source](https://github.com/ersan233-GiF/ultra-ulx-source)
+- **更新方式**：新版本发布后自动生成 Release 下载包
 - **当前版本**：v2.98.52（build 20260817）
 
 ---
 
 ## 开发与贡献
 
-> **优先级：[P2] 开发者**
 
 欢迎提交 PR 与 Issue！请先阅读 [贡献指南](.github/CONTRIBUTING.md)。
 
-> 本仓库为**发布仓库**，代码开发与构建工具链在 **[ultra-ulx-source](https://github.com/ersan233-GiF/ultra-ulx-source)** 进行。欢迎在该仓库提交 PR / Issue。
+> 源码与开发活动在 **[ultra-ulx-source](https://github.com/ersan233-GiF/ultra-ulx-source)** 仓库进行，欢迎提交 PR / Issue。
 
 ---
 
 ## 安全
 
-> **优先级：[P1] 服务器管理员**
 
 - 所有写入路径均经过消毒与转义（`sql.SQLStr`），防止 SQL 注入
 - `ulx url` 命令内置域名白名单，防止开放重定向
@@ -805,18 +788,18 @@ ulx.item.Register("my_category", {
 
 ### v2.98.52 (2026-08-17)
 
-- **发布**：全新发布包，迭代自 v2.98.51，已剥离开发注释并完成游戏内功能验证
+- **发布**：全新发布包，迭代自 v2.98.51，完成游戏内全功能验证
 - **BHOP**：参考服手感移植——全局 7 项 convar 配方（sv_airaccelerate=2000 等，引用计数+可关）、JumpPower 290、ClipVelocity 能量守恒坡度补偿（废弃任意倍率）、groundTicks 上坡反卡、客户端 3s 状态同步
 - **修复**：`!endmaintenance` oppositeArgs 传参错误（原 `{false}` 为 falsy 导致反向开启维护）
 - **修复**：服务端日志模板漏 `#T/#P` 占位符导致原样输出
 - **修复**：`ulx return` 别名缺失参数/权限/帮助定义
-- **修复**：桥错误文件路径 `errors.jsonl` → `errors.json`（与 Dev Tools 实际写入一致）
+- **修复**：错误记录文件路径更正（`errors.jsonl` → `errors.json`）
 - **语言**：清理孤儿键，4 语言包对齐至 1,614 键（文件各 1,616 行）
 - **仓库**：文档与插件彻底分离——所有 `.md` 仅存仓库可在线查阅，不进入发布包
 
 ### v2.98.51 (2026-08-11)
 
-- **发布**：全新发布包，迭代自 v2.98.50，可直接放入 `addons/` 使用（已剥离开发注释）
+- **发布**：全新发布包，迭代自 v2.98.50，可直接放入 `addons/` 使用
 - **修复**：XGUI 设置面板语法错误（`not` 替代 C 风格 `!`），消除级联报错
 - **清理**：移除 4 个无发送端的死网络接收器，减少无用 net 监听
 - **界面**：恢复 v2.72.0 经典 XGUI 布局与底部信息栏
@@ -830,7 +813,7 @@ ulx.item.Register("my_category", {
 - **新增语言键**: `tele_tp_help`、`tele_send_help`、`tele_tpto_help` 同步至 4 种语言
 - **移除冗余 net 消息**: community.lua 中的 `ulx_community_deafen/silence` net 消息已移除（NWBool 已自动同步）
 - **修复定时器负延迟**: sv_bans.lua 中已过期封禁立即执行解封，不再创建空定时器
-- **GLuaLS 兼容**: 添加 `---@diagnostic disable` 标记，消除 VS Code 中大量误报错误
+- **编辑器兼容**: 添加诊断屏蔽标记，消除大量误报错误
 - **修复运算符优先级**: sv_bans.lua `\255` 拼接括号修正
 - **修复 `mousecode` 拼写错误**: xlib.lua 中 `mousecode` → `mcode`
 

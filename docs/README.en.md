@@ -293,7 +293,7 @@ Or switch via `!menu` → Settings → Client → Language.
 | Metric | Value |
 |:---:|:---:|
 | Total lines (Lua, with comments) | **~31,400** |
-| Release lines (comments stripped) | **~25,650** |
+| Release Lua lines | **~27,000** |
 | Lua source size | **~1,120 KB** |
 | Lua files | **93** |
 | Languages | **4** (zh-cn / en / ru / lzh, ~1,600 keys each) |
@@ -308,7 +308,7 @@ Or switch via `!menu` → Settings → Client → Language.
 
 ## Release Notes
 
-This repository is the **Ultra ULX release repository**: the `Ultra ULX/` folder at the root is the complete, ready-to-use addon (development comments stripped, zero dependencies).
+This repository is the **Ultra ULX release repository**: the `Ultra ULX/` folder at the root is the complete, ready-to-use addon (ready to use, zero dependencies).
 
 - **Source code** (with comments, docs and build tooling): [ultra-ulx-source](https://github.com/ersan233-GiF/ultra-ulx-source)
 - **Release process**: develop → bump version → build release package → push here → tag `v*` to auto-create a Release (see `.github/workflows/release.yml`)
