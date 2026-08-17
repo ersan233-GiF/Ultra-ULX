@@ -10,7 +10,7 @@
   <a href="#%E5%91%BD%E4%BB%A4%E5%8F%82%E8%80%83"><img src="https://img.shields.io/badge/%E5%91%BD%E4%BB%A4-150%2B-success" alt="命令"></a>
 </p>
 
-# Ultra ULX
+<h1 align="center">Ultra ULX</h1>
 
 <p align="center">🌐 <strong>简体中文</strong> · <a href="docs/README.en.md">English</a> · <a href="docs/README.ru.md">Русский</a></p>
 
@@ -26,7 +26,7 @@
 
 ---
 
-## 目录
+<h2 align="center">目录</h2>
 
 <details open>
 <summary>🚀 快速开始</summary>
@@ -797,7 +797,7 @@ ulx.item.Register("my_category", {
 
 ---
 
-**[⬆ 返回顶部](#ultra-ulx)**
+**[⬆ 返回顶部](#)**
 
 ---
 
