@@ -16,6 +16,6 @@ __pycache__/
 # 开发环境（本仓库为发布仓库，不含开发文件）
 .codex/
 .vscode/
-docs/
+"Ultra ULX/docs/"
 scripts/
 tools/

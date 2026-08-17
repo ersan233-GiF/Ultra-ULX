@@ -20,19 +20,34 @@
 
 ## Table of Contents
 
+<details open>
+<summary>🚀 Quick Start</summary>
+
 - [About](#about)
 - [Key Features](#key-features)
 - [Installation](#installation)
 - [Command Usage](#command-usage)
 - [First-Time Server Setup](#first-time-server-setup)
+- [Uninstallation](#uninstallation)
+
+</details>
+<details>
+<summary>🧰 Daily Use</summary>
+
 - [Multi-Language Support](#multi-language)
 - [Coexistence with Vanilla ULX](#coexistence-with-vanilla-ulx)
-- [Uninstallation](#uninstallation)
 - [FAQ](#faq)
+
+</details>
+<details>
+<summary>📦 Release & Project</summary>
+
 - [Project Overview](#project-overview)
 - [Release Notes](#release-notes)
 - [License](#license)
 - [Credits](#credits)
+
+</details>
 
 ---
 
