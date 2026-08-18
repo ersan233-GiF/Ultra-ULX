@@ -84,6 +84,26 @@
   .stat .num{font-size:30px;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
   .stat .lbl{color:var(--muted);font-size:13px;margin-top:2px}
 
+  /* ── 仓库统计卡（动态） ── */
+  .stats-cards{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin-top:6px}
+  .stat-card{flex:1 1 400px;max-width:100%;min-width:0;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;text-align:left;color:var(--text);display:block;transition:transform .25s,border-color .25s,box-shadow .25s}
+  .stat-card:hover{transform:translateY(-3px);border-color:var(--accent);box-shadow:var(--shadow)}
+  .sc-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .sc-head svg{width:20px;height:20px;flex-shrink:0}
+  .sc-head .git{fill:#bf91f3}
+  .sc-title{font-weight:700;font-size:17px}
+  .sc-desc{color:var(--muted);font-size:13.5px;margin-bottom:14px}
+  .sc-meta{display:flex;align-items:center;gap:14px;font-size:13.5px;color:var(--muted);flex-wrap:wrap}
+  .sc-meta b{color:var(--text)}
+  .sc-dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex-shrink:0}
+  .sc-stars{color:var(--gold)}
+  .sc-upd{margin-left:auto;color:var(--dim);font-size:12px}
+  .sc-bars{display:flex;height:10px;border-radius:999px;overflow:hidden;background:var(--bg3);margin:4px 0 14px}
+  .sc-bars span{height:100%;display:block}
+  .sc-legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--muted)}
+  .sc-legend .item{display:inline-flex;align-items:center;gap:7px}
+  .sc-legend .pct{color:var(--dim);font-size:12px}
+
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px}
   .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;transition:transform .25s,border-color .25s,box-shadow .25s;position:relative;overflow:hidden}
   .card::before{content:"";position:absolute;inset:0 0 auto 0;height:2px;background:var(--grad);opacity:0;transition:opacity .3s}
@@ -266,10 +286,29 @@
 <section id="stats">
   <div class="container">
     <h2 class="reveal" data-i18n="stats.title">仓库统计</h2>
-    <p class="reveal" style="text-align:center">
-      <a href="https://github.com/ersan233-GiF/Ultra-ULX"><img alt="Repo Card" src="assets/stats-repo.svg"></a>
-      <a href="https://github.com/ersan233-GiF/Ultra-ULX"><img alt="Top Languages" src="assets/stats-langs.svg"></a>
-    </p>
+    <div class="stats-cards reveal" id="statsCards">
+      <a class="stat-card" href="https://github.com/ersan233-GiF/Ultra-ULX" target="_blank" rel="noopener">
+        <div class="sc-head">
+          <svg class="git" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+          <span class="sc-title">Ultra ULX</span>
+        </div>
+        <div class="sc-desc" data-i18n="stats.repoDesc">Garry's Mod 服务端管理插件 · ULX 增强分支 · 150+ 命令</div>
+        <div class="sc-meta">
+          <span class="sc-dot" style="background:#4f7cff"></span><span class="sc-lang">Lua</span>
+          <span class="sc-stars">★ <b id="scStars">…</b></span>
+          <span class="sc-forks">⑂ <b id="scForks">…</b></span>
+          <span class="sc-upd" id="scUpdated"></span>
+        </div>
+      </a>
+      <a class="stat-card" href="https://github.com/ersan233-GiF/Ultra-ULX" target="_blank" rel="noopener">
+        <div class="sc-head">
+          <svg viewBox="0 0 16 16" aria-hidden="true" style="fill:#40c980"><path d="M3 9h2v5H3zM7 5h2v9H7zM11 7h2v7h-2z"/></svg>
+          <span class="sc-title" data-i18n="stats.langs">语言分布</span>
+        </div>
+        <div class="sc-bars" id="langBars"></div>
+        <div class="sc-legend" id="langLegend"></div>
+      </a>
+    </div>
   </div>
 </section>
 
@@ -371,7 +410,7 @@ const I18N = {
     'hero.tagline':'基于 Team Ulysses ULX 的增强分支 · 完全中文化 · 150+ 命令 · 4 种语言 · SQLite 持久化 · 零侵入共存',
     'hero.download':'⬇️ 下载发布包','hero.repo':'📦 GitHub 仓库','hero.meta':'当前版本 v2.98.52 · 兼容 ULX 3.81 / ULib 2.72 · 点击命令可一键复制',
     'stat1':'+ 管理命令','stat2':'种语言','stat3':'个代码文件','stat4':'个功能模块','stat5':'份权限自动备份',
-    'features.title':'核心功能','stats.title':'仓库统计','features.sub':'从日常管理到娱乐互动，一站式覆盖',
+    'features.title':'核心功能','stats.title':'仓库统计','stats.repoDesc':'Garry\'s Mod 服务端管理插件 · ULX 增强分支 · 150+ 命令 · SQLite 持久化','stats.langs':'语言分布','stats.updated':'实时数据','stats.cache':'缓存数据','features.sub':'从日常管理到娱乐互动，一站式覆盖',
     'f1t':'权限管理','f1d':'多级用户组 + 细粒度权限 + SQLite 持久化 + 30 份自动备份 + 损坏恢复',
     'f2t':'惩罚系统','f2d':'分级警告（3次禁言 / 5次封禁）、限时禁言禁聊、IP 封禁持久化',
     'f3t':'管理工具','f3d':'封禁 / 踢出 / 传送 / 换图 / 清理 / 重置，覆盖日常运维',
@@ -420,7 +459,7 @@ const I18N = {
     'hero.tagline':'An enhanced fork of Team Ulysses ULX · Fully localized · 150+ commands · 4 languages · SQLite persistence · Zero-intrusion coexistence',
     'hero.download':'⬇️ Download release','hero.repo':'📦 GitHub repo','hero.meta':'v2.98.52 · ULX 3.81 / ULib 2.72 · Click any command to copy',
     'stat1':'admin commands','stat2':'languages','stat3':'code files','stat4':'modules','stat5':'auto backups',
-    'features.title':'Key Features','stats.title':'Repository Stats','features.sub':'From daily administration to fun — all in one',
+    'features.title':'Key Features','stats.title':'Repository Stats','stats.repoDesc':'Garry\'s Mod server admin addon · enhanced ULX fork · 150+ commands · SQLite','stats.langs':'Top Languages','stats.updated':'Live data','stats.cache':'cached','features.sub':'From daily administration to fun — all in one',
     'f1t':'Permission system','f1d':'Multi-level groups + fine-grained permissions + SQLite + 30 auto-backups + recovery',
     'f2t':'Punishment system','f2d':'Tiered warnings (3 → auto-gag, 5 → auto-ban), timed mute/gag, persistent IP bans',
     'f3t':'Admin tools','f3d':'Ban / kick / teleport / map / cleanup / reset — covers daily operations',
@@ -469,7 +508,7 @@ const I18N = {
     'hero.tagline':'Расширенный форк Team Ulysses ULX · Полная локализация · 150+ команд · 4 языка · SQLite · Бесследное сосуществование',
     'hero.download':'⬇️ Скачать релиз','hero.repo':'📦 GitHub','hero.meta':'v2.98.52 · ULX 3.81 / ULib 2.72 · Нажмите на команду, чтобы скопировать',
     'stat1':'команд админ.','stat2':'языка','stat3':'файлов кода','stat4':'модуля','stat5':'авто-бэкапов',
-    'features.title':'Основные возможности','stats.title':'Статистика репозитория','features.sub':'От администрирования до развлечений — всё в одном',
+    'features.title':'Основные возможности','stats.title':'Статистика репозитория','stats.repoDesc':'Админ-аддон Garry\'s Mod · расширенный форк ULX · 150+ команд · SQLite','stats.langs':'Языки проекта','stats.updated':'Живые данные','stats.cache':'кэш','features.sub':'От администрирования до развлечений — всё в одном',
     'f1t':'Система прав','f1d':'Многоуровневые группы + детальные права + SQLite + 30 автобэкапов + восстановление',
     'f2t':'Наказания','f2d':'Предупреждения (3 → авто-гаг, 5 → авто-бан), таймер-мут/гаг, персистентные IP-баны',
     'f3t':'Инструменты админа','f3d':'Бан / кик / телепорт / карта / очистка / сброс',
@@ -532,10 +571,68 @@ function setLang(lang){
   if (ph) ph.placeholder = dict[ph.dataset.i18nPh] || ph.placeholder;
   document.querySelectorAll('.lang-menu button').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
   document.querySelectorAll('.lang-btn-label').forEach(el => el.textContent = LANG_LABELS[lang]);
+  if (typeof renderStatsLabel === 'function') renderStatsLabel();
   localStorage.setItem('ulx-lang', lang);
 }
 const saved = localStorage.getItem('ulx-lang');
 setLang(['zh','en','ru'].includes(saved) ? saved : 'zh');
+
+// ── 仓库统计卡：GitHub API 动态数据（失败回退静态值） ──
+const STATS_FALLBACK = { stars: 2, forks: 0, langs: { Lua: 1092893, HTML: 54525 } };
+const LANG_COLORS = { Lua:'#4f7cff', HTML:'#e34c26', JavaScript:'#f1e05a', PowerShell:'#89e051', CSS:'#8b7bb8', Shell:'#89e051', Python:'#3572a5', TypeScript:'#3178c6' };
+var STATS_STATE = null;
+
+function renderStatsLabel(){
+  if (!STATS_STATE) return;
+  const dict = I18N[document.body.dataset.lang] || I18N.zh;
+  const el = document.getElementById('scUpdated');
+  if (el) el.textContent = STATS_STATE.fallback ? (dict['stats.cache'] || '') : (dict['stats.updated'] || '');
+}
+
+function renderStats(stars, forks, langs, fallback){
+  STATS_STATE = { stars, forks, langs, fallback };
+  document.getElementById('scStars').textContent = stars;
+  document.getElementById('scForks').textContent = forks;
+  const entries = Object.entries(langs).sort((a, b) => b[1] - a[1]);
+  const total = entries.reduce((s, e) => s + e[1], 0) || 1;
+  const bars = document.getElementById('langBars'); bars.innerHTML = '';
+  const legend = document.getElementById('langLegend'); legend.innerHTML = '';
+  entries.slice(0, 5).forEach(([name, bytes]) => {
+    const pct = bytes / total * 100;
+    const color = LANG_COLORS[name] || '#8b95a9';
+    const seg = document.createElement('span');
+    seg.style.width = pct.toFixed(2) + '%';
+    seg.style.background = color;
+    seg.title = name;
+    bars.appendChild(seg);
+    const item = document.createElement('span');
+    item.className = 'item';
+    item.innerHTML = '<span class="sc-dot" style="background:' + color + '"></span>' + name + ' <span class="pct">' + pct.toFixed(1) + '%</span>';
+    legend.appendChild(item);
+  });
+  renderStatsLabel();
+}
+
+async function loadRepoStats(){
+  const ghFetch = (url, ms) => {
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), ms || 8000);
+    return fetch(url, { signal: ctl.signal }).finally(() => clearTimeout(t));
+  };
+  try {
+    const [repoRes, langRes] = await Promise.all([
+      ghFetch('https://api.github.com/repos/ersan233-GiF/Ultra-ULX'),
+      ghFetch('https://api.github.com/repos/ersan233-GiF/Ultra-ULX/languages')
+    ]);
+    if (!repoRes.ok) throw new Error('repo ' + repoRes.status);
+    const repo = await repoRes.json();
+    const langs = langRes.ok ? await langRes.json() : null;
+    renderStats(repo.stargazers_count || 0, repo.forks_count || 0, (langs && Object.keys(langs).length) ? langs : STATS_FALLBACK.langs, false);
+  } catch (e) {
+    renderStats(STATS_FALLBACK.stars, STATS_FALLBACK.forks, STATS_FALLBACK.langs, true);
+  }
+}
+loadRepoStats();
 
 // ── 语言下拉开关 ──
 const dd = document.getElementById('langDropdown');
