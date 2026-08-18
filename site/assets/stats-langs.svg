@@ -1,0 +1,15 @@
+<svg width="495" height="140" viewBox="0 0 495 140" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Top Languages">
+  <rect width="495" height="140" rx="12" fill="#1a1b27"/>
+  <rect x="0.5" y="0.5" width="494" height="139" rx="11.5" fill="none" stroke="#24283b" stroke-width="1"/>
+  <text x="25" y="40" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="19" font-weight="700" fill="#ffffff">Top Languages</text>
+  <rect x="25" y="62" width="445" height="10" rx="5" fill="#e34c26"/>
+  <rect x="25" y="62" width="423" height="10" rx="5" fill="#4f7cff"/>
+  <g font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="13">
+    <circle cx="31" cy="104" r="5" fill="#4f7cff"/>
+    <text x="42" y="108" fill="#c8d3f5">Lua</text>
+    <text x="76" y="108" fill="#7aa2f7">95.2%</text>
+    <circle cx="140" cy="104" r="5" fill="#e34c26"/>
+    <text x="151" y="108" fill="#c8d3f5">HTML</text>
+    <text x="193" y="108" fill="#7aa2f7">4.8%</text>
+  </g>
+</svg>

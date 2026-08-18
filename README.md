@@ -304,8 +304,8 @@ ulx removeuser 玩家名                          ← 按名称移除
 | ULX 兼容版本 | 3.81 |
 
 <p align="center">
-  <a href="https://github.com/ersan233-GiF/Ultra-ULX"><img alt="Repo Card" src="https://github-readme-stats.vercel.app/api/pin/?username=ersan233-GiF&repo=Ultra-ULX&theme=tokyonight&hide_border=true"></a>
-  <a href="https://github.com/ersan233-GiF/Ultra-ULX"><img alt="Top Languages" src="https://github-readme-stats.vercel.app/api/top-langs/?username=ersan233-GiF&theme=tokyonight&hide_border=true&layout=compact"></a>
+  <a href="https://github.com/ersan233-GiF/Ultra-ULX"><img alt="Repo Card" src="site/assets/stats-repo.svg"></a>
+  <a href="https://github.com/ersan233-GiF/Ultra-ULX"><img alt="Top Languages" src="site/assets/stats-langs.svg"></a>
 </p>
 
 ---
