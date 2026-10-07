@@ -87,6 +87,15 @@ if SERVER then
 		return sid
 	end
 	local playerPhys = {}
+
+	-- 供 XGUI 面板查询某玩家当前 BHop 状态（见 xgui/server/sv_bhop.lua）
+	-- 返回：active(布尔), speedLimit(数字，0 表示不限速)
+	function ulx.bhopGetState( ply )
+		if not IsValid( ply ) then return false, 0 end
+		local limit = active[getPlayerKey( ply )]
+		if limit == nil then return false, 0 end
+		return true, limit
+	end
 	local function savePhysics(ply)
 		local sid = getPlayerKey(ply)
 		if playerPhys[sid] then return end
