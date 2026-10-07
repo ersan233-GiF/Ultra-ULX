@@ -1,0 +1,41 @@
+# Ultra ULX — 行尾与文本属性约定
+#
+# 与私有源库 ultra-ulx-source、开发配套 ultra-ulx-devkit 保持同一约定。
+#
+# 为什么需要：
+#   Garry's Mod 服务端与客户端跨平台加载 Lua，行尾不一致会导致
+#   同一文件在不同机器上产生"整文件重写"式假改动（内容未变、diff 却是全文件替换）。
+#   显式声明后索引侧统一为 LF，工作树按平台约定检出。
+#
+# 本仓库现有文件均为 LF（已核对），故本文件不触发任何行尾改动。
+
+* text=auto
+
+# Lua 源文件 —— GMod 跨平台加载，必须 LF
+*.lua text eol=lf
+
+# 文档与配置
+*.md text eol=lf
+*.txt text eol=lf
+*.json text eol=lf
+*.jsonc text eol=lf
+
+# Shell 脚本
+*.sh text eol=lf
+*.bash text eol=lf
+
+# YAML（CI 工作流）
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# PowerShell：Windows 原生 CRLF，交由平台约定
+*.ps1 text
+
+# 二进制资源不参与行尾转换
+*.png binary
+*.jpg binary
+*.gif binary
+*.zip binary
+*.exe binary
+*.dll binary
+*.luac binary
