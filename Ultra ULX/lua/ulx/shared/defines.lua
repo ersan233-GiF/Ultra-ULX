@@ -59,6 +59,7 @@ if SERVER then
 	util.AddNetworkString( "ulib_repWriteCvarBatch_Part" )
 	util.AddNetworkString( "ulib_repWriteCvarBatch_Complete" )
 	util.AddNetworkString( "ulib_repChangeCvar" )
+	util.AddNetworkString( "ulx_version_check" )
 end
 ulx.version = tonumber( ulx.BASE_ULX ) or 3.81
 ulx.release = false

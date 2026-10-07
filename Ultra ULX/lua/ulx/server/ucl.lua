@@ -981,6 +981,10 @@ local function clReady( ply )
 	if ply.ulib_ready then return end
 	ply.ulib_ready = true
 	hook.Call( ULib.HOOK_LOCALPLAYERREADY, _, ply )
+	-- 下发版本号供客户端比对，驱动客户端版本自动同步（见 ulx/modules/cl/version_sync.lua）
+	net.Start( "ulx_version_check" )
+	net.WriteString( ulx.VERSION or "0" )
+	net.Send( ply )
 end
 concommand.Add( "ulib_cl_ready", clReady )
 local function playerDisconnected( ply )
